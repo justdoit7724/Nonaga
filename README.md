@@ -3,7 +3,7 @@
 
 -deferred lighting  
 -normal mapping  
--dynamic cube mapping
+-dynamic cube mapping  
 -displacement mapping  
 -frustum culling  
 -shadow mapping  
