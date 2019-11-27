@@ -95,7 +95,7 @@ void Lobby::Update(float elapsed, float spf)
 	}
 }
 
-void Lobby::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) const
+void Lobby::Render(const XMMATRIX& vp, const Frustum* frustum, UINT sceneDepth) const
 {
 	canvas->Render(sceneDepth);
 }	

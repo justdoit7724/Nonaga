@@ -6,6 +6,7 @@
 class Token;
 class Tile;
 class PlaySpace;
+class Scene;
 class Object;
 
 #define NONE -1
@@ -35,10 +36,10 @@ private:
 class NonagaStage
 {
 public:
-	NonagaStage();
+	NonagaStage(Scene* environment);
 	~NonagaStage();
 
-	void Update(const Geometrics::Ray ray);
+	void Update(const Geometrics::Ray ray, const XMMATRIX& moveWorld);
 	void Objs(std::vector<Object*>& objOutput);
 
 	void Render(const XMMATRIX& vp, unsigned int sceneDepth)const;
@@ -49,7 +50,7 @@ private:
 	void TokenDragging();
 	void TileDragStart(const Geometrics::Ray ray);
 	void TileDragging();
-	bool GetCurID2(const Geometrics::Ray& ray, const Geometrics::PlaneInf& detectPlane);
+	bool GetCurID2(const Geometrics::Ray& ray, const XMMATRIX& moveRot);
 
 	
 	PlaySpace* playSpace[TILE_SPACE_COUNT_Z * TILE_SPACE_COUNT_X]{ nullptr };

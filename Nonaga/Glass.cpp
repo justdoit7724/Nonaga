@@ -124,45 +124,47 @@ Glass::~Glass()
 	}
 }
 
-void Glass::Render(const XMMATRIX& parentWorld, const XMMATRIX& vp, UINT sceneDepth) const
+void Glass::Render(const XMMATRIX& parentWorld, const XMMATRIX& vp, const Frustum* frustum, UINT sceneDepth) const
 {
-	XMMATRIX curWorld = transform->WorldMatrix()*parentWorld;
-
-	if (sceneDepth > 0)
-		return;
-
-	//debug modify binding system
-	ID3D11ShaderResourceView* const nullSRV = nullptr;
-	DX_DContext->PSSetShaderResources(0, 1, &nullSRV);
-
-	ID3D11RenderTargetView* oriRTV;
-	ID3D11DepthStencilView* oriDSV;
-	D3D11_VIEWPORT oriVP;
-	DX_DContext->OMGetRenderTargets(1, &oriRTV, &oriDSV);
-	UINT numVP = 1;
-	DX_DContext->RSGetViewports(&numVP, &oriVP);
-
-	for (int i = 0; i < 6; ++i)
+	if (frustum == nullptr || IsInsideFrustum(frustum))
 	{
-		captureCamera[i]->transform->SetTranslation(transform->GetPos());
-		captureCamera[i]->Update();
+		XMMATRIX curWorld = transform->WorldMatrix() * parentWorld;
 
-		DX_DContext->ClearRenderTargetView(captureRTV[i].Get(), Colors::Transparent);
-		DX_DContext->ClearDepthStencilView(captureDSV.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+		if (sceneDepth > 0)
+			return;
 
-		DX_DContext->OMSetRenderTargets(1, captureRTV[i].GetAddressOf(), captureDSV.Get());
-		DX_DContext->RSSetViewports(1, &captureViewport);
+		//debug modify binding system
+		ID3D11ShaderResourceView* const nullSRV = nullptr;
+		DX_DContext->PSSetShaderResources(0, 1, &nullSRV);
 
-		const XMMATRIX vp = captureCamera[i]->VMat() * captureCamera[i]->StdProjMat();
-		const Frustum& frustum = captureCamera[i]->GetFrustum();
-		captureScene->Render(vp, frustum, sceneDepth + 1);
+		ID3D11RenderTargetView* oriRTV;
+		ID3D11DepthStencilView* oriDSV;
+		D3D11_VIEWPORT oriVP;
+		DX_DContext->OMGetRenderTargets(1, &oriRTV, &oriDSV);
+		UINT numVP = 1;
+		DX_DContext->RSGetViewports(&numVP, &oriVP);
+
+		for (int i = 0; i < 6; ++i)
+		{
+			captureCamera[i]->transform->SetTranslation(transform->GetPos());
+			captureCamera[i]->Update();
+
+			DX_DContext->ClearRenderTargetView(captureRTV[i].Get(), Colors::Transparent);
+			DX_DContext->ClearDepthStencilView(captureDSV.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+			DX_DContext->OMSetRenderTargets(1, captureRTV[i].GetAddressOf(), captureDSV.Get());
+			DX_DContext->RSSetViewports(1, &captureViewport);
+
+			const XMMATRIX vp = captureCamera[i]->VMat() * captureCamera[i]->StdProjMat();
+			captureScene->Render(vp, captureCamera[i]->GetFrustum(), sceneDepth + 1);
+		}
+		DX_DContext->GenerateMips(captureSRV.Get());
+		DX_DContext->OMSetRenderTargets(1, &oriRTV, oriDSV);
+		DX_DContext->RSSetViewports(1, &oriVP);
+
+		vs->WriteCB(0, &SHADER_STD_TRANSF(curWorld, vp));
+		ps->WriteSRV(0, captureSRV.Get());
+
+		Object::Render();
 	}
-	DX_DContext->GenerateMips(captureSRV.Get());
-	DX_DContext->OMSetRenderTargets(1, &oriRTV, oriDSV);
-	DX_DContext->RSSetViewports(1, &oriVP);
-
-	vs->WriteCB(0, &SHADER_STD_TRANSF(curWorld, vp));
-	ps->WriteSRV(0, captureSRV.Get());
-
-	Object::Render();
 }

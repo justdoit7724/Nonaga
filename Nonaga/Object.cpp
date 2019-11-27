@@ -123,21 +123,26 @@ void Object::Render()const
 
 	shape->Apply();
 }
-void Object::Render(const XMMATRIX& parentWorld, const XMMATRIX& vp, UINT sceneDepth) const
+void Object::Render(const XMMATRIX& parentWorld, const XMMATRIX& vp, const Frustum* frustum, UINT sceneDepth) const
 {
-	XMMATRIX curWorld = transform->WorldMatrix()*parentWorld;
+	if (frustum == nullptr || IsInsideFrustum(frustum))
+	{
+		XMMATRIX curWorld = transform->WorldMatrix() * parentWorld;
 
-	for (auto child : children)
-		child->Render(curWorld,vp, sceneDepth);
+		for (auto child : children)
+		{
+			child->Render(curWorld, vp, frustum, sceneDepth);
+		}
 
-	if (!enabled || !show)
-		return;
+		if (!enabled || !show)
+			return;
 
-	const SHADER_STD_TRANSF STransformation(curWorld, vp);
+		const SHADER_STD_TRANSF STransformation(curWorld, vp);
 
-	vs->WriteCB(0, &STransformation);
+		vs->WriteCB(0, &STransformation);
 
-	Render();
+		Render();
+	}
 }
 
 void Object::RenderGeom() const
@@ -148,15 +153,15 @@ void Object::RenderGeom() const
 	shape->Apply();
 }
 
-bool Object::IsInsideFrustum(const Frustum& frustum) const
+bool Object::IsInsideFrustum(const Frustum* frustum) const
 {
 	return (
-		IntersectInPlaneSphere(frustum.front, bound) &&
-		IntersectInPlaneSphere(frustum.back, bound) &&
-		IntersectInPlaneSphere(frustum.right, bound) &&
-		IntersectInPlaneSphere(frustum.left, bound) &&
-		IntersectInPlaneSphere(frustum.top, bound) &&
-		IntersectInPlaneSphere(frustum.bottom, bound));
+		IntersectInPlaneSphere(frustum->front, bound) &&
+		IntersectInPlaneSphere(frustum->back, bound) &&
+		IntersectInPlaneSphere(frustum->right, bound) &&
+		IntersectInPlaneSphere(frustum->left, bound) &&
+		IntersectInPlaneSphere(frustum->top, bound) &&
+		IntersectInPlaneSphere(frustum->bottom, bound));
 }
 
 bool Object::IsPicking(const Geometrics::Ray ray) const

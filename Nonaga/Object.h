@@ -25,10 +25,9 @@ public:
 	~Object();
 
 	virtual void Update(const XMMATRIX& parentWorld);
-	virtual void Render(const XMMATRIX& parentWorld, const XMMATRIX& vp, UINT sceneDepth) const;
+	virtual void Render(const XMMATRIX& parentWorld, const XMMATRIX& vp, const Frustum* frustum, UINT sceneDepth) const;
 	virtual void RenderGeom() const;
 
-	virtual bool IsInsideFrustum(const Frustum& frustum) const;
 	virtual bool IsPicking(const Geometrics::Ray ray)const;
 	virtual void UpdateBound(const XMMATRIX& parentWorld);
 
@@ -59,6 +58,7 @@ public:
 protected:
 	Object();
 	void Render()const;
+	virtual bool IsInsideFrustum(const Frustum* frustum) const;
 
 	bool enabled = true;
 	bool show = true;

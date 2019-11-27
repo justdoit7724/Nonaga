@@ -21,16 +21,13 @@ void Scene::Update(float elapsed, float spf)
 	}
 }
 
-void Scene::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) const
+void Scene::Render(const XMMATRIX& vp, const Frustum* frustum, UINT sceneDepth) const
 {
 	XMMATRIX im = DirectX::XMMatrixIdentity();
 
 	for (auto obj : objs)
 	{
-		if (obj->IsInsideFrustum(frustum))
-		{
-			obj->Render(im, vp, sceneDepth);
-		}
+		obj->Render(im, vp, frustum,sceneDepth);
 	}
 }
 

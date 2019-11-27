@@ -191,7 +191,7 @@ void MeshLoader::LoadToken(Shape** storage)
 {
 	Assimp::Importer importer;
 
-	const aiScene* pScene = importer.ReadFile("Data\\Model\\Token\\TOKENf6.obj",
+	const aiScene* pScene = importer.ReadFile("Data\\Model\\Token\\TOKENf2.obj",
 		aiProcess_MakeLeftHanded |
 		aiProcess_FlipUVs |
 		aiProcess_FlipWindingOrder |

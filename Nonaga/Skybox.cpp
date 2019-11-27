@@ -21,7 +21,7 @@ Skybox::Skybox(ID3D11ShaderResourceView* srv)
 	vs->AddCB(0, 1, sizeof(SHADER_STD_TRANSF));
 	D3D11_SAMPLER_DESC sampDesc;
 	ZeroMemory(&sampDesc, sizeof(D3D11_SAMPLER_DESC));
-	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sampDesc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
 	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
 	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
 	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
@@ -52,9 +52,9 @@ void Skybox::Update(const XMMATRIX& prevWorld)
 }
 
 
-void Skybox::Render(const XMMATRIX& parentWorld, const XMMATRIX& vp, UINT sceneDepth) const
+void Skybox::Render(const XMMATRIX& parentWorld, const XMMATRIX& vp, const Frustum* frustum, UINT sceneDepth) const
 {
-	Object::Render(parentWorld, vp, sceneDepth);
+	Object::Render(parentWorld, vp,frustum, sceneDepth);
 }
 
 

@@ -23,7 +23,7 @@ Transformation needed after.
 #define TILE_SPACE_INTERVAL_X 10.0f
 #define TILE_SPACE_INTERVAL_Z 12.0f
 
-NonagaStage::NonagaStage()
+NonagaStage::NonagaStage(Scene* environment)
 {
 	curPlayState = PLAY_STATE_P1_TOKEN;
 
@@ -39,7 +39,7 @@ NonagaStage::NonagaStage()
 		0, 0, TILE_SPACE_INTERVAL_Z / 2.0f, 0,
 		-TILE_SPACE_INTERVAL_X * centerIDX, 0, -TILE_SPACE_INTERVAL_Z * centerIDZ / 2.0f, 1);
 
-	invTileSpaceMat = XMMatrixInverse(&XMMatrixDeterminant(tileSpaceMat), tileSpaceMat);
+	invTileSpaceMat = DirectX::XMMatrixInverse(&DirectX::XMMatrixDeterminant(tileSpaceMat), tileSpaceMat);
 
 	detectPlane = Geometrics::PlaneInf(XMFLOAT3(0, 0, 0), UP);
 
@@ -71,21 +71,18 @@ NonagaStage::NonagaStage()
 				// find out token places by tile index
 				if (tileObjIdx == 0|| tileObjIdx == 13|| tileObjIdx == 15)
 				{
-					Token* newToken = new Token(idx, true);
+					Token* newToken = new Token(environment, idx, true);
 					tokens.push_back(newToken);
 					playSpace[idx]->SetToken(newToken);
 					newToken->Move(idx,pos);
-					//debug
-					Debugging::Instance()->Visualize(newToken);
 				}
 				else if (tileObjIdx == 3|| tileObjIdx == 5|| tileObjIdx == 18)
 				{
-					Token* newToken = new Token(idx, false);
+					Token* newToken = new Token(environment, idx, false);
+
 					tokens.push_back(newToken);
 					playSpace[idx]->SetToken(newToken);
 					newToken->Move(idx, pos);
-					//debug
-					Debugging::Instance()->Visualize(newToken);
 				}
 				tileObjIdx++;
 			}
@@ -93,9 +90,13 @@ NonagaStage::NonagaStage()
 	}
 
 	redToken = new Token(true);
+	redToken->SetEnabled(false);
 	greenToken = new Token(false);
+	greenToken->SetEnabled(false);
 	redTile = new Tile(true);
+	redTile->SetEnabled(false);
 	greenTile = new Tile(false);
+	greenTile->SetEnabled(false);
 
 	isMove = false;
 	holdingTokenID = NONE;
@@ -119,10 +120,14 @@ NonagaStage::~NonagaStage()
 }
 
 
-bool NonagaStage::GetCurID2(const Geometrics::Ray& ray, const Geometrics::PlaneInf& detectPlane)
+bool NonagaStage::GetCurID2(const Geometrics::Ray& ray, const XMMATRIX& moveRot)
 {
+	detectPlane.n = MultiplyDir(UP, moveRot);
+
 	XMFLOAT3 curTokenPickPt;
 	Geometrics::IntersectRayPlaneInf(ray, detectPlane, &curTokenPickPt);
+	// inv rot matrix = transpose rot matrix
+	curTokenPickPt = MultiplyDir(curTokenPickPt, DirectX::XMMatrixTranspose(moveRot));
 
 	XMFLOAT3 mTokenPt = Multiply(curTokenPickPt, invTileSpaceMat);
 	mTokenPt += XMFLOAT3(0.5f, 0, 0.5f);
@@ -196,27 +201,21 @@ void NonagaStage::TileDragging()
 
 	if (isMove = logic->CanMoveTileTo(holdingTileID, pDetectID))
 	{
-		Debugging::Instance()->Draw("Move !!!", 10, 10);
 		greenTile->SetEnabled(true);
 		greenTile->Move(NONE, playSpace[pDetectID]->pos);
 	}
 	else
 	{
-		Debugging::Instance()->Draw("No ~~", 10, 10);
 		redTile->SetEnabled(true);
 		redTile->Move(NONE, playSpace[pDetectID]->pos);
 	}
 }
 
 
-void NonagaStage::Update(const Geometrics::Ray ray)
+void NonagaStage::Update(const Geometrics::Ray ray, const XMMATRIX& moveRot)
 {
-	if (!GetCurID2(ray, detectPlane))
+	if (!GetCurID2(ray, moveRot))
 		return;
-
-	//debug remove
-	TokenDragStart(ray);
-	Debugging::Instance()->Draw("Cur token id = ", holdingTokenID, 10, 10);
 
 	switch (curPlayState)
 	{
@@ -337,23 +336,26 @@ void NonagaStage::Update(const Geometrics::Ray ray)
 
 void NonagaStage::Objs(std::vector<Object*>& objOutput)
 {
+	//debug decomment
+	/*for (int i = 0; i < TOKEN_OBJ_COUNT_TOTAL; ++i)
+	{
+		objOutput.push_back(tokens[i]);
+	}
 	for (int i = 0; i < TILE_OBJ_COUNT; ++i)
 	{
 		objOutput.push_back(tiles[i]);
 	}
-	for (int i = 0; i < TOKEN_OBJ_COUNT_TOTAL; ++i)
-	{
-		objOutput.push_back(tokens[i]);
-	}
+	objOutput.push_back(redTile);
+	objOutput.push_back(greenTile);
+	objOutput.push_back(redToken);
+	objOutput.push_back(greenToken);*/
+
+	//debug remove
+	objOutput.push_back(tokens[0]);
 }
 
 void NonagaStage::Render(const XMMATRIX& vp, unsigned int sceneDepth)const
 {
-	XMMATRIX identity = XMMatrixIdentity();
-	redTile->Render(identity, vp, sceneDepth);
-	greenTile->Render(identity, vp, sceneDepth);
-	redToken->Render(identity, vp, sceneDepth);
-	greenToken->Render(identity, vp, sceneDepth);
 }
 
 

@@ -46,11 +46,17 @@ struct SHADER_STD_TRANSF
 	XMMATRIX n;
 
 	SHADER_STD_TRANSF(const XMMATRIX& vp)
-		:w(XMMatrixIdentity()), vp(vp),n(XMMatrixIdentity()){}
+		:vp(vp)
+	{
+		const XMMATRIX& mId = DirectX::XMMatrixIdentity();
+		w = mId;
+		n = mId;
+	}
 	SHADER_STD_TRANSF(const XMMATRIX& world, const XMMATRIX& vp)
 		:w(world), vp(vp)
 	{
-		n = XMMatrixTranspose(XMMatrixInverse(&XMMatrixDeterminant(world), world));
+		XMVECTOR det = DirectX::XMMatrixDeterminant(world);
+		n = DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(&DirectX::XMMatrixDeterminant(world), world));
 	}
 };
 struct SHADER_PT_TRANSF
@@ -73,7 +79,7 @@ struct SHADER_PT_TRANSF
 			0.5f,0.5f,0,1)), 
 		pLightP(pLightP)
 	{
-		n = XMMatrixTranspose(XMMatrixInverse(&XMMatrixDeterminant(world), world));
+		n = DirectX::XMMatrixTranspose(DirectX::XMMatrixInverse(&DirectX::XMMatrixDeterminant(world), world));
 	}
 };
 struct VS_Simple_Property

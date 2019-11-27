@@ -327,6 +327,7 @@ void SSAOMap::DrawAccess(const XMMATRIX& p, D3D11_VIEWPORT oriVP)
 	DX_DContext->Draw(4, 0);
 }
 
+
 void SSAOMap::BlurHorizon()
 {
 	DX_DContext->ClearRenderTargetView(blurRTV.Get(), defaultColor);

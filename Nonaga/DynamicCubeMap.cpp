@@ -123,11 +123,11 @@ DynamicCubeMap::~DynamicCubeMap()
 	}
 }
 
-void DynamicCubeMap::Render(const XMMATRIX& parentWorld, const XMMATRIX& vp, UINT sceneDepth) const
+void DynamicCubeMap::Render(const XMMATRIX& parentWorld, const XMMATRIX& vp, const Frustum* frustum, UINT sceneDepth) const
 {
 	XMMATRIX curWorld = transform->WorldMatrix()*parentWorld ;
 	for (auto c : children)
-		c->Render(curWorld, vp, sceneDepth);
+		c->Render(curWorld, vp, frustum, sceneDepth);
 
 	if (sceneDepth > 0)
 		return;
@@ -155,8 +155,7 @@ void DynamicCubeMap::Render(const XMMATRIX& parentWorld, const XMMATRIX& vp, UIN
 		DX_DContext->RSSetViewports(1, &captureViewport);
 
 		const XMMATRIX vp = captureCamera[i]->VMat() * captureCamera[i]->StdProjMat();
-		const Frustum& frustum = captureCamera[i]->GetFrustum();
-		captureScene->Render(vp, frustum, sceneDepth+1);
+		captureScene->Render(vp, captureCamera[i]->GetFrustum(), sceneDepth+1);
 	}
 	DX_DContext->GenerateMips(captureSRV.Get());
 	DX_DContext->OMSetRenderTargets(1, &oriRTV, oriDSV);

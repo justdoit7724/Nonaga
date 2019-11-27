@@ -15,7 +15,7 @@
 #include "Skybox.h"
 #include "Debugging.h"
 #include "TextureMgr.h"
-#include "Quad.h"
+#include "Cube.h"
 #include "BlendState.h"
 #include "UI.h"
 
@@ -39,10 +39,23 @@ GamePlayScene::GamePlayScene()
 
 	CameraMgr::Instance()->SetMain("GamePlay");
 
-	nonaga = new NonagaStage();
+	std::vector<std::string> cm;
+	cm.push_back("Data\\Texture\\cm_px.jpg");
+	cm.push_back("Data\\Texture\\cm_nx.jpg");
+	cm.push_back("Data\\Texture\\cm_py.jpg");
+	cm.push_back("Data\\Texture\\cm_ny.jpg");
+	cm.push_back("Data\\Texture\\cm_pz.jpg");
+	cm.push_back("Data\\Texture\\cm_nz.jpg");
+	TextureMgr::Instance()->LoadCM("cm", cm);
+	skybox = new Skybox(TextureMgr::Instance()->Get("cm"));
+	//debug decomment
+	//AddObj(skybox);
+
+	nonaga = new NonagaStage(this);
 	std::vector<Object*> gameObjs;
 	nonaga->Objs(gameObjs);
-	parentObj = new Object(new Quad(), nullptr, nullptr);
+	parentObj = new Object(new Cube(), nullptr, nullptr);
+	parentObj->transform->SetScale(100, 100, 100);
 	parentObj->SetShow(false);
 	for (auto go : gameObjs)
 	{
@@ -61,16 +74,6 @@ GamePlayScene::GamePlayScene()
 	slideEndPt = -slideEndForward * radFromCenter;
 	slideEndUp = Normalize(XMFLOAT3(0, 4, 1));
 
-	std::vector<std::string> cm;
-	cm.push_back("Data\\Texture\\cm_px.jpg");
-	cm.push_back("Data\\Texture\\cm_nx.jpg");
-	cm.push_back("Data\\Texture\\cm_py.jpg");
-	cm.push_back("Data\\Texture\\cm_ny.jpg");
-	cm.push_back("Data\\Texture\\cm_pz.jpg");
-	cm.push_back("Data\\Texture\\cm_nz.jpg");
-	TextureMgr::Instance()->LoadCM("cm", cm);
-	skybox = new Skybox(TextureMgr::Instance()->Get("cm"));
-	AddObj(skybox);
 	shadowMapping = new ShadowMap(4096, 4096, 128, 128);
 	ssao = new SSAOMap();
 }
@@ -123,20 +126,6 @@ void GamePlayScene::CameraMove(float spf)
 }
 void GamePlayScene::Update(float elapsed, float spf)
 {
-	//debug
-	Geometrics::Sphere sphere(XMFLOAT3(0, 0, 0), 0.25f);
-	Debugging::Instance()->Mark(sphere.p, sphere.rad);
-	if (Mouse::Instance()->LeftState() == MOUSE_STATE_PRESSING)
-	{
-		Geometrics::Ray ray;
-		camera->Pick(&ray);
-		Debugging::Instance()->DirLine(ray.o, ray.d, 200);
-		if (Geometrics::IntersectRaySphere(ray, sphere))
-			Debugging::Instance()->Draw("Hit !!! ", 10, 30);
-		else
-			Debugging::Instance()->Draw("No ~ ", 10, 30);
-	}
-
 	Scene::Update(elapsed, spf);
 
 	switch (curStage)
@@ -162,7 +151,7 @@ void GamePlayScene::Update(float elapsed, float spf)
 		Geometrics::Ray camRay;
 		camera->Pick(&camRay);
 
-		nonaga->Update(camRay);
+		nonaga->Update(camRay, parentObj->transform->R());
 		break;
 	}
 
@@ -171,12 +160,13 @@ void GamePlayScene::Update(float elapsed, float spf)
 
 	BindEye();
 
-	skybox->Mapping();
-	shadowMapping->Mapping(this, dLight);
-	ssao->Mapping(this, camera);
+	//debug decomment
+	//skybox->Mapping();
+	//shadowMapping->Mapping(this, dLight);
+	//ssao->Mapping(this, camera);
 }
 
-void GamePlayScene::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) const
+void GamePlayScene::Render(const XMMATRIX& vp, const Frustum* frustum, UINT sceneDepth) const
 {
 	dLight->Apply();
 

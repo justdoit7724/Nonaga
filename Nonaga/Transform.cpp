@@ -3,10 +3,11 @@
 
 XMMATRIX Transform::WorldMatrix()const
 {
-	return
-		S()*
-		R()*
-		T();
+	return XMMATRIX(
+		right.x * scale.x, right.y * scale.x, right.z * scale.x, 0,
+		up.x * scale.y, up.y * scale.y, up.z * scale.y, 0,
+		forward.x * scale.z, forward.y * scale.z, forward.z * scale.z, 0,
+		pos.x, pos.y, pos.z, 1);
 }
 
 XMMATRIX Transform::S()const

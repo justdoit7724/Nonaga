@@ -127,8 +127,6 @@ void ShadowMap::Mapping(const Scene* depthScene, const DirectionalLight* light)
 	view->transform->SetRot(lightDir);
 	XMFLOAT3 lightPos = -light->GetDir() * 200;
 	view->transform->SetTranslation(lightPos);
-	Debugging::Instance()->Mark(lightPos, 2);
-	Debugging::Instance()->DirLine(lightPos, lightDir, 50);
 	view->Update();
 	XMMATRIX lightVP = view->VMat() * view->StdProjMat();
 	

@@ -79,7 +79,8 @@ float4 main(PS_INPUT input) : SV_Target
     float3 look = normalize(input.wPos-eyePos.xyz);
     
     //debug
-    return float4(wNormal, 1);
+    float3 cmDir = reflect(look, wNormal);
+    return float4(cmTex.Sample(cmSamp, cmDir).xyz, 1);
     
     float4 ambient = 0;
     float4 diffuse = 0;

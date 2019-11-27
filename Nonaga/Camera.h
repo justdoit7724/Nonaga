@@ -39,6 +39,7 @@ public:
 	~Camera();
 	void SetFrame(const FRAME_KIND fKind, XMFLOAT2 orthoSize, const float nearPlane, const float farPlane, const float verticalViewAngle, const float aspectRatio);
 	void Update();
+	void SetView();
 	void Visualize() override;
 
 	XMMATRIX VMat()const { return viewMat; }
@@ -55,12 +56,11 @@ public:
 	float GetVRad()const { return verticalRadian; }
 	float GetAspectRatio()const { return aspectRatio; }
 
-	const Frustum& GetFrustum()const { return frustum; }
+	const Frustum* GetFrustum()const { return &frustum; }
 
 	Transform* transform;
 
 private:
-	void SetView();
 	XMMATRIX stdProjMat;
 	XMMATRIX* projMats;
 	XMMATRIX viewMat;
