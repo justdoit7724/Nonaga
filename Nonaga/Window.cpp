@@ -111,8 +111,12 @@ LRESULT Window::HandleMsg(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 		Mouse::Instance()->UpdatePt(lparam);
 		return 0;
 
-
-
+	case WM_MOUSEWHEEL:
+	{
+		Mouse::Instance()->StartWheel(GET_WHEEL_DELTA_WPARAM(wparam)>0);
+		
+	}
+		return 0;
 
 	case WM_CLOSE:
 		PostQuitMessage(0);

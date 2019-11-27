@@ -65,7 +65,6 @@ struct PS_INPUT
 };
 float4 main(PS_INPUT input) : SV_Target
 {
-
     input.normal = normalize(input.normal);
     input.tangent = normalize(input.tangent);
     
@@ -79,6 +78,8 @@ float4 main(PS_INPUT input) : SV_Target
 
     float3 look = normalize(input.wPos-eyePos.xyz);
     
+    //debug
+    return float4(wNormal, 1);
     
     float4 ambient = 0;
     float4 diffuse = 0;
@@ -115,8 +116,6 @@ float4 main(PS_INPUT input) : SV_Target
     input.pPos = mul(input.pPos, uvMat);
     float2 viewUV = input.pPos.xy / input.pPos.w;
     float ssao = ssaoTex.SampleLevel(samp, viewUV, 0).r;
-    //debug
-    return float4(tex, 1);
 
 
     tex = ComputeTransparency(tex, wNormal, look);

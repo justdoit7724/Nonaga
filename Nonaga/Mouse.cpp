@@ -1,7 +1,9 @@
 #include "Mouse.h"
 
-void Mouse::Update()
+void Mouse::Update(float spf)
 {
+	this->spf = spf;
+
 	switch (leftState)
 	{
 	case MOUSE_STATE_DOWN:
@@ -18,6 +20,8 @@ void Mouse::Update()
 	case MOUSE_STATE_UP:
 		rightState = MOUSE_STATE_RELEASE;
 	}
+
+	UpdateWheel();
 }
 
 void Mouse::UpdatePt(LPARAM lparam)
@@ -39,4 +43,19 @@ void Mouse::UpdateRight(const bool press)
 	rightState = press ? MOUSE_STATE_DOWN : MOUSE_STATE_UP;
 
 	rightDragStartPt = pt;
+}
+
+void Mouse::StartWheel(bool isUp)
+{
+	if (isUp)
+		wheelState += wheelSpeed * spf;
+	else
+		wheelState -= wheelSpeed * spf;
+
+	wheelState = fmaxf(fminf(1, wheelState), -1);
+}
+
+void Mouse::UpdateWheel()
+{
+	wheelState *= sqrt(fabsf(wheelState)) / 2.0f + 0.25f;
 }

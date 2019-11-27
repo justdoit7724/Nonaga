@@ -14,6 +14,7 @@
 #include "Camera.h"
 #include "Debugging.h"
 #include "Buffer.h"
+#include <queue>
 
 ShadowMap::ShadowMap(UINT resX, UINT resY, UINT width, UINT height)
 	:depthSRV(nullptr), depthDSV(nullptr)
@@ -130,18 +131,38 @@ void ShadowMap::Mapping(const Scene* depthScene, const DirectionalLight* light)
 	Debugging::Instance()->DirLine(lightPos, lightDir, 50);
 	view->Update();
 	XMMATRIX lightVP = view->VMat() * view->StdProjMat();
-	int i = 0;
-	const Object* curObj = depthScene->GetObj(i);
-	while(curObj)
+	
+	std::queue<std::pair<const Object*, XMMATRIX>> objQueue;
+	std::vector<std::pair<const Object*, XMMATRIX>> totalObjs;
+	std::vector<const Object*> rObjs;
+	depthScene->GetObjs(rObjs);
+	for (auto o : rObjs)
+		objQueue.push(std::pair<const Object*, XMMATRIX>(o, XMMatrixIdentity()));
+	while (!objQueue.empty())
+	{
+		const Object* curObj = objQueue.front().first;
+		const XMMATRIX parentWorld = objQueue.front().second; objQueue.pop();
+		totalObjs.push_back(std::pair<const Object*, XMMATRIX>(curObj, parentWorld));
+
+		rObjs.clear();
+		curObj->GetChildren(rObjs);
+		for (auto o : rObjs)
+			objQueue.push(std::pair<const Object*, XMMATRIX>(o, curObj->transform->WorldMatrix() * parentWorld));
+
+	}
+	for(auto t : totalObjs)
 	{
 		//every obj is in frustum in this project
 		//if (!obj->IsInsideFrustum()) continue;
+
+		const Object* curObj = t.first;
+		XMMATRIX curWorld = curObj->transform->WorldMatrix() * t.second;
 
 		rsState->Apply();
 		dsState->Apply();
 		blendState->Apply();
 
-		mapVS->WriteCB(0,&(curObj->transform->WorldMatrix() * lightVP));
+		mapVS->WriteCB(0, &(curWorld * lightVP));
 		mapVS->Apply();
 
 		// only triangles
@@ -151,8 +172,6 @@ void ShadowMap::Mapping(const Scene* depthScene, const DirectionalLight* light)
 		curObj->RenderGeom();
 
 		curObj->shape->SetPrimitiveType(curPrimitiveType);
-
-		curObj = depthScene->GetObj(++i);
 	}
 
 	DX_DContext->RSSetViewports(1, &oriVP);

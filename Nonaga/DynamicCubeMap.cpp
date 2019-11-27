@@ -7,8 +7,7 @@
 #include "Scene.h"
 
 DynamicCubeMap::DynamicCubeMap(Scene* captureScene, Shape* shape)
-	:Object(
-		shape,
+	:Object(shape,
 		"CMVS.cso", Std_ILayouts,ARRAYSIZE(Std_ILayouts),
 		"","","",
 		"CMPS.cso",

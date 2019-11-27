@@ -31,6 +31,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	Scene* lobbyScene = new Lobby();
 	SceneMgr::Instance()->Add("Lobby", lobbyScene);
 	SceneMgr::Instance()->SetEnabled("Lobby", true);
+
 	Scene* debugScene = new DebuggingScene();
 	SceneMgr::Instance()->Add("Debugging", debugScene);
 	SceneMgr::Instance()->SetEnabled("Debugging", true);
@@ -53,7 +54,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 			SceneMgr::Instance()->Process(worldTimer->Elapsed(), worldTimer->SPF());
 
-			Mouse::Instance()->Update();
+			Mouse::Instance()->Update(worldTimer->SPF());
 
 			graphic->Present();
 

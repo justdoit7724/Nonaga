@@ -147,9 +147,6 @@
     <ClCompile Include="Skybox.cpp">
       <Filter>Object</Filter>
     </ClCompile>
-    <ClCompile Include="ShadowObj.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -181,6 +178,9 @@
       <Filter>PBR</Filter>
     </ClCompile>
     <ClCompile Include="Nonaga.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SmoothNormalizing.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -302,9 +302,6 @@
     <ClInclude Include="Skybox.h">
       <Filter>Object</Filter>
     </ClInclude>
-    <ClInclude Include="ShadowObj.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ShaderFormat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -352,6 +349,9 @@
     </ClInclude>
     <ClInclude Include="classTask.h">
       <Filter>Tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="SmoothNormalizing.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

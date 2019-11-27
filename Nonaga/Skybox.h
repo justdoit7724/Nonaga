@@ -9,7 +9,7 @@ public:
 	Skybox(ID3D11ShaderResourceView* srv);
 
 	void Mapping();
-	void Update() override;
+	void Update(const XMMATRIX& prevWorld) override;
 	void Render(const XMMATRIX& parentWorld, const XMMATRIX& vp, UINT sceneDepth)const override;
 	void RenderGeom() const override {};
 	bool IsInsideFrustum(const Frustum& frustum) const override { return true; }

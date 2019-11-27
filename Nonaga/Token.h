@@ -1,6 +1,8 @@
 #pragma once
 #include "Object.h"
 
+class Shape;
+
 class Token : public Object
 {
 public:
@@ -16,4 +18,6 @@ public:
 private:
 	unsigned int id;
 	bool isP1;
+
+	static Shape* mesh;
 };

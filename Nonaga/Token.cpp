@@ -4,12 +4,16 @@
 #include "TextureMgr.h"
 #include "ShaderFormat.h"
 #include "Shader.h"
+#include "Shape.h"
 #include "Camera.h"
 #include "ShaderReg.h"
 #include "CameraMgr.h"
+#include "MeshLoader.h"
+
+Shape* Token::mesh = nullptr;
 
 Token::Token(unsigned int id, bool p1)
-	:Object(new Cube(),
+	:Object(nullptr,
 		"StdDisplacementVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts),
 		"StdDisplacementHS.cso", "StdDisplacementDS.cso", "",
 		"StandardPS.cso", Z_ORDER_STANDARD),
@@ -19,13 +23,18 @@ Token::Token(unsigned int id, bool p1)
 	TextureMgr::Instance()->Load("tokenNormal", "Data\\Model\\Token\\pawn_normal.png");
 	TextureMgr::Instance()->Load("tokenDP", "Data\\Model\\Token\\pawn_displace.png");
 	
+	if (mesh==nullptr)
+	{
+		MeshLoader::LoadToken(&mesh);
+	}
+	shape = mesh;
 	shape->SetPrimitiveType(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
 
 	vs->AddCB(0, 1, sizeof(SHADER_STD_TRANSF));
 	vs->AddCB(1, 1, sizeof(XMFLOAT4));
 	ds->AddCB(0, 1, sizeof(XMMATRIX));
 	ds->AddCB(1, 1, sizeof(float));
-	float dpScale = 2.0f;
+	float dpScale = 0.5f;
 	ds->WriteCB(1, &dpScale);
 	ds->AddSRV(0, 1);
 	ds->WriteSRV(0, TextureMgr::Instance()->Get("tokenDP"));
@@ -47,7 +56,7 @@ Token::Token(unsigned int id, bool p1)
 	ps->WriteSRV(SHADER_REG_PS_SRV_NORMAL, TextureMgr::Instance()->Get("tokenNormal"));
 	ps->AddSamp(SHADER_REG_PS_SAMP_TEX, 1, &samp_desc);
 
-	transform->SetScale(7, 15, 7);
+	transform->SetScale(0.3, 0.3, 0.3);
 }
 
 

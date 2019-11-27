@@ -75,6 +75,8 @@ NonagaStage::NonagaStage()
 					tokens.push_back(newToken);
 					playSpace[idx]->SetToken(newToken);
 					newToken->Move(idx,pos);
+					//debug
+					Debugging::Instance()->Visualize(newToken);
 				}
 				else if (tileObjIdx == 3|| tileObjIdx == 5|| tileObjIdx == 18)
 				{
@@ -82,6 +84,8 @@ NonagaStage::NonagaStage()
 					tokens.push_back(newToken);
 					playSpace[idx]->SetToken(newToken);
 					newToken->Move(idx, pos);
+					//debug
+					Debugging::Instance()->Visualize(newToken);
 				}
 				tileObjIdx++;
 			}
@@ -140,8 +144,6 @@ void NonagaStage::TokenDragStart(const Geometrics::Ray ray)
 
 	for (auto t : tokens)
 	{
-		t->UpdateBound();
-
 		if (t->IsP1() == logic->IsP1Turn() && t->IsPicking(ray))
 		{
 			holdingTokenID = t->ID();
@@ -149,6 +151,7 @@ void NonagaStage::TokenDragStart(const Geometrics::Ray ray)
 			return;
 		}
 	}
+
 }
 void NonagaStage::TokenDragging()
 {
@@ -210,6 +213,10 @@ void NonagaStage::Update(const Geometrics::Ray ray)
 {
 	if (!GetCurID2(ray, detectPlane))
 		return;
+
+	//debug remove
+	TokenDragStart(ray);
+	Debugging::Instance()->Draw("Cur token id = ", holdingTokenID, 10, 10);
 
 	switch (curPlayState)
 	{

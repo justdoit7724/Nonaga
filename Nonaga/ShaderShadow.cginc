@@ -23,13 +23,14 @@ float DirectionalLightShadowFactor(float3 wNormal, float3 lightDir, float3 wPos)
     shadowTex.GetDimensions(mapWidth, mapHeight);
     float dx = 1.0f / mapWidth;
     float dy = 1.0f / mapHeight;
+
     float2 offsets[25] =
     {
-        float2(-dx * 2, -dy * 2),   float2(-dx, -dy * 2), float2(0, -dy * 2),    float2(dx, -dy * 2), float2(dx * 2, -dy * 2),
+        float2(-dx * 2, -dy * 2), float2(-dx, -dy * 2), float2(0, -dy * 2), float2(dx, -dy * 2), float2(dx * 2, -dy * 2),
         float2(-dx * 2, -dy), float2(-dx, -dy), float2(0, -dy), float2(dx, -dy), float2(dx * 2, -dy),
-        float2(-dx*2, 0),          float2(-dx, 0),      float2(0, 0),         float2(dx, 0), float2(dx*2, 0),
+        float2(-dx * 2, 0), float2(-dx, 0), float2(0, 0), float2(dx, 0), float2(dx * 2, 0),
         float2(-dx * 2, dy), float2(-dx, dy), float2(0, dy), float2(dx, dy), float2(dx * 2, dy),
-        float2(-dx * 2, dy * 2),    float2(-dx, dy * 2),  float2(0, dy * 2),     float2(dx, dy * 2), float2(dx * 2, dy * 2)
+        float2(-dx * 2, dy * 2), float2(-dx, dy * 2), float2(0, dy * 2), float2(dx, dy * 2), float2(dx * 2, dy * 2)
     };
     
     float percentLit = 0;
@@ -38,8 +39,7 @@ float DirectionalLightShadowFactor(float3 wNormal, float3 lightDir, float3 wPos)
     {
         percentLit += shadowTex.SampleCmpLevelZero(shadowSamp, lightPos.xy + offsets[i], lightPos.z).r;
     }
-    
-    return percentLit*0.04f;
+    return percentLit * 0.04f;
 }
 float PointLightShadowFactor(float3 wNormal, float3 wPos, float3 lightPos, TextureCube map, SamplerState samp, float2 shadowPMatElem)
 {

@@ -173,12 +173,12 @@
     <ClCompile Include="Resource.cpp" />
     <ClCompile Include="SceneMgr.cpp" />
     <ClCompile Include="ShadowMap.cpp" />
-    <ClCompile Include="ShadowObj.cpp" />
     <ClCompile Include="Shape.cpp" />
     <ClCompile Include="Quad.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Skybox.cpp" />
+    <ClCompile Include="SmoothNormalizing.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="Sphere.cpp" />
     <ClCompile Include="SSAOMap.cpp" />
@@ -229,7 +229,6 @@
     <ClInclude Include="SceneMgr.h" />
     <ClInclude Include="ShaderReg.h" />
     <ClInclude Include="ShadowMap.h" />
-    <ClInclude Include="ShadowObj.h" />
     <ClInclude Include="Shape.h" />
     <ClInclude Include="Quad.h" />
     <ClInclude Include="Resource.h" />
@@ -237,6 +236,7 @@
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="Skybox.h" />
+    <ClInclude Include="SmoothNormalizing.h" />
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="SSAOMap.h" />
     <ClInclude Include="Texture.h" />

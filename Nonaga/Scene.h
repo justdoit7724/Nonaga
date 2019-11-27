@@ -1,6 +1,7 @@
 #pragma once
 #include "DX_info.h"
-#include <vector>
+#include <map>
+#include <queue>
 
 class Object;
 class SceneMgr;
@@ -13,15 +14,15 @@ public:
 
 	virtual void Update(float elapsed, float spf);
 	virtual void Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth)const;
-	const Object* GetObj(UINT id)const;
+	void AddObj(Object* obj);
 
 	virtual void Message(UINT msg) {};
 	bool Enabled() { return enabled; }
 	void SetEnabled(bool e) { enabled = e; }
 
 	const std::string key;
+	void GetObjs(std::vector<const Object*>& rObj)const;
 protected:
-	void AddObj(Object* obj) { objs.push_back(obj); }
 
 private:
 	bool enabled=false;

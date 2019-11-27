@@ -3,7 +3,6 @@
 #include "DX_info.h"
 #include "Network.h"
 #include "Geometrics.h"
-#include <unordered_set>
 
 struct Frustum;
 class Transform;
@@ -25,19 +24,21 @@ public:
 	Object(Shape* shape, ID3D11ShaderResourceView* diffSRV, ID3D11ShaderResourceView* normalSRV);
 	~Object();
 
-	virtual void Update();
+	virtual void Update(const XMMATRIX& parentWorld);
 	virtual void Render(const XMMATRIX& parentWorld, const XMMATRIX& vp, UINT sceneDepth) const;
 	virtual void RenderGeom() const;
 
 	virtual bool IsInsideFrustum(const Frustum& frustum) const;
 	virtual bool IsPicking(const Geometrics::Ray ray)const;
-	virtual void UpdateBound();
+	virtual void UpdateBound(const XMMATRIX& parentWorld);
 
 	void Visualize() override;
 	void SetEnabled(bool e) { enabled = e; }
 	void SetShow(bool s) { show = s; }
 
+	int ChildrenNum()const { return children.size(); }
 	void AddChildren(Object* obj);
+	void GetChildren(std::vector<const Object*>& rObj)const;
 
 	//TODO
 	Transform* transform;
@@ -67,7 +68,6 @@ protected:
 
 	Geometrics::Sphere bound;
 
-	std::unordered_set<Object*> children;
-private:
+	std::vector<Object*> children;
 };
 

@@ -52,7 +52,7 @@ Debugging::Debugging()
 	vb_desc.Usage = D3D11_USAGE_DYNAMIC;
 	lineVB = new Buffer(&vb_desc, nullptr);
 
-	markShape = new Sphere(1);
+	markShape = new Sphere(2);
 	markTransform = new Transform();
 }
 
@@ -283,7 +283,8 @@ void Debugging::CameraMove(float spf) {
 }
 void Debugging::Update(float spf)
 {
-	CameraMove(spf);
+	if(CameraMgr::Instance()->GetMainKey() != "DebugCamera")
+		CameraMove(spf);
 
 	for (IDebug* obj : debugObjs)
 	{

@@ -17,6 +17,7 @@ public:
 	~SSAOMap();
 
 	void Mapping(const Scene* scene, const Camera* camera);
+	ID3D11ShaderResourceView* SRV() { return finalSRV.Get(); }
 
 private:
 	void DrawNormalDepth(const Scene* scene, const Camera* camera);

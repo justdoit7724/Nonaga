@@ -5,13 +5,14 @@
 #include "TextureMgr.h"
 #include "Shader.h"
 #include <mutex>
+#include <vector>
 
 #include <assimp/postprocess.h>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 
 // one time use for my naughty 3d model
-void ProcessTokenNode(std::vector<Object*>& storage, aiNode* node, const aiScene* scene)
+void ProcessTokenNode(Shape** storage, aiNode* node, const aiScene* scene)
 {
 	for (UINT i = 0; i < node->mNumMeshes; i++)
 	{
@@ -60,9 +61,24 @@ void ProcessTokenNode(std::vector<Object*>& storage, aiNode* node, const aiScene
 
 			for (int j = 0; j < face.mNumIndices; ++j)
 			{
-				assert(face.mNumIndices == 3);
+				if (face.mNumIndices != 3)
+					continue;
 				indice[(i * 3) + j] = face.mIndices[j];
 			}
+		}
+
+
+
+		std::vector<std::pair<XMFLOAT3,int>> sNorm(vertice.size());
+		for (int i = 0; i < indice.size(); ++i)
+		{
+			sNorm[indice[i]].first += vertice[indice[i]].n;
+			sNorm[indice[i]].second++;
+
+		}
+		for (int i = 0; i < sNorm.size(); ++i)
+		{
+			vertice[i].n = Normalize(sNorm[i].first);
 		}
 
 		Vertex* vData = vertice.data();
@@ -71,18 +87,14 @@ void ProcessTokenNode(std::vector<Object*>& storage, aiNode* node, const aiScene
 		//TextureMgr::Instance()->Load(diffMtl, "Data\\Model\\" + filepath + "\\" + diffMtl);
 		//TextureMgr::Instance()->Load(normalMtl, "Data\\Model\\" + filepath + "\\" + normalMtl);
 
-		//debug decomment
-		storage.push_back(new Object(
-			new Shape(vData, sizeof(Vertex), vertice.size(), iData, indice.size(), D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST),
-			/*TextureMgr::Instance()->Get(diffMtl)*/nullptr,
-			/*TextureMgr::Instance()->Get(normalMtl)*/nullptr));
+		*storage=new Shape(vData, sizeof(Vertex), vertice.size(), iData, indice.size(), D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	}
 
 	for (UINT i = 0; i < node->mNumChildren; i++)
 	{
 		//debug remove
-		if (i != 3 && i != 2)
-			continue;
+		/*if (i != 3)
+			continue;*/
 
 		ProcessTokenNode(storage, node->mChildren[i], scene);
 	}
@@ -175,21 +187,19 @@ void MeshLoader::Load(std::vector<Object*>& storage, std::string filepath, std::
 	ProcessNode(storage, filepath, pScene->mRootNode, pScene);
 }
 
-void MeshLoader::LoadToken(std::vector<Object*>& storage)
+void MeshLoader::LoadToken(Shape** storage)
 {
 	Assimp::Importer importer;
 
-	const aiScene* pScene = importer.ReadFile("Data\\Model\\Token\\Checkboard.obj",
+	const aiScene* pScene = importer.ReadFile("Data\\Model\\Token\\TOKENf6.obj",
 		aiProcess_MakeLeftHanded |
 		aiProcess_FlipUVs |
 		aiProcess_FlipWindingOrder |
 		aiProcess_CalcTangentSpace |
-		aiProcess_GenSmoothNormals |
 		aiProcess_Triangulate);
 
 	assert(
 		pScene != nullptr &&
-		pScene->HasMaterials() &&
 		pScene->HasMeshes());
 
 	ProcessTokenNode(storage, pScene->mRootNode, pScene);

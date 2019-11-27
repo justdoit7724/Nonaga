@@ -79,26 +79,28 @@ Object::~Object()
 	delete rsState;
 }
 
-void Object::Update()
+void Object::Update(const XMMATRIX& parentWorld)
 {
+	XMMATRIX curWorld = transform->WorldMatrix() * parentWorld;
 	for (auto child : children)
-		child->UpdateBound();
+		child->Update(curWorld);
 
 	if (!enabled)
 		return;
 
-	UpdateBound();
+	UpdateBound(parentWorld);
 
 }
 
-void Object::UpdateBound()
+void Object::UpdateBound(const XMMATRIX& parentWorld)
 {
 	XMFLOAT3 boundlMinPt;
 	XMFLOAT3 boundlMaxPt;
 	shape->GetLBound(&boundlMinPt, &boundlMaxPt);
-	XMFLOAT3 wMinPt = boundlMinPt * transform->GetScale();
-	XMFLOAT3 wMaxPt = boundlMaxPt * transform->GetScale();
-	bound.p = transform->GetPos();
+	XMMATRIX world = transform->WorldMatrix()*parentWorld;
+	XMFLOAT3 wMinPt = Multiply(boundlMinPt, world);
+	XMFLOAT3 wMaxPt = Multiply(boundlMaxPt, world);
+	bound.p = Multiply(transform->GetPos(), parentWorld);
 	bound.rad = Length(wMinPt - wMaxPt) * 0.5f;
 }
 
@@ -140,6 +142,9 @@ void Object::Render(const XMMATRIX& parentWorld, const XMMATRIX& vp, UINT sceneD
 
 void Object::RenderGeom() const
 {
+	if (!enabled || !show)
+		return;
+
 	shape->Apply();
 }
 
@@ -167,6 +172,12 @@ void Object::Visualize()
 
 void Object::AddChildren(Object* obj)
 {
-	children.insert(obj);
+	children.push_back(obj);
+}
+
+void Object::GetChildren(std::vector<const Object*>& rObj)const
+{
+	for (auto c : children)
+		rObj.push_back(c);
 }
 

@@ -8,6 +8,7 @@ class ShadowMap;
 class Camera;
 class SSAOMap;
 class Skybox;
+class UICanvas;
 
 class GamePlayScene : public Scene
 {
@@ -23,6 +24,7 @@ public:
 private:
 	void BindEye();
 	void ObjMove(float spf);
+	void CameraMove(float spf);
 	void CameraFrameLerping(float t);
 	void CameraSliding(float t);
 	void LightRotating(float t);
@@ -55,10 +57,12 @@ private:
 	XMFLOAT3 slideEndUp;
 
 	const float radFromCenter = 60.0f;
-	const float angleSpeed = 3.141592f * 0.1f;
+	const float angleSpeed = 3.141592f * 0.025f;
 
 	Skybox* skybox;
 	ShadowMap* shadowMapping;
 	SSAOMap* ssao;
+
+	UICanvas* canvas;
 };
 

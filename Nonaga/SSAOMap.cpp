@@ -224,6 +224,9 @@ void SSAOMap::Mapping(const Scene* scene, const Camera* camera)
 	UINT oriVPNum = 1;
 	DX_DContext->RSGetViewports(&oriVPNum, &oriVP);
 
+	ID3D11ShaderResourceView* oriCM = nullptr;
+	DX_DContext->PSGetShaderResources(SHADER_REG_PS_SRV_CM, 1, &oriCM);
+
 	DX_DContext->HSSetShader(nullptr, nullptr, 0);
 	DX_DContext->DSSetShader(nullptr, nullptr, 0);
 	DX_DContext->GSSetShader(nullptr, nullptr, 0);
@@ -232,6 +235,9 @@ void SSAOMap::Mapping(const Scene* scene, const Camera* camera)
 	DrawAccess(camera->StdProjMat(), oriVP);
 	BlurHorizon();
 	BlurVertical();
+
+
+	DX_DContext->PSSetShaderResources(SHADER_REG_PS_SRV_CM, 1, &oriCM);
 
 	DX_DContext->OMSetRenderTargets(1, &oriPassRTV, oriDSV);
 	DX_DContext->PSSetShaderResources(SHADER_REG_PS_SRV_SSAO, 1, finalSRV.GetAddressOf());
@@ -243,7 +249,8 @@ void SSAOMap::DrawNormalDepth(const Scene* scene, const Camera* camera)
 {
 	ID3D11ShaderResourceView* nullSRV = nullptr;
 	// unbinding srv used in blurPS shader
-	DX_DContext->PSSetShaderResources(0, 1, &nullSRV);
+	ID3D11ShaderResourceView* curFirstSRV;
+	DX_DContext->PSGetShaderResources(0, 1, &curFirstSRV);
 	DX_DContext->PSSetShaderResources(SHADER_REG_PS_SRV_SSAO, 1, &nullSRV);
 
 	DX_DContext->RSSetViewports(1, &vp);
@@ -254,19 +261,32 @@ void SSAOMap::DrawNormalDepth(const Scene* scene, const Camera* camera)
 	blendState->Apply();
 	dsState->Apply();
 
-	int i = 0;
-	while(true)
+	std::queue<std::pair<const Object*, XMMATRIX>> objQueue;
+	std::vector<std::pair<const Object*, XMMATRIX>> totalObjs;
+	std::vector<const Object*> rObjs;
+	scene->GetObjs(rObjs);
+	for (auto o : rObjs)
+		objQueue.push(std::pair<const Object*, XMMATRIX>(o, XMMatrixIdentity()));
+	while (!objQueue.empty())
 	{
-		const Object* curObj = scene->GetObj(i++);
-		if (curObj == nullptr)
-			break;
+		const Object* curObj = objQueue.front().first; 
+		const XMMATRIX parentWorld = objQueue.front().second; objQueue.pop();
+		rObjs.clear();
+		curObj->GetChildren(rObjs);
+		for (auto o : rObjs)
+			objQueue.push(std::pair<const Object*, XMMATRIX>(o,curObj->transform->WorldMatrix()* parentWorld));
 
-		XMMATRIX w = curObj->transform->WorldMatrix();
+		totalObjs.push_back(std::pair<const Object*, XMMATRIX>(curObj, parentWorld));
+	}
+	for(auto t : totalObjs)
+	{
+		const Object* curObj = t.first;
+		XMMATRIX curWorld = curObj->transform->WorldMatrix() * t.second;
 		XMMATRIX drawTransf[4] = {
-			w,
+			curWorld,
 			camera->VMat(),
 			camera->StdProjMat(), // no z Priority for ssao
-			XMMatrixTranspose(XMMatrixInverse(&XMMatrixDeterminant(w), w))
+			XMMatrixTranspose(XMMatrixInverse(&XMMatrixDeterminant(curWorld), curWorld))
 		};
 		ndVS->WriteCB(0, drawTransf);
 		ndVS->Apply();
@@ -333,4 +353,7 @@ void SSAOMap::BlurVertical()
 	blurPS->Apply();
 	noDsState->Apply();
 	DX_DContext->Draw(4, 0);
+
+	ID3D11ShaderResourceView* nullSRV = nullptr;
+	DX_DContext->PSSetShaderResources(1, 1, &nullSRV);
 }

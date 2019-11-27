@@ -55,7 +55,6 @@ public:
 	void SetSpecular(const XMFLOAT3& s) override;
 	void SetDir( XMFLOAT3 d); 
 	void Enable(STATE enable) override;
-	void Update();
 
 	XMFLOAT3 GetDir()const;
 
@@ -81,7 +80,6 @@ public:
 	void SetRange( float r);
 	void SetAtt( XMFLOAT3 at);
 	void Enable(STATE enable) override;
-	void Update();
 
 	static void Apply();
 };

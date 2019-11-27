@@ -11,12 +11,13 @@
 #include "Nonaga.h"
 #include "ShaderReg.h"
 #include "ShadowMap.h"
-#include "SSAOMapping.h"
+#include "SSAOMap.h"
 #include "Skybox.h"
 #include "Debugging.h"
 #include "TextureMgr.h"
 #include "Quad.h"
 #include "BlendState.h"
+#include "UI.h"
 
 GamePlayScene::GamePlayScene()
 {
@@ -51,7 +52,7 @@ GamePlayScene::GamePlayScene()
 
 	cbEye = new Buffer(sizeof(XMFLOAT4));
 
-	Debugging::Instance()->EnableGrid(10);
+	//Debugging::Instance()->EnableGrid(10);
 
 	curP = XMMatrixIdentity();
 
@@ -70,8 +71,8 @@ GamePlayScene::GamePlayScene()
 	TextureMgr::Instance()->LoadCM("cm", cm);
 	skybox = new Skybox(TextureMgr::Instance()->Get("cm"));
 	AddObj(skybox);
-	shadowMapping = new ShadowMap(4096, 4096, 256, 256);
-	//ssao = new SSAOMap();
+	shadowMapping = new ShadowMap(4096, 4096, 128, 128);
+	ssao = new SSAOMap();
 }
 
 GamePlayScene::~GamePlayScene()
@@ -113,11 +114,30 @@ void GamePlayScene::ObjMove(float spf)
 	XMFLOAT3 f = RotateFromDir(Cross(u, -RIGHT), u, angleX);
 	parentObj->transform->SetRot(f, u);
 }
+void GamePlayScene::CameraMove(float spf)
+{
+	const float closeUpSpeed = 100;
+	XMFLOAT3 offset = camera->transform->GetForward() * spf * closeUpSpeed * Mouse::Instance()->GetWheel();
+
+	camera->transform->SetTranslation(camera->transform->GetPos() + offset);
+}
 void GamePlayScene::Update(float elapsed, float spf)
 {
-	Scene::Update(elapsed, spf);
+	//debug
+	Geometrics::Sphere sphere(XMFLOAT3(0, 0, 0), 0.25f);
+	Debugging::Instance()->Mark(sphere.p, sphere.rad);
+	if (Mouse::Instance()->LeftState() == MOUSE_STATE_PRESSING)
+	{
+		Geometrics::Ray ray;
+		camera->Pick(&ray);
+		Debugging::Instance()->DirLine(ray.o, ray.d, 200);
+		if (Geometrics::IntersectRaySphere(ray, sphere))
+			Debugging::Instance()->Draw("Hit !!! ", 10, 30);
+		else
+			Debugging::Instance()->Draw("No ~ ", 10, 30);
+	}
 
-	dLight->SetDir(MultiplyDir(dLight->GetDir(), XMMatrixRotationY(elapsed * 0.0002f)));
+	Scene::Update(elapsed, spf);
 
 	switch (curStage)
 	{
@@ -128,7 +148,6 @@ void GamePlayScene::Update(float elapsed, float spf)
 		curTime += spf;
 
 		float t = curTime / camFrameLerpingTime;
-		Debugging::Instance()->Draw("frame t = ", t, 10, 30);
 		CameraFrameLerping(t);
 		CameraSliding(Clamp(0,1,t-0.9));
 		LightRotating(t);
@@ -138,6 +157,8 @@ void GamePlayScene::Update(float elapsed, float spf)
 		break;
 	case GAMEPLAY_STAGE_PLAY:
 		ObjMove(spf);
+		CameraMove(spf);
+
 		Geometrics::Ray camRay;
 		camera->Pick(&camRay);
 
@@ -152,7 +173,7 @@ void GamePlayScene::Update(float elapsed, float spf)
 
 	skybox->Mapping();
 	shadowMapping->Mapping(this, dLight);
-	//ssao->Mapping(this, camera);
+	ssao->Mapping(this, camera);
 }
 
 void GamePlayScene::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) const
@@ -174,7 +195,6 @@ void GamePlayScene::Render(const XMMATRIX& vp, const Frustum& frustum, UINT scen
 
 	Scene::Render(curTempVP, frustum, sceneDepth);
 	nonaga->Render(curTempVP, sceneDepth);
-
 }
 
 void GamePlayScene::Message(UINT msg)
@@ -208,9 +228,8 @@ void GamePlayScene::CameraSliding(float t)
 {
 	float mt = sinf((t - 0.5f) * XM_PI + 1) / 2;
 
-	XMFLOAT3 sPos = Lerp(slideStartPt, slideEndPt, mt);
-	XMFLOAT3 sForward = Lerp(-UP, slideEndForward, mt);
-	XMFLOAT3 sUp = Lerp(FORWARD, slideEndUp, mt);
+	XMFLOAT3 sForward = Normalize(Lerp(-UP, slideEndForward, mt));
+	XMFLOAT3 sUp = Normalize(Lerp(FORWARD, slideEndUp, mt));
 
 	camera->transform->SetTranslation(-sForward* radFromCenter);
 	camera->transform->SetRot(sForward, sUp);

@@ -14,27 +14,35 @@ Scene::~Scene()
 
 void Scene::Update(float elapsed, float spf)
 {
+	XMMATRIX im = DirectX::XMMatrixIdentity();
 	for (auto obj : objs)
 	{
-		obj->Update();
+		obj->Update(im);
 	}
 }
 
 void Scene::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) const
 {
+	XMMATRIX im = DirectX::XMMatrixIdentity();
+
 	for (auto obj : objs)
 	{
 		if (obj->IsInsideFrustum(frustum))
 		{
-			obj->Render(XMMatrixIdentity(), vp, sceneDepth);
+			obj->Render(im, vp, sceneDepth);
 		}
 	}
 }
 
-const Object* Scene::GetObj(UINT id)const
+void Scene::GetObjs(std::vector<const Object*>& rObj)const
 {
-	if (objs.size() <= id)
-		return nullptr;
+	for (auto o : objs)
+	{
+		rObj.push_back(o);
+	}
+}
 
-	return objs[id];
+void Scene::AddObj(Object* obj)
+{
+	objs.push_back(obj);
 }

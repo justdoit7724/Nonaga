@@ -247,15 +247,18 @@ void Camera::Pick(OUT Geometrics::Ray* ray)const
 	{
 		// vPos at z which is on d 
 		vDir = Normalize(XMFLOAT3(
-			pPos.x * aspectRatio,
-			pPos.y,
-			1 / tan(verticalRadian * 0.5f)));
+			pPos.x * aspectRatio* tan(verticalRadian * 0.5f),
+			pPos.y* tan(verticalRadian * 0.5f),
+			1));
 
 		XMMATRIX invVDirMat = XMMATRIX(
 			right.x, right.y, right.z, 0,
 			up.x, up.y, up.z, 0,
 			forward.x, forward.y, forward.z, 0,
-			0, 0, 0, 1);
+			eye.x, eye.y, eye.z, 1);
+		XMMATRIX id = VMat() * invVDirMat;
+		//invVDirMat = XMMatrixInverse(&XMMatrixDeterminant(VMat()), VMat());
+
 		ray->o = eye;
 		ray->d = MultiplyDir(vDir, invVDirMat);
 	}

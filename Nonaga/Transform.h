@@ -42,6 +42,11 @@ public:
 	{
 		forward = _forward;
 		up = _up;
+
+		float l1 = Length(forward);
+		float l2 = Length(up);
+		if (l1 < 0.9f || l1 > 1.1f || l2 < 0.9f || l2 > 1.1f)
+			int a = 0;
 		right = Cross(_up, _forward);
 	}
 	void SetRot(XMFLOAT3 _forward, XMFLOAT3 _up, XMFLOAT3 _right) {

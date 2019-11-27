@@ -77,7 +77,6 @@ void Lobby::Update(float elapsed, float spf)
 {
 	const float fadeDuration = 2;
 	float fadeT = -spf / fadeDuration;
-	Debugging::Instance()->Draw("Fade t = ", fadeT, 10, 10);
 
 	switch (curStage)
 	{

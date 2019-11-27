@@ -11,8 +11,7 @@
 #include "ShaderReg.h"
 
 Skybox::Skybox(ID3D11ShaderResourceView* srv)
-	:Object(
-		new Sphere(5),
+	:Object(new Sphere(5),
 		"CMVS.cso", Std_ILayouts,ARRAYSIZE(Std_ILayouts),
 		"","","",
 		"CMPS.cso",Z_ORDER_STANDARD)
@@ -47,7 +46,7 @@ void Skybox::Mapping()
 	DX_DContext->PSSetSamplers(SHADER_REG_PS_SAMP_CM, 1, samplerState.GetAddressOf());
 }
 
-void Skybox::Update()
+void Skybox::Update(const XMMATRIX& prevWorld)
 {
 	transform->SetTranslation(CameraMgr::Instance()->Main()->transform->GetPos());
 }

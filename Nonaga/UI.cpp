@@ -201,6 +201,7 @@ void UICanvas::Render(UINT sceneDepth)
 	if (sceneDepth >= 1)
 		return;
 
+
 	for (auto ui : UIs)
 	{
 		if (ui->Enabled())
