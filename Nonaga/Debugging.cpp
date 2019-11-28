@@ -19,7 +19,7 @@
 
 Debugging::Debugging()
 {
-	debugCam = new Camera("DebugCamera", FRAME_KIND_PERSPECTIVE, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1f, 1000.0f, XM_PIDIV2, 1);
+	debugCam = new Camera("DebugCamera", FRAME_KIND_PERSPECTIVE, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1f, 1000.0f, XM_PIDIV2, 1,false);
 	debugCam->transform->SetTranslation(XMFLOAT3(0, 10, -30));
 	debugCam->transform->SetRot(FORWARD, UP);
 	if(CameraMgr::Instance()->GetMainKey()=="")

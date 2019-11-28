@@ -86,7 +86,7 @@ ShadowMap::ShadowMap(UINT resX, UINT resY, UINT width, UINT height)
 	mapVS = new VShader("ShadowVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
 	mapVS->AddCB(0, 1, sizeof(XMMATRIX));
 
-	view = new Camera(FRAME_KIND_ORTHOGONAL, width, height, 0.1f, 500.0f, XM_PIDIV2, 1);
+	view = new Camera(FRAME_KIND_ORTHOGONAL, width, height, 0.1f, 500.0f, XM_PIDIV2, 1, true);
 	cbVPMat = new Buffer(sizeof(XMMATRIX));
 }
 

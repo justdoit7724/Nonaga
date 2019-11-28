@@ -5,5 +5,7 @@ class Cylinder :
 {
 public:
 	Cylinder(const int intensity);
+private:
+	void CalcMinMaxPt(Vertex* vertice, int vertCount);
 };
 

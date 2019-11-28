@@ -32,6 +32,18 @@ Tile::Tile(bool isRed)
 	transform->SetScale(10, 1, 10);
 }
 
+void Tile::UpdateBound()
+{
+	XMFLOAT3 boundlMinPt;
+	XMFLOAT3 boundlMaxPt;
+	shape->GetLBound(&boundlMinPt, &boundlMaxPt);
+	XMMATRIX world = transform->WorldMatrix();
+	XMFLOAT3 wMinPt = Multiply(boundlMinPt, world);
+	XMFLOAT3 wMaxPt = Multiply(boundlMaxPt, world);
+	bound.p = transform->GetPos();
+	bound.rad = fabsf(wMinPt.x - wMaxPt.x) * 0.5f;
+}
+
 void Tile::Move(int toId, XMFLOAT3 pos)
 {
 	id = toId;

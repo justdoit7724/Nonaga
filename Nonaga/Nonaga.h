@@ -8,6 +8,7 @@ class Tile;
 class PlaySpace;
 class Scene;
 class Object;
+struct Frustum;
 
 #define NONE -1
 
@@ -42,7 +43,7 @@ public:
 	void Update(const Geometrics::Ray ray);
 	void Objs(std::vector<Object*>& objOutput);
 
-	void Render(const XMMATRIX& vp, unsigned int sceneDepth)const;
+	void Render(const XMMATRIX& vp, const Frustum& frustum, unsigned int sceneDepth)const;
 	
 private:
 	bool IsWin();

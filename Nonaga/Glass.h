@@ -11,7 +11,7 @@ public:
 	Glass(Scene* captureScene, Shape* shape);
 	~Glass();
 
-	void Render(const XMMATRIX& vp, const Frustum* frustum, UINT sceneDepth)const override;
+	void Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth)const override;
 
 private:
 	Scene* captureScene;

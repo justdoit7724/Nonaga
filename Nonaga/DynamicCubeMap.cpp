@@ -101,17 +101,17 @@ DynamicCubeMap::DynamicCubeMap(Scene* captureScene, Shape* shape)
 	captureViewport.MinDepth = 0.0f;
 	captureViewport.MaxDepth = 1.0f;
 
-	captureCamera[0] = new Camera(FRAME_KIND_PERSPECTIVE, NULL, NULL, 1.0f, 100.0f, XM_PIDIV2, 1);
+	captureCamera[0] = new Camera(FRAME_KIND_PERSPECTIVE, NULL, NULL, 1.0f, 100.0f, XM_PIDIV2, 1,false);
 	captureCamera[0]->transform->SetRot(RIGHT, UP);
-	captureCamera[1] = new Camera(FRAME_KIND_PERSPECTIVE, NULL, NULL, 1.0f, 100.0f, XM_PIDIV2, 1);
+	captureCamera[1] = new Camera(FRAME_KIND_PERSPECTIVE, NULL, NULL, 1.0f, 100.0f, XM_PIDIV2, 1, false);
 	captureCamera[1]->transform->SetRot(-RIGHT, UP);
-	captureCamera[2] = new Camera(FRAME_KIND_PERSPECTIVE, NULL, NULL, 1.0f, 100.0f, XM_PIDIV2, 1);
+	captureCamera[2] = new Camera(FRAME_KIND_PERSPECTIVE, NULL, NULL, 1.0f, 100.0f, XM_PIDIV2, 1, false);
 	captureCamera[2]->transform->SetRot(UP, -FORWARD);
-	captureCamera[3] = new Camera(FRAME_KIND_PERSPECTIVE, NULL, NULL, 1.0f, 100.0f, XM_PIDIV2, 1);
+	captureCamera[3] = new Camera(FRAME_KIND_PERSPECTIVE, NULL, NULL, 1.0f, 100.0f, XM_PIDIV2, 1, false);
 	captureCamera[3]->transform->SetRot(-UP, FORWARD);
-	captureCamera[4] = new Camera(FRAME_KIND_PERSPECTIVE, NULL, NULL, 1.0f, 100.0f, XM_PIDIV2, 1);
+	captureCamera[4] = new Camera(FRAME_KIND_PERSPECTIVE, NULL, NULL, 1.0f, 100.0f, XM_PIDIV2, 1, false);
 	captureCamera[4]->transform->SetRot(FORWARD, UP);
-	captureCamera[5] = new Camera(FRAME_KIND_PERSPECTIVE, NULL, NULL, 1.0f, 100.0f, XM_PIDIV2, 1);
+	captureCamera[5] = new Camera(FRAME_KIND_PERSPECTIVE, NULL, NULL, 1.0f, 100.0f, XM_PIDIV2, 1, false);
 	captureCamera[5]->transform->SetRot(-FORWARD, UP);
 }
 
@@ -123,7 +123,7 @@ DynamicCubeMap::~DynamicCubeMap()
 	}
 }
 
-void DynamicCubeMap::Render(const XMMATRIX& vp, const Frustum* frustum, UINT sceneDepth) const
+void DynamicCubeMap::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) const
 {
 	if (sceneDepth > 0)
 		return;
@@ -146,6 +146,7 @@ void DynamicCubeMap::Render(const XMMATRIX& vp, const Frustum* frustum, UINT sce
 
 		DX_DContext->ClearRenderTargetView(captureRTV[i].Get(), Colors::Transparent);
 		DX_DContext->ClearDepthStencilView(captureDSV.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
 
 		DX_DContext->OMSetRenderTargets(1, captureRTV[i].GetAddressOf(), captureDSV.Get());
 		DX_DContext->RSSetViewports(1, &captureViewport);

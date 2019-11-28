@@ -11,6 +11,7 @@
 #include "MeshLoader.h"
 #include "Game_info.h"
 #include "Scene.h"
+#include "Debugging.h"
 
 Shape* Token::mesh = nullptr;
 Camera* Token::captureCam = nullptr;
@@ -28,7 +29,8 @@ Token::Token(Scene* environemnt, unsigned int id, bool p1)
 	
 	if (captureCam == nullptr)
 	{
-		captureCam = new Camera(FRAME_KIND_PERSPECTIVE, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1f, 100, XM_PIDIV2, 1);
+		captureCam = new Camera(FRAME_KIND_PERSPECTIVE, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1f, 100, XM_PIDIV2, 1,false);
+		Debugging::Instance()->Visualize(captureCam);
 	}
 	if (mesh==nullptr)
 	{
@@ -141,9 +143,9 @@ Token::Token(bool isRed)
 	ps->WriteSRV(SHADER_REG_PS_SRV_NORMAL, TextureMgr::Instance()->Get("tokenNormal"));
 }
 
-void Token::Render(const XMMATRIX& vp, const Frustum* frustum, UINT sceneDepth) const
+void Token::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) const
 {
-	if (frustum == nullptr || IsInsideFrustum(frustum))
+	if (IsInsideFrustum(frustum))
 	{
 		const SHADER_STD_TRANSF STransformation(transform->WorldMatrix(), vp);
 
@@ -156,15 +158,21 @@ void Token::Render(const XMMATRIX& vp, const Frustum* frustum, UINT sceneDepth) 
 				vs->WriteCB(1, &CameraMgr::Instance()->Main()->transform->GetPos());
 				ds->WriteCB(0, &(STransformation.vp));
 
-				// save prev CubeMap
-				ID3D11ShaderResourceView* oriCM = nullptr;
-				DX_DContext->PSGetShaderResources(SHADER_REG_PS_SRV_CM, 1, &oriCM);
+				if (isP1)
+				{
+					Object::Render();
+				}
+				else
+				{
+					ID3D11ShaderResourceView* oriCM = nullptr;
+					DX_DContext->PSGetShaderResources(SHADER_REG_PS_SRV_CM, 1, &oriCM);
 
-				DrawDCM(sceneDepth + 1);
+					DrawDCM(sceneDepth + 1);
 
-				Object::Render();
+					Object::Render();
 
-				DX_DContext->PSSetShaderResources(SHADER_REG_PS_SRV_CM, 1, &oriCM);
+					DX_DContext->PSSetShaderResources(SHADER_REG_PS_SRV_CM, 1, &oriCM);
+				}
 			}
 			else
 			{
@@ -207,12 +215,13 @@ void Token::DrawDCM(UINT sceneDepth)const
 	ID3D11ShaderResourceView* nullSRV = nullptr;
 	DX_DContext->PSSetShaderResources(SHADER_REG_PS_SRV_CM, 1, &nullSRV);
 
-	Capture(RIGHT, UP, captureRTV[0].Get(), captureDSV.Get(), sceneDepth);
-	Capture(-RIGHT, UP, captureRTV[1].Get(), captureDSV.Get(), sceneDepth);
+	//debug decomment all cpature func
+	//Capture(RIGHT, UP, captureRTV[0].Get(), captureDSV.Get(), sceneDepth);
+	//Capture(-RIGHT, UP, captureRTV[1].Get(), captureDSV.Get(), sceneDepth);
 	Capture(UP, -FORWARD, captureRTV[2].Get(), captureDSV.Get(), sceneDepth);
-	Capture(-UP, FORWARD, captureRTV[3].Get(), captureDSV.Get(), sceneDepth);
-	Capture(FORWARD, UP, captureRTV[4].Get(), captureDSV.Get(), sceneDepth);
-	Capture(-FORWARD, UP, captureRTV[5].Get(), captureDSV.Get(), sceneDepth);
+	//Capture(-UP, FORWARD, captureRTV[3].Get(), captureDSV.Get(), sceneDepth);
+	//Capture(FORWARD, UP, captureRTV[4].Get(), captureDSV.Get(), sceneDepth);
+	//Capture(-FORWARD, UP, captureRTV[5].Get(), captureDSV.Get(), sceneDepth);
 
 	DX_DContext->OMSetRenderTargets(1, &oriRTV, oriDSV);
 

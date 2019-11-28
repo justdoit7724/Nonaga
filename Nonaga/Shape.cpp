@@ -74,6 +74,7 @@ void Shape::Init(Vertex* vertice, UINT vertByteSize, UINT vertCount, const UINT*
 	);
 }
 
+
 void Shape::CalculateTangent(XMFLOAT3 v0, XMFLOAT3 v1, XMFLOAT3 v2, XMFLOAT2 t0, XMFLOAT2 t1, XMFLOAT2 t2, OUT XMFLOAT3* tangent)
 {
 	XMFLOAT2 dt0 = t1 - t0;

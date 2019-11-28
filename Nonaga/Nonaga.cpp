@@ -332,25 +332,34 @@ void NonagaStage::Update(const Geometrics::Ray ray)
 
 void NonagaStage::Objs(std::vector<Object*>& objOutput)
 {
+	//debug decomment
 	/*for (int i = 0; i < TOKEN_OBJ_COUNT_TOTAL; ++i)
 	{
 		objOutput.push_back(tokens[i]);
 	}*/
-	for (int i = 0; i < TILE_OBJ_COUNT; ++i)
+	/*for (int i = 0; i < TILE_OBJ_COUNT; ++i)
 	{
 		objOutput.push_back(tiles[i]);
-	}
+	}*/
+
+	//debug remove
+	objOutput.push_back(tiles[6]);
+	Debugging::Instance()->Visualize(tiles[6]);
+
+	//debug remove
+	objOutput.push_back(tokens[0]);
+	objOutput.push_back(tokens[1]);
 }
 
-void NonagaStage::Render(const XMMATRIX& vp, unsigned int sceneDepth) const
+void NonagaStage::Render(const XMMATRIX& vp, const Frustum& frustum, unsigned int sceneDepth) const
 {
 	if (sceneDepth != 0)
 		return;
 
-	redTile->Render(vp, nullptr, sceneDepth);
-	greenTile->Render(vp, nullptr, sceneDepth);
-	redToken->Render(vp, nullptr, sceneDepth);
-	greenToken->Render(vp, nullptr, sceneDepth);
+	redTile->Render(vp, frustum, sceneDepth);
+	greenTile->Render(vp, frustum, sceneDepth);
+	redToken->Render(vp, frustum, sceneDepth);
+	greenToken->Render(vp, frustum, sceneDepth);
 }
 
 NonagaLogic::NonagaLogic(PlaySpace* const* space)

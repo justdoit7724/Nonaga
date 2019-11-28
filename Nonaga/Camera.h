@@ -21,6 +21,7 @@ class Buffer;
 
 struct Frustum
 {
+	bool skip;
 	Geometrics::PlaneInf front;
 	Geometrics::PlaneInf back;
 	Geometrics::PlaneInf right;
@@ -32,10 +33,8 @@ struct Frustum
 class Camera : public IDebug
 {
 public:
-	Camera(std::string key, const Camera* camera);
-	Camera(const Camera* camera);
-	Camera(std::string key, FRAME_KIND frameKind, float screenWidth, float screenHeight, float nearPlane, float farPlane, float verticalViewRad, float aspectRatio);
-	Camera(FRAME_KIND frameKind, float screenWidth, float screenHeight, float nearPlane, float farPlane, float verticalViewRad, float aspectRatio);
+	Camera(std::string key, FRAME_KIND frameKind, float screenWidth, float screenHeight, float nearPlane, float farPlane, float verticalViewRad, float aspectRatio, bool skipFrustum);
+	Camera(FRAME_KIND frameKind, float screenWidth, float screenHeight, float nearPlane, float farPlane, float verticalViewRad, float aspectRatio, bool skipFrustum);
 	~Camera();
 	void SetFrame(const FRAME_KIND fKind, XMFLOAT2 orthoSize, const float nearPlane, const float farPlane, const float verticalViewAngle, const float aspectRatio);
 	void Update();
@@ -56,7 +55,7 @@ public:
 	float GetVRad()const { return verticalRadian; }
 	float GetAspectRatio()const { return aspectRatio; }
 
-	const Frustum* GetFrustum()const { return &frustum; }
+	const Frustum& GetFrustum()const { return frustum; }
 
 	Transform* transform;
 

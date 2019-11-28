@@ -20,7 +20,7 @@ void Scene::Update(float elapsed, float spf)
 	}
 }
 
-void Scene::Render(const XMMATRIX& vp, const Frustum* frustum, UINT sceneDepth) const
+void Scene::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) const
 {
 	for (auto obj : objs)
 	{

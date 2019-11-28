@@ -21,6 +21,7 @@ protected:
 	UINT idxCount;
 
 private:
+
 	XMFLOAT3 lMinPt, lMaxPt;
 	ComPtr<ID3D11Buffer> vertexBuffer=nullptr;
 	ComPtr<ID3D11Buffer> indexBuffer=nullptr;

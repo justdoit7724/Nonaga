@@ -29,7 +29,7 @@ GamePlayScene::GamePlayScene()
 		XMFLOAT3(0.8f, 0.8f, 0.8f),
 		Normalize(XMFLOAT3(2,-1,0)));
 
-	camera = new Camera("GamePlay", FRAME_KIND_ORTHOGONAL, SCREEN_WIDTH/10, SCREEN_HEIGHT/10, 0.1f, 300.0f, NULL, NULL);
+	camera = new Camera("GamePlay", FRAME_KIND_ORTHOGONAL, SCREEN_WIDTH/10, SCREEN_HEIGHT/10, 0.1f, 300.0f, NULL, NULL,true);
 	camera->transform->SetTranslation(XMFLOAT3(0, curCamDist, 0));
 	camera->transform->SetRot(-UP, FORWARD);
 	XMStoreFloat4x4(&orthogonalP, camera->StdProjMat());
@@ -156,7 +156,7 @@ void GamePlayScene::Update(float elapsed, float spf)
 	ssao->Mapping(this, camera);
 }
 
-void GamePlayScene::Render(const XMMATRIX& vp, const Frustum* frustum, UINT sceneDepth) const
+void GamePlayScene::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) const
 {
 	dLight->Apply();
 

@@ -102,17 +102,17 @@ Glass::Glass(Scene* captureScene, Shape* shape)
 	captureViewport.MinDepth = 0.0f;
 	captureViewport.MaxDepth = 1.0f;
 
-	captureCamera[0] = new Camera(FRAME_KIND_PERSPECTIVE, NULL, NULL, 1.0f, 100.0f, XM_PIDIV2, 1);
+	captureCamera[0] = new Camera(FRAME_KIND_PERSPECTIVE, NULL, NULL, 1.0f, 100.0f, XM_PIDIV2, 1, false);
 	captureCamera[0]->transform->SetRot(RIGHT, UP);
-	captureCamera[1] = new Camera(FRAME_KIND_PERSPECTIVE, NULL, NULL, 1.0f, 100.0f, XM_PIDIV2, 1);
+	captureCamera[1] = new Camera(FRAME_KIND_PERSPECTIVE, NULL, NULL, 1.0f, 100.0f, XM_PIDIV2, 1, false);
 	captureCamera[1]->transform->SetRot(-RIGHT, UP);
-	captureCamera[2] = new Camera(FRAME_KIND_PERSPECTIVE, NULL, NULL, 1.0f, 100.0f, XM_PIDIV2, 1);
+	captureCamera[2] = new Camera(FRAME_KIND_PERSPECTIVE, NULL, NULL, 1.0f, 100.0f, XM_PIDIV2, 1, false);
 	captureCamera[2]->transform->SetRot(UP, -FORWARD);
-	captureCamera[3] = new Camera(FRAME_KIND_PERSPECTIVE, NULL, NULL, 1.0f, 100.0f, XM_PIDIV2, 1);
+	captureCamera[3] = new Camera(FRAME_KIND_PERSPECTIVE, NULL, NULL, 1.0f, 100.0f, XM_PIDIV2, 1, false);
 	captureCamera[3]->transform->SetRot(-UP, FORWARD);
-	captureCamera[4] = new Camera(FRAME_KIND_PERSPECTIVE, NULL, NULL, 1.0f, 100.0f, XM_PIDIV2, 1);
+	captureCamera[4] = new Camera(FRAME_KIND_PERSPECTIVE, NULL, NULL, 1.0f, 100.0f, XM_PIDIV2, 1, false);
 	captureCamera[4]->transform->SetRot(FORWARD, UP);
-	captureCamera[5] = new Camera(FRAME_KIND_PERSPECTIVE, NULL, NULL, 1.0f, 100.0f, XM_PIDIV2, 1);
+	captureCamera[5] = new Camera(FRAME_KIND_PERSPECTIVE, NULL, NULL, 1.0f, 100.0f, XM_PIDIV2, 1, false);
 	captureCamera[5]->transform->SetRot(-FORWARD, UP);
 }
 
@@ -124,9 +124,9 @@ Glass::~Glass()
 	}
 }
 
-void Glass::Render(const XMMATRIX& vp, const Frustum* frustum, UINT sceneDepth) const
+void Glass::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) const
 {
-	if (frustum == nullptr || IsInsideFrustum(frustum))
+	if (IsInsideFrustum(frustum))
 	{
 		XMMATRIX curWorld = transform->WorldMatrix();
 

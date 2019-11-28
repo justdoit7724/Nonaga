@@ -7,6 +7,8 @@ public:
 	Tile(unsigned int id);
 	Tile(bool isRed);
 
+	void UpdateBound()override;
+
 	void Move(int toId, XMFLOAT3 pos);
 
 	unsigned int ID() { return id; }

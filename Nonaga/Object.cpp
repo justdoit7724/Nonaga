@@ -118,9 +118,9 @@ void Object::Render()const
 
 	shape->Apply();
 }
-void Object::Render(const XMMATRIX& vp, const Frustum* frustum, UINT sceneDepth) const
+void Object::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) const
 {
-	if (frustum == nullptr || IsInsideFrustum(frustum))
+	if (IsInsideFrustum(frustum))
 	{
 		if (!enabled || !show)
 			return;
@@ -141,15 +141,32 @@ void Object::RenderGeom() const
 	shape->Apply();
 }
 
-bool Object::IsInsideFrustum(const Frustum* frustum) const
+bool Object::IsInsideFrustum(const Frustum& frustum) const
 {
-	return (
+	if (frustum.skip)
+		return true;
+
+	//debug change
+	if (!IntersectInPlaneSphere(frustum.front, bound))
+		return false;
+	if(!IntersectInPlaneSphere(frustum.back, bound))
+		return false;
+	if(!IntersectInPlaneSphere(frustum.right, bound))
+		return false;
+	if(!IntersectInPlaneSphere(frustum.left, bound))
+		return false;
+	if(!IntersectInPlaneSphere(frustum.top, bound))
+		return false;
+	if(!IntersectInPlaneSphere(frustum.bottom, bound))
+		return false;
+	return true;
+	/*return (
 		IntersectInPlaneSphere(frustum->front, bound) &&
 		IntersectInPlaneSphere(frustum->back, bound) &&
 		IntersectInPlaneSphere(frustum->right, bound) &&
 		IntersectInPlaneSphere(frustum->left, bound) &&
 		IntersectInPlaneSphere(frustum->top, bound) &&
-		IntersectInPlaneSphere(frustum->bottom, bound));
+		IntersectInPlaneSphere(frustum->bottom, bound));*/
 }
 
 bool Object::IsPicking(const Geometrics::Ray ray) const
@@ -159,7 +176,7 @@ bool Object::IsPicking(const Geometrics::Ray ray) const
 
 void Object::Visualize()
 {
-	if(IsInsideFrustum(CameraMgr::Instance()->Main()->GetFrustum()))
+	//if(IsInsideFrustum(CameraMgr::Instance()->Main()->GetFrustum()))
 		Debugging::Instance()->Mark(bound.p, bound.rad, Colors::LightGreen);
 }
 

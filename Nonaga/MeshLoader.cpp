@@ -191,12 +191,13 @@ void MeshLoader::LoadToken(Shape** storage)
 {
 	Assimp::Importer importer;
 
-	const aiScene* pScene = importer.ReadFile("Data\\Model\\Token\\TOKENf2.obj",
+	const aiScene* pScene = importer.ReadFile("Data\\Model\\Token\\TOKENf1.obj",
 		aiProcess_MakeLeftHanded |
 		aiProcess_FlipUVs |
 		aiProcess_FlipWindingOrder |
 		aiProcess_CalcTangentSpace |
-		aiProcess_Triangulate);
+		aiProcess_Triangulate |
+		aiProcess_JoinIdenticalVertices);
 
 	assert(
 		pScene != nullptr &&

@@ -7,23 +7,7 @@
 
 #define Z_ORDER_MAX 5
 
-Camera::Camera(std::string key, const Camera* camera)
-{
-	CameraMgr::Instance()->Add(key, this);
-
-	transform = new Transform();
-
-	SetFrame(camera->GetFrame(), camera->GetSize(), camera->GetN(), camera->GetF(), camera->GetVRad(), camera->GetAspectRatio());
-	SetView();
-}
-Camera::Camera(const Camera* camera)
-{
-	transform = new Transform();
-
-	SetFrame(camera->GetFrame(), camera->GetSize(), camera->GetN(), camera->GetF(), camera->GetVRad(), camera->GetAspectRatio());
-	SetView();
-}
-Camera::Camera(std::string key, FRAME_KIND frameKind, float orthoScnWidth, float orthoScnHeight, float n, float f, float verticalViewRad, float aspectRatio)
+Camera::Camera(std::string key, FRAME_KIND frameKind, float orthoScnWidth, float orthoScnHeight, float n, float f, float verticalViewRad, float aspectRatio, bool skipFrustum)
 	:key(key)
 {
 	CameraMgr::Instance()->Add(key, this);
@@ -32,14 +16,18 @@ Camera::Camera(std::string key, FRAME_KIND frameKind, float orthoScnWidth, float
 
 	SetView();
 	SetFrame(frameKind, XMFLOAT2(orthoScnWidth, orthoScnHeight), n, f, verticalViewRad, aspectRatio);
+
+	frustum.skip = skipFrustum;
 }
-Camera::Camera(FRAME_KIND frameKind, float orthoScnWidth, float orthoScnHeight, float n, float f, float verticalViewRad, float aspectRatio)
+Camera::Camera(FRAME_KIND frameKind, float orthoScnWidth, float orthoScnHeight, float n, float f, float verticalViewRad, float aspectRatio, bool skipFrustum)
 	:key(key)
 {
 	transform = new Transform();
 
 	SetView();
 	SetFrame(frameKind, XMFLOAT2(orthoScnWidth, orthoScnHeight), n, f, verticalViewRad, aspectRatio);
+
+	frustum.skip = skipFrustum;
 }
 
 Camera::~Camera()
@@ -137,27 +125,30 @@ void Camera::SetView()
 
 void Camera::Update()
 {
-	XMFLOAT3 p = transform->GetPos();
-	XMFLOAT3 forward = transform->GetForward();
-	XMFLOAT3 up = transform->GetUp();
-	XMFLOAT3 right = transform->GetRight();
+	if (!frustum.skip)
+	{
+		XMFLOAT3 p = transform->GetPos();
+		XMFLOAT3 forward = transform->GetForward();
+		XMFLOAT3 up = transform->GetUp();
+		XMFLOAT3 right = transform->GetRight();
 
-	float tri = tan(verticalRadian * 0.5f);
-	XMFLOAT3 trDir =Normalize(
-		right * tri * f * aspectRatio +
-		up * tri * f +
-		forward * f);
-	XMFLOAT3 blDir =Normalize(
-		-right * tri * f * aspectRatio +
-		-up * tri * f +
-		forward * f);
+		float tri = tan(verticalRadian * 0.5f);
+		XMFLOAT3 trDir = Normalize(
+			right * tri * f * aspectRatio +
+			up * tri * f +
+			forward * f);
+		XMFLOAT3 blDir = Normalize(
+			-right * tri * f * aspectRatio +
+			-up * tri * f +
+			forward * f);
 
-	frustum.front = Geometrics::PlaneInf(p + forward * f, -forward);
-	frustum.back = Geometrics::PlaneInf(p + forward * n, forward);
-	frustum.left = Geometrics::PlaneInf(p, Cross(up, blDir));
-	frustum.right = Geometrics::PlaneInf(p, Cross(-up, trDir));
-	frustum.top = Geometrics::PlaneInf(p, Cross(right, trDir));
-	frustum.bottom = Geometrics::PlaneInf(p, Cross(blDir, right));
+		frustum.front = Geometrics::PlaneInf(p + forward * f, -forward);
+		frustum.back = Geometrics::PlaneInf(p + forward * n, forward);
+		frustum.left = Geometrics::PlaneInf(p, Cross(up, blDir));
+		frustum.right = Geometrics::PlaneInf(p, Cross(-up, trDir));
+		frustum.top = Geometrics::PlaneInf(p, Cross(right, trDir));
+		frustum.bottom = Geometrics::PlaneInf(p, Cross(blDir, right));
+	}
 
 	SetView();
 }
