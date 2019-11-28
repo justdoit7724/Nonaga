@@ -30,7 +30,7 @@ GamePlayScene::GamePlayScene()
 		Normalize(XMFLOAT3(2,-1,0)));
 
 	camera = new Camera("GamePlay", FRAME_KIND_ORTHOGONAL, SCREEN_WIDTH/10, SCREEN_HEIGHT/10, 0.1f, 200.0f, NULL, NULL);
-	camera->transform->SetTranslation(XMFLOAT3(0, 40, 0));
+	camera->transform->SetTranslation(XMFLOAT3(0, curCamDist, 0));
 	camera->transform->SetRot(-UP, FORWARD);
 	XMStoreFloat4x4(&orthogonalP, camera->StdProjMat());
 
@@ -48,20 +48,16 @@ GamePlayScene::GamePlayScene()
 	cm.push_back("Data\\Texture\\cm_nz.jpg");
 	TextureMgr::Instance()->LoadCM("cm", cm);
 	skybox = new Skybox(TextureMgr::Instance()->Get("cm"));
-	//debug decomment
-	//AddObj(skybox);
+	AddObj(skybox);
 
 	nonaga = new NonagaStage(this);
 	std::vector<Object*> gameObjs;
 	nonaga->Objs(gameObjs);
-	parentObj = new Object(new Cube(), nullptr, nullptr);
-	parentObj->transform->SetScale(100, 100, 100);
-	parentObj->SetShow(false);
 	for (auto go : gameObjs)
 	{
-		parentObj->AddChildren(go);
+		AddObj(go);
 	}
-	AddObj(parentObj);
+	
 
 	cbEye = new Buffer(sizeof(XMFLOAT4));
 
@@ -70,9 +66,11 @@ GamePlayScene::GamePlayScene()
 	curP = XMMatrixIdentity();
 
 	slideStartPt = camera->transform->GetPos();
+	slideEndPt = -slideEndForward * curCamDist;
 	slideEndForward = Normalize(XMFLOAT3(0, -1, 4));
-	slideEndPt = -slideEndForward * radFromCenter;
 	slideEndUp = Normalize(XMFLOAT3(0, 4, 1));
+	moveAngleX = acos(Dot(FORWARD, slideEndForward));
+	moveAngleY = 0;
 
 	shadowMapping = new ShadowMap(4096, 4096, 128, 128);
 	ssao = new SSAOMap();
@@ -96,38 +94,31 @@ void GamePlayScene::BindEye()
 	DX_DContext->PSSetConstantBuffers(SHADER_REG_PS_CB_EYE, 1, cbEye->GetAddress());
 }
 
-void GamePlayScene::ObjMove(float spf)
+void GamePlayScene::CameraMove(float spf)
 {
-	static float angleX = 0;
-	static float angleY = 0;
-	static XMFLOAT2 prevMousePt=XMFLOAT2(0,0);
+	curCamDist += spf * closeUpSpeed * Mouse::Instance()->GetWheel();
+
+	static XMFLOAT2 prevMousePt = XMFLOAT2(0, 0);
 	XMFLOAT3 cameraForward = camera->transform->GetForward();
 	XMFLOAT2 mPt = Mouse::Instance()->Pos();
 	if (Mouse::Instance()->RightState() == MOUSE_STATE_PRESSING)
 	{
-		angleX += angleSpeed * spf * (prevMousePt.x-mPt.x);
+		moveAngleY += angleSpeed * spf * (mPt.x - prevMousePt.x);
 
-		angleY += (prevMousePt.y - mPt.y)*angleSpeed * spf;
-		const float offset = acosf(Dot(cameraForward, FORWARD));
-		angleY = Clamp(-XM_PIDIV2+offset, XM_PIDIV4+offset, angleY);
+		moveAngleX += (mPt.y-prevMousePt.y) * angleSpeed * spf;
+		moveAngleX = Clamp(-XM_PIDIV4, XM_PIDIV2-0.01f, moveAngleX);
 	}
 	prevMousePt.x = mPt.x;
 	prevMousePt.y = mPt.y;
-	XMFLOAT3 u = MultiplyDir(UP, XMMatrixRotationX(angleY));
-	XMFLOAT3 f = RotateFromDir(Cross(u, -RIGHT), u, angleX);
-	parentObj->transform->SetRot(f, u);
-}
-void GamePlayScene::CameraMove(float spf)
-{
-	const float closeUpSpeed = 100;
-	XMFLOAT3 offset = camera->transform->GetForward() * spf * closeUpSpeed * Mouse::Instance()->GetWheel();
-
-	camera->transform->SetTranslation(camera->transform->GetPos() + offset);
+	XMMATRIX rot = XMMatrixRotationX(moveAngleX)*XMMatrixRotationY(moveAngleY);
+	XMFLOAT3 f = MultiplyDir(FORWARD, rot);
+	XMFLOAT3 r = Normalize(Cross(UP, f));
+	XMFLOAT3 u = Cross(f, r);
+	camera->transform->SetRot(f,u,r);
+	camera->transform->SetTranslation(-f * curCamDist);
 }
 void GamePlayScene::Update(float elapsed, float spf)
 {
-	Scene::Update(elapsed, spf);
-
 	switch (curStage)
 	{
 	case GAMEPLAY_STAGE_LOBBY:
@@ -145,25 +136,24 @@ void GamePlayScene::Update(float elapsed, float spf)
 	}
 		break;
 	case GAMEPLAY_STAGE_PLAY:
-		ObjMove(spf);
 		CameraMove(spf);
 
 		Geometrics::Ray camRay;
 		camera->Pick(&camRay);
 
-		nonaga->Update(camRay, parentObj->transform->R());
+		nonaga->Update(camRay);
 		break;
 	}
 
-
 	camera->Update();
 
-	BindEye();
+	Scene::Update(elapsed, spf);
 
-	//debug decomment
-	//skybox->Mapping();
-	//shadowMapping->Mapping(this, dLight);
-	//ssao->Mapping(this, camera);
+	//binding
+	BindEye();
+	skybox->Mapping();
+	shadowMapping->Mapping(this, dLight);
+	ssao->Mapping(this, camera);
 }
 
 void GamePlayScene::Render(const XMMATRIX& vp, const Frustum* frustum, UINT sceneDepth) const
@@ -184,7 +174,6 @@ void GamePlayScene::Render(const XMMATRIX& vp, const Frustum* frustum, UINT scen
 	}
 
 	Scene::Render(curTempVP, frustum, sceneDepth);
-	nonaga->Render(curTempVP, sceneDepth);
 }
 
 void GamePlayScene::Message(UINT msg)
@@ -216,12 +205,12 @@ void GamePlayScene::CameraFrameLerping(float t)
 
 void GamePlayScene::CameraSliding(float t)
 {
-	float mt = sinf((t - 0.5f) * XM_PI + 1) / 2;
+	float mt = (1-cosf(t * XM_PI)) / 2;
 
 	XMFLOAT3 sForward = Normalize(Lerp(-UP, slideEndForward, mt));
 	XMFLOAT3 sUp = Normalize(Lerp(FORWARD, slideEndUp, mt));
 
-	camera->transform->SetTranslation(-sForward* radFromCenter);
+	camera->transform->SetTranslation(-sForward* curCamDist);
 	camera->transform->SetRot(sForward, sUp);
 }
 

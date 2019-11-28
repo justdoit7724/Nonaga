@@ -39,7 +39,7 @@ public:
 	NonagaStage(Scene* environment);
 	~NonagaStage();
 
-	void Update(const Geometrics::Ray ray, const XMMATRIX& moveWorld);
+	void Update(const Geometrics::Ray ray);
 	void Objs(std::vector<Object*>& objOutput);
 
 	void Render(const XMMATRIX& vp, unsigned int sceneDepth)const;
@@ -50,7 +50,7 @@ private:
 	void TokenDragging();
 	void TileDragStart(const Geometrics::Ray ray);
 	void TileDragging();
-	bool GetCurID2(const Geometrics::Ray& ray, const XMMATRIX& moveRot);
+	bool GetCurID2(const Geometrics::Ray& ray);
 
 	
 	PlaySpace* playSpace[TILE_SPACE_COUNT_Z * TILE_SPACE_COUNT_X]{ nullptr };
@@ -75,8 +75,6 @@ private:
 	
 	bool isMove;
 
-	// 0~2 = p1
-	// 3~5 = p2
 	std::vector<Token*> tokens;
 	Token* redToken, * greenToken;
 	std::vector < Tile*> tiles;

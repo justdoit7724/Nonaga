@@ -123,12 +123,8 @@ DynamicCubeMap::~DynamicCubeMap()
 	}
 }
 
-void DynamicCubeMap::Render(const XMMATRIX& parentWorld, const XMMATRIX& vp, const Frustum* frustum, UINT sceneDepth) const
+void DynamicCubeMap::Render(const XMMATRIX& vp, const Frustum* frustum, UINT sceneDepth) const
 {
-	XMMATRIX curWorld = transform->WorldMatrix()*parentWorld ;
-	for (auto c : children)
-		c->Render(curWorld, vp, frustum, sceneDepth);
-
 	if (sceneDepth > 0)
 		return;
 
@@ -161,7 +157,7 @@ void DynamicCubeMap::Render(const XMMATRIX& parentWorld, const XMMATRIX& vp, con
 	DX_DContext->OMSetRenderTargets(1, &oriRTV, oriDSV);
 	DX_DContext->RSSetViewports(1, &oriVP);
 
-	vs->WriteCB(0, &SHADER_STD_TRANSF(curWorld, vp));
+	vs->WriteCB(0, &SHADER_STD_TRANSF(transform->WorldMatrix(), vp));
 	ps->WriteSRV(0, captureSRV.Get());
 
 	Object::Render();

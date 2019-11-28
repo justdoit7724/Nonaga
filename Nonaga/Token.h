@@ -11,7 +11,7 @@ public:
 	Token(Scene* environemnt, unsigned int id, bool p1);
 	Token(bool isRed);
 
-	void Render(const XMMATRIX& parentWorld, const XMMATRIX& vp, const Frustum* frustum, UINT sceneDepth) const override;
+	void Render(const XMMATRIX& vp, const Frustum* frustum, UINT sceneDepth) const override;
 
 	void Move(int toID, XMFLOAT3 pos);
 	unsigned int ID() { return id; }

@@ -9,8 +9,8 @@ public:
 	Skybox(ID3D11ShaderResourceView* srv);
 
 	void Mapping();
-	void Update(const XMMATRIX& prevWorld) override;
-	void Render(const XMMATRIX& parentWorld, const XMMATRIX& vp, const Frustum* frustum, UINT sceneDepth)const override;
+	void Update() override;
+	void Render(const XMMATRIX& vp, const Frustum* frustum, UINT sceneDepth)const override;
 	void RenderGeom() const override {};
 
 private:

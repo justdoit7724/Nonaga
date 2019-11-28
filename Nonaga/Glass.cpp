@@ -124,11 +124,11 @@ Glass::~Glass()
 	}
 }
 
-void Glass::Render(const XMMATRIX& parentWorld, const XMMATRIX& vp, const Frustum* frustum, UINT sceneDepth) const
+void Glass::Render(const XMMATRIX& vp, const Frustum* frustum, UINT sceneDepth) const
 {
 	if (frustum == nullptr || IsInsideFrustum(frustum))
 	{
-		XMMATRIX curWorld = transform->WorldMatrix() * parentWorld;
+		XMMATRIX curWorld = transform->WorldMatrix();
 
 		if (sceneDepth > 0)
 			return;

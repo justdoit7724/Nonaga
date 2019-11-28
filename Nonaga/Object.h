@@ -24,20 +24,16 @@ public:
 	Object(Shape* shape, ID3D11ShaderResourceView* diffSRV, ID3D11ShaderResourceView* normalSRV);
 	~Object();
 
-	virtual void Update(const XMMATRIX& parentWorld);
-	virtual void Render(const XMMATRIX& parentWorld, const XMMATRIX& vp, const Frustum* frustum, UINT sceneDepth) const;
+	virtual void Update();
+	virtual void Render(const XMMATRIX& vp, const Frustum* frustum, UINT sceneDepth) const;
 	virtual void RenderGeom() const;
 
 	virtual bool IsPicking(const Geometrics::Ray ray)const;
-	virtual void UpdateBound(const XMMATRIX& parentWorld);
+	virtual void UpdateBound();
 
 	void Visualize() override;
 	void SetEnabled(bool e) { enabled = e; }
 	void SetShow(bool s) { show = s; }
-
-	int ChildrenNum()const { return children.size(); }
-	void AddChildren(Object* obj);
-	void GetChildren(std::vector<const Object*>& rObj)const;
 
 	//TODO
 	Transform* transform;
@@ -63,11 +59,7 @@ protected:
 	bool enabled = true;
 	bool show = true;
 
-	XMMATRIX worldMat;
-	XMMATRIX nMat;
 
 	Geometrics::Sphere bound;
-
-	std::vector<Object*> children;
 };
 

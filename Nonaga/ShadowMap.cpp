@@ -130,46 +130,28 @@ void ShadowMap::Mapping(const Scene* depthScene, const DirectionalLight* light)
 	view->Update();
 	XMMATRIX lightVP = view->VMat() * view->StdProjMat();
 	
-	std::queue<std::pair<const Object*, XMMATRIX>> objQueue;
-	std::vector<std::pair<const Object*, XMMATRIX>> totalObjs;
-	std::vector<const Object*> rObjs;
-	depthScene->GetObjs(rObjs);
-	for (auto o : rObjs)
-		objQueue.push(std::pair<const Object*, XMMATRIX>(o, XMMatrixIdentity()));
-	while (!objQueue.empty())
-	{
-		const Object* curObj = objQueue.front().first;
-		const XMMATRIX parentWorld = objQueue.front().second; objQueue.pop();
-		totalObjs.push_back(std::pair<const Object*, XMMATRIX>(curObj, parentWorld));
-
-		rObjs.clear();
-		curObj->GetChildren(rObjs);
-		for (auto o : rObjs)
-			objQueue.push(std::pair<const Object*, XMMATRIX>(o, curObj->transform->WorldMatrix() * parentWorld));
-
-	}
+	std::vector<const Object*> totalObjs;
+	depthScene->GetObjs(totalObjs);
+	
 	for(auto t : totalObjs)
 	{
 		//every obj is in frustum in this project
 		//if (!obj->IsInsideFrustum()) continue;
 
-		const Object* curObj = t.first;
-		XMMATRIX curWorld = curObj->transform->WorldMatrix() * t.second;
-
 		rsState->Apply();
 		dsState->Apply();
 		blendState->Apply();
 
-		mapVS->WriteCB(0, &(curWorld * lightVP));
+		mapVS->WriteCB(0, &(t->transform->WorldMatrix() * lightVP));
 		mapVS->Apply();
 
 		// only triangles
-		D3D11_PRIMITIVE_TOPOLOGY curPrimitiveType = curObj->shape->GetPrimitiveType();
-		curObj->shape->SetPrimitiveType(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		D3D11_PRIMITIVE_TOPOLOGY curPrimitiveType = t->shape->GetPrimitiveType();
+		t->shape->SetPrimitiveType(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-		curObj->RenderGeom();
+		t->RenderGeom();
 
-		curObj->shape->SetPrimitiveType(curPrimitiveType);
+		t->shape->SetPrimitiveType(curPrimitiveType);
 	}
 
 	DX_DContext->RSSetViewports(1, &oriVP);

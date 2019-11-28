@@ -46,15 +46,15 @@ void Skybox::Mapping()
 	DX_DContext->PSSetSamplers(SHADER_REG_PS_SAMP_CM, 1, samplerState.GetAddressOf());
 }
 
-void Skybox::Update(const XMMATRIX& prevWorld)
+void Skybox::Update()
 {
 	transform->SetTranslation(CameraMgr::Instance()->Main()->transform->GetPos());
 }
 
 
-void Skybox::Render(const XMMATRIX& parentWorld, const XMMATRIX& vp, const Frustum* frustum, UINT sceneDepth) const
+void Skybox::Render(const XMMATRIX& vp, const Frustum* frustum, UINT sceneDepth) const
 {
-	Object::Render(parentWorld, vp,frustum, sceneDepth);
+	Object::Render(vp,frustum, sceneDepth);
 }
 
 

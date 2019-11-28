@@ -120,14 +120,10 @@ NonagaStage::~NonagaStage()
 }
 
 
-bool NonagaStage::GetCurID2(const Geometrics::Ray& ray, const XMMATRIX& moveRot)
+bool NonagaStage::GetCurID2(const Geometrics::Ray& ray)
 {
-	detectPlane.n = MultiplyDir(UP, moveRot);
-
 	XMFLOAT3 curTokenPickPt;
 	Geometrics::IntersectRayPlaneInf(ray, detectPlane, &curTokenPickPt);
-	// inv rot matrix = transpose rot matrix
-	curTokenPickPt = MultiplyDir(curTokenPickPt, DirectX::XMMatrixTranspose(moveRot));
 
 	XMFLOAT3 mTokenPt = Multiply(curTokenPickPt, invTileSpaceMat);
 	mTokenPt += XMFLOAT3(0.5f, 0, 0.5f);
@@ -212,9 +208,9 @@ void NonagaStage::TileDragging()
 }
 
 
-void NonagaStage::Update(const Geometrics::Ray ray, const XMMATRIX& moveRot)
+void NonagaStage::Update(const Geometrics::Ray ray)
 {
-	if (!GetCurID2(ray, moveRot))
+	if (!GetCurID2(ray))
 		return;
 
 	switch (curPlayState)
@@ -336,8 +332,7 @@ void NonagaStage::Update(const Geometrics::Ray ray, const XMMATRIX& moveRot)
 
 void NonagaStage::Objs(std::vector<Object*>& objOutput)
 {
-	//debug decomment
-	/*for (int i = 0; i < TOKEN_OBJ_COUNT_TOTAL; ++i)
+	for (int i = 0; i < TOKEN_OBJ_COUNT_TOTAL; ++i)
 	{
 		objOutput.push_back(tokens[i]);
 	}
@@ -345,19 +340,22 @@ void NonagaStage::Objs(std::vector<Object*>& objOutput)
 	{
 		objOutput.push_back(tiles[i]);
 	}
-	objOutput.push_back(redTile);
+	/*objOutput.push_back(redTile);
 	objOutput.push_back(greenTile);
 	objOutput.push_back(redToken);
 	objOutput.push_back(greenToken);*/
-
-	//debug remove
-	objOutput.push_back(tokens[0]);
 }
 
-void NonagaStage::Render(const XMMATRIX& vp, unsigned int sceneDepth)const
+void NonagaStage::Render(const XMMATRIX& vp, unsigned int sceneDepth) const
 {
-}
+	if (sceneDepth != 0)
+		return;
 
+	redTile->Render(vp, nullptr, sceneDepth);
+	greenTile->Render(vp, nullptr, sceneDepth);
+	redToken->Render(vp, nullptr, sceneDepth);
+	greenToken->Render(vp, nullptr, sceneDepth);
+}
 
 NonagaLogic::NonagaLogic(PlaySpace* const* space)
 	:space(space)

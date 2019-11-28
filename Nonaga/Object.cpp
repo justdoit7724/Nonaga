@@ -79,28 +79,23 @@ Object::~Object()
 	delete rsState;
 }
 
-void Object::Update(const XMMATRIX& parentWorld)
+void Object::Update()
 {
-	XMMATRIX curWorld = transform->WorldMatrix() * parentWorld;
-	for (auto child : children)
-		child->Update(curWorld);
-
 	if (!enabled)
 		return;
 
-	UpdateBound(parentWorld);
-
+	UpdateBound();
 }
 
-void Object::UpdateBound(const XMMATRIX& parentWorld)
+void Object::UpdateBound()
 {
 	XMFLOAT3 boundlMinPt;
 	XMFLOAT3 boundlMaxPt;
 	shape->GetLBound(&boundlMinPt, &boundlMaxPt);
-	XMMATRIX world = transform->WorldMatrix()*parentWorld;
+	XMMATRIX world = transform->WorldMatrix();
 	XMFLOAT3 wMinPt = Multiply(boundlMinPt, world);
 	XMFLOAT3 wMaxPt = Multiply(boundlMaxPt, world);
-	bound.p = Multiply(transform->GetPos(), parentWorld);
+	bound.p = transform->GetPos();
 	bound.rad = Length(wMinPt - wMaxPt) * 0.5f;
 }
 
@@ -123,21 +118,14 @@ void Object::Render()const
 
 	shape->Apply();
 }
-void Object::Render(const XMMATRIX& parentWorld, const XMMATRIX& vp, const Frustum* frustum, UINT sceneDepth) const
+void Object::Render(const XMMATRIX& vp, const Frustum* frustum, UINT sceneDepth) const
 {
 	if (frustum == nullptr || IsInsideFrustum(frustum))
 	{
-		XMMATRIX curWorld = transform->WorldMatrix() * parentWorld;
-
-		for (auto child : children)
-		{
-			child->Render(curWorld, vp, frustum, sceneDepth);
-		}
-
 		if (!enabled || !show)
 			return;
 
-		const SHADER_STD_TRANSF STransformation(curWorld, vp);
+		const SHADER_STD_TRANSF STransformation(transform->WorldMatrix(), vp);
 
 		vs->WriteCB(0, &STransformation);
 
@@ -173,16 +161,5 @@ void Object::Visualize()
 {
 	if(IsInsideFrustum(CameraMgr::Instance()->Main()->GetFrustum()))
 		Debugging::Instance()->Mark(bound.p, bound.rad, Colors::LightGreen);
-}
-
-void Object::AddChildren(Object* obj)
-{
-	children.push_back(obj);
-}
-
-void Object::GetChildren(std::vector<const Object*>& rObj)const
-{
-	for (auto c : children)
-		rObj.push_back(c);
 }
 

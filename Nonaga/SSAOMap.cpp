@@ -261,43 +261,28 @@ void SSAOMap::DrawNormalDepth(const Scene* scene, const Camera* camera)
 	blendState->Apply();
 	dsState->Apply();
 
-	std::queue<std::pair<const Object*, XMMATRIX>> objQueue;
-	std::vector<std::pair<const Object*, XMMATRIX>> totalObjs;
-	std::vector<const Object*> rObjs;
-	scene->GetObjs(rObjs);
-	for (auto o : rObjs)
-		objQueue.push(std::pair<const Object*, XMMATRIX>(o, XMMatrixIdentity()));
-	while (!objQueue.empty())
-	{
-		const Object* curObj = objQueue.front().first; 
-		const XMMATRIX parentWorld = objQueue.front().second; objQueue.pop();
-		rObjs.clear();
-		curObj->GetChildren(rObjs);
-		for (auto o : rObjs)
-			objQueue.push(std::pair<const Object*, XMMATRIX>(o,curObj->transform->WorldMatrix()* parentWorld));
+	std::vector<const Object*> totalObjs;
+	scene->GetObjs(totalObjs);
 
-		totalObjs.push_back(std::pair<const Object*, XMMATRIX>(curObj, parentWorld));
-	}
 	for(auto t : totalObjs)
 	{
-		const Object* curObj = t.first;
-		XMMATRIX curWorld = curObj->transform->WorldMatrix() * t.second;
+		XMMATRIX world = t->transform->WorldMatrix();
 		XMMATRIX drawTransf[4] = {
-			curWorld,
+			world,
 			camera->VMat(),
 			camera->StdProjMat(), // no z Priority for ssao
-			XMMatrixTranspose(XMMatrixInverse(&XMMatrixDeterminant(curWorld), curWorld))
+			XMMatrixTranspose(XMMatrixInverse(&XMMatrixDeterminant(world), world))
 		};
 		ndVS->WriteCB(0, drawTransf);
 		ndVS->Apply();
 
 		// only triangle
-		D3D11_PRIMITIVE_TOPOLOGY curPrimitiveType = curObj->shape->GetPrimitiveType();
-		curObj->shape->SetPrimitiveType(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		D3D11_PRIMITIVE_TOPOLOGY curPrimitiveType = t->shape->GetPrimitiveType();
+		t->shape->SetPrimitiveType(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-		curObj->RenderGeom();
+		t->RenderGeom();
 
-		curObj->shape->SetPrimitiveType(curPrimitiveType);
+		t->shape->SetPrimitiveType(curPrimitiveType);
 	}
 }
 

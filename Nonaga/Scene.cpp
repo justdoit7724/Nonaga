@@ -14,20 +14,17 @@ Scene::~Scene()
 
 void Scene::Update(float elapsed, float spf)
 {
-	XMMATRIX im = DirectX::XMMatrixIdentity();
 	for (auto obj : objs)
 	{
-		obj->Update(im);
+		obj->Update();
 	}
 }
 
 void Scene::Render(const XMMATRIX& vp, const Frustum* frustum, UINT sceneDepth) const
 {
-	XMMATRIX im = DirectX::XMMatrixIdentity();
-
 	for (auto obj : objs)
 	{
-		obj->Render(im, vp, frustum,sceneDepth);
+		obj->Render(vp, frustum,sceneDepth);
 	}
 }
 

@@ -141,11 +141,11 @@ Token::Token(bool isRed)
 	ps->WriteSRV(SHADER_REG_PS_SRV_NORMAL, TextureMgr::Instance()->Get("tokenNormal"));
 }
 
-void Token::Render(const XMMATRIX& parentWorld, const XMMATRIX& vp, const Frustum* frustum, UINT sceneDepth) const
+void Token::Render(const XMMATRIX& vp, const Frustum* frustum, UINT sceneDepth) const
 {
 	if (frustum == nullptr || IsInsideFrustum(frustum))
 	{
-		const SHADER_STD_TRANSF STransformation(transform->WorldMatrix() * parentWorld, vp);
+		const SHADER_STD_TRANSF STransformation(transform->WorldMatrix(), vp);
 
 		vs->WriteCB(0, &STransformation);
 

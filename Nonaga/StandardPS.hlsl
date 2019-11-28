@@ -78,9 +78,6 @@ float4 main(PS_INPUT input) : SV_Target
 
     float3 look = normalize(input.wPos-eyePos.xyz);
     
-    //debug
-    float3 cmDir = reflect(look, wNormal);
-    return float4(cmTex.Sample(cmSamp, cmDir).xyz, 1);
     
     float4 ambient = 0;
     float4 diffuse = 0;
@@ -133,6 +130,11 @@ float4 main(PS_INPUT input) : SV_Target
     ambient = Lerp(ambient, ambient * float4(tex, 1), smoothness)*ssao;
     
     color = ambient + diffuse + specular;
+    
+    //debug
+    float3 cmDir = reflect(look, wNormal);
+    return float4(wNormal, 1);
+    return float4(cmTex.Sample(cmSamp, cmDir).xyz, 1);
     
     return float4(color, mDiffuse.w);
 }

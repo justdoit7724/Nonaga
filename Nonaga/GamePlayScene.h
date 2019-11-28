@@ -23,7 +23,6 @@ public:
 
 private:
 	void BindEye();
-	void ObjMove(float spf);
 	void CameraMove(float spf);
 	void CameraFrameLerping(float t);
 	void CameraSliding(float t);
@@ -48,7 +47,6 @@ private:
 	Camera* camera;
 
 	NonagaStage* nonaga; 
-	Object* parentObj;
 
 	Buffer* cbEye;
 
@@ -56,7 +54,10 @@ private:
 	XMFLOAT3 slideEndForward;
 	XMFLOAT3 slideEndUp;
 
-	const float radFromCenter = 60.0f;
+	float moveAngleX = 0;
+	float moveAngleY = 0;
+	float curCamDist=60;
+	const float closeUpSpeed = 50;
 	const float angleSpeed = 3.141592f * 0.025f;
 
 	Skybox* skybox;
