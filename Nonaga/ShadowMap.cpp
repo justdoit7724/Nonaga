@@ -86,7 +86,6 @@ ShadowMap::ShadowMap(UINT resX, UINT resY, UINT width, UINT height)
 	mapVS = new VShader("ShadowVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
 	mapVS->AddCB(0, 1, sizeof(XMMATRIX));
 
-
 	view = new Camera(FRAME_KIND_ORTHOGONAL, width, height, 0.1f, 500.0f, XM_PIDIV2, 1);
 	cbVPMat = new Buffer(sizeof(XMMATRIX));
 }
@@ -109,6 +108,8 @@ void ShadowMap::Mapping(const Scene* depthScene, const DirectionalLight* light)
 	ID3D11RenderTargetView* oriRTV;
 	ID3D11DepthStencilView* oriDSV;
 	DX_DContext->OMGetRenderTargets(1, &oriRTV, &oriDSV);
+	ID3D11RasterizerState* oriRS;
+	DX_DContext->RSGetState(&oriRS);
 
 	DX_DContext->RSSetViewports(1, &vp);
 
@@ -135,9 +136,7 @@ void ShadowMap::Mapping(const Scene* depthScene, const DirectionalLight* light)
 	
 	for(auto t : totalObjs)
 	{
-		//every obj is in frustum in this project
-		//if (!obj->IsInsideFrustum()) continue;
-
+		//debug decomment all in this scope
 		rsState->Apply();
 		dsState->Apply();
 		blendState->Apply();
@@ -156,6 +155,7 @@ void ShadowMap::Mapping(const Scene* depthScene, const DirectionalLight* light)
 
 	DX_DContext->RSSetViewports(1, &oriVP);
 	DX_DContext->OMSetRenderTargets(1, &oriRTV, oriDSV);
+	DX_DContext->RSSetState(oriRS);
 
 	const XMMATRIX uvMat = XMMATRIX(
 		0.5f, 0, 0, 0,

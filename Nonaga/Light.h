@@ -17,10 +17,6 @@ class Light
 protected:
 	Light();
 	virtual ~Light();
-	static VShader* shadowMapVS;
-	static DepthStencilState* dsState;
-	static BlendState* blendState;
-	static RasterizerState* rsState;
 	int id=-1;
 	XMFLOAT3 ambient;
 	XMFLOAT3 diffuse;

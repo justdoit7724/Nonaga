@@ -11,7 +11,7 @@
 #include "ShaderReg.h"
 
 Skybox::Skybox(ID3D11ShaderResourceView* srv)
-	:Object(new Sphere(5),
+	:Object(new Sphere(3),
 		"CMVS.cso", Std_ILayouts,ARRAYSIZE(Std_ILayouts),
 		"","","",
 		"CMPS.cso",Z_ORDER_STANDARD)
@@ -54,6 +54,9 @@ void Skybox::Update()
 
 void Skybox::Render(const XMMATRIX& vp, const Frustum* frustum, UINT sceneDepth) const
 {
+	if (sceneDepth != 0)
+		return;
+
 	Object::Render(vp,frustum, sceneDepth);
 }
 

@@ -133,7 +133,6 @@ float4 main(PS_INPUT input) : SV_Target
     
     //debug
     float3 cmDir = reflect(look, wNormal);
-    return float4(wNormal, 1);
     return float4(cmTex.Sample(cmSamp, cmDir).xyz, 1);
     
     return float4(color, mDiffuse.w);

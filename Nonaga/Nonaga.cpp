@@ -332,18 +332,14 @@ void NonagaStage::Update(const Geometrics::Ray ray)
 
 void NonagaStage::Objs(std::vector<Object*>& objOutput)
 {
-	for (int i = 0; i < TOKEN_OBJ_COUNT_TOTAL; ++i)
+	/*for (int i = 0; i < TOKEN_OBJ_COUNT_TOTAL; ++i)
 	{
 		objOutput.push_back(tokens[i]);
-	}
+	}*/
 	for (int i = 0; i < TILE_OBJ_COUNT; ++i)
 	{
 		objOutput.push_back(tiles[i]);
 	}
-	/*objOutput.push_back(redTile);
-	objOutput.push_back(greenTile);
-	objOutput.push_back(redToken);
-	objOutput.push_back(greenToken);*/
 }
 
 void NonagaStage::Render(const XMMATRIX& vp, unsigned int sceneDepth) const

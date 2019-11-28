@@ -29,7 +29,7 @@ GamePlayScene::GamePlayScene()
 		XMFLOAT3(0.8f, 0.8f, 0.8f),
 		Normalize(XMFLOAT3(2,-1,0)));
 
-	camera = new Camera("GamePlay", FRAME_KIND_ORTHOGONAL, SCREEN_WIDTH/10, SCREEN_HEIGHT/10, 0.1f, 200.0f, NULL, NULL);
+	camera = new Camera("GamePlay", FRAME_KIND_ORTHOGONAL, SCREEN_WIDTH/10, SCREEN_HEIGHT/10, 0.1f, 300.0f, NULL, NULL);
 	camera->transform->SetTranslation(XMFLOAT3(0, curCamDist, 0));
 	camera->transform->SetRot(-UP, FORWARD);
 	XMStoreFloat4x4(&orthogonalP, camera->StdProjMat());
@@ -96,7 +96,7 @@ void GamePlayScene::BindEye()
 
 void GamePlayScene::CameraMove(float spf)
 {
-	curCamDist += spf * closeUpSpeed * Mouse::Instance()->GetWheel();
+	curCamDist -= spf * closeUpSpeed * Mouse::Instance()->GetWheel();
 
 	static XMFLOAT2 prevMousePt = XMFLOAT2(0, 0);
 	XMFLOAT3 cameraForward = camera->transform->GetForward();

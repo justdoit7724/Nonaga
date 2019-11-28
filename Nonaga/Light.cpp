@@ -16,55 +16,14 @@ SHADER_SPOT_LIGHT SpotLight::data;
 ComPtr<ID3D11Buffer> DirectionalLight::cb=nullptr;
 ID3D11Buffer* PointLight::cb = nullptr;
 ID3D11Buffer* SpotLight::cb = nullptr;
-VShader* Light::shadowMapVS=nullptr;
-BlendState* Light::blendState = nullptr;
-RasterizerState* Light::rsState = nullptr;
-DepthStencilState* Light::dsState = nullptr;
 
 Light::Light()
 	:diffuse(XMFLOAT3(1,1,1)), ambient(XMFLOAT3(1,1,1)), specular(XMFLOAT3(0,0,0))
 {
-	if (shadowMapVS == nullptr)
-	{
-		shadowMapVS = new VShader("ShadowVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
-		shadowMapVS->AddCB(0, 1, sizeof(XMMATRIX));
-
-		D3D11_RASTERIZER_DESC rs_desc;
-		ZeroMemory(&rs_desc, sizeof(D3D11_RASTERIZER_DESC));
-		rs_desc.CullMode = D3D11_CULL_BACK;
-		rs_desc.FillMode = D3D11_FILL_SOLID;
-		rs_desc.FrontCounterClockwise = false;
-		rs_desc.DepthBias = 0xff;
-		rs_desc.DepthBiasClamp = 1.0f;
-		rs_desc.SlopeScaledDepthBias = 1.0f;
-		rsState = new RasterizerState(&rs_desc);
-		blendState = new BlendState(nullptr);
-		dsState = new DepthStencilState(nullptr);
-	}
 }
 
 Light::~Light()
 {
-	if (shadowMapVS)
-	{
-		delete shadowMapVS;
-		shadowMapVS = nullptr;
-	}
-	if (dsState)
-	{
-		delete dsState;
-		dsState = nullptr;
-	}
-	if (blendState)
-	{
-		delete blendState;
-		blendState = nullptr;
-	}
-	if (rsState)
-	{
-		delete rsState;
-		rsState = nullptr;
-	}
 }
 
 DirectionalLight::DirectionalLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, XMFLOAT3 dir)
