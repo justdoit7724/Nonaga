@@ -40,8 +40,9 @@ public:
 	NonagaStage(Scene* environment);
 	~NonagaStage();
 
-	void Update(const Geometrics::Ray ray);
-	void Objs(std::vector<Object*>& objOutput);
+	void Update(const Geometrics::Ray ray, float spf);
+	void GetOpaqueTokens(std::vector<Object*>& objOutput);
+	void GetTranspTokens(std::vector<Object*>& objOutput);
 
 	void Render(const XMMATRIX& vp, const Frustum& frustum, unsigned int sceneDepth)const;
 	
@@ -61,9 +62,13 @@ private:
 	enum PLAY_STATE
 	{
 		PLAY_STATE_P1_TOKEN,
+		PLAY_STATE_P1_TOKEN_MOVING,
 		PLAY_STATE_P1_TILE,
+		PLAY_STATE_P1_TILE_MOVING,
 		PLAY_STATE_P2_TOKEN,
+		PLAY_STATE_P2_TOKEN_MOVING,
 		PLAY_STATE_P2_TILE,
+		PLAY_STATE_P2_TILE_MOVING,
 		PLAY_STATE_FINISH
 	}curPlayState;
 
@@ -75,6 +80,15 @@ private:
 	int holdingTileID;
 	
 	bool isMove;
+
+	Object* moveObj;
+	XMFLOAT3 moveStart;
+	XMFLOAT3 moveDest;
+	float curTime;
+	const float moveTokenSpeed = 0.5;
+	const float moveTileSpeed = 2.0;
+	const float jumpTokenHeight = 10;
+	const float jumpTileHeight = 5;
 
 	std::vector<Token*> tokens;
 	Token* redToken, * greenToken;
