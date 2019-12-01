@@ -13,7 +13,7 @@ public:
 
 	void Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) const override;
 
-	void Move(int toID);
+	void Move(int toID, XMFLOAT3 pos);
 	unsigned int ID() { return id; }
 	bool IsP1()const { return isP1; }
 	const bool isIndicator;
@@ -33,6 +33,4 @@ private:
 	ComPtr<ID3D11RenderTargetView> captureRTV[6];
 	ComPtr<ID3D11ShaderResourceView> captureSRV;
 	ComPtr<ID3D11DepthStencilView> captureDSV;
-
-	float fallingSpeed;
 };

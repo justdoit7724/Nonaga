@@ -16,6 +16,8 @@ TextureCube cmTex : SHADER_REG_PS_SRV_CM;
 Texture2D diffuseTex : SHADER_REG_PS_SRV_DIFFUSE;
 Texture2D normalTex : SHADER_REG_PS_SRV_NORMAL;
 Texture2D ssaoTex : SHADER_REG_PS_SRV_SSAO;
+Texture2D metalicTex : register(t5);
+Texture2D roughnessTex : register(t6);
 //...
 
 SamplerState cmSamp : SHADER_REG_PS_SAMP_CM;
@@ -25,6 +27,13 @@ float3 GetBodyNormal(float2 tex)
 {
     float3 ori_tex = normalTex.Sample(samp, tex).xyz;
     return (ori_tex * 2 - 1);
+}
+float3 ComputeMetalic(float3 color, float3 normal, float3 look, float2 uv)
+{
+    float3 cm = cmTex.Sample(cmSamp, reflect(look, normal)).xyz;
+    float metalic = metalicTex.SampleLevel(samp, uv, 0).x;
+    
+    return Lerp(color, cm, metalic);
 }
 float3 Refract(float3 d, float3 n, float i)
 {
@@ -56,7 +65,6 @@ struct PS_INPUT
 };
 float4 main(PS_INPUT input) : SV_Target
 {
-
     input.normal = normalize(input.normal);
     input.tangent = normalize(input.tangent);
     
@@ -71,11 +79,11 @@ float4 main(PS_INPUT input) : SV_Target
     float3 look = normalize(input.wPos-eyePos.xyz);
     
     
-    float3 ambient = 0;
-    float3 diffuse = 0;
-    float3 specular = 0;
-    float3 reflection = 0;
-    float3 A, D, S;
+    float4 ambient = 0;
+    float4 diffuse = 0;
+    float4 specular = 0;
+    float4 reflection = 0;
+    float4 A, D, S;
     ComputeDirectionalLight(wNormal, -look, A, D, S);
     ambient += A;
     diffuse += D;
@@ -91,6 +99,13 @@ float4 main(PS_INPUT input) : SV_Target
     diffuse += D;
     specular += S;
 
+    float3 color = 0;
+    float3 light = specular.xyz + diffuse.xyz + ambient.xyz;
+    
+    float3 tex = diffuseTex.Sample(samp, input.tex).xyz;
+    
+    float shadowFactor = DirectionalLightShadowFactor(wNormal, d_Dir[0].xyz, input.wPos).r;
+
     float4x4 uvMat = float4x4(
         0.5, 0, 0, 0,
         0, -0.5, 0, 0,
@@ -99,61 +114,26 @@ float4 main(PS_INPUT input) : SV_Target
     input.pPos = mul(input.pPos, uvMat);
     float2 viewUV = input.pPos.xy / input.pPos.w;
     float ssao = ssaoTex.SampleLevel(samp, viewUV, 0).r;
-    ambient *= ssao;
-    
-    float3 light = specular + diffuse + ambient;
-    
-    float3 tex = diffuseTex.Sample(samp, input.tex).xyz;
-    
-    float shadowFactor = DirectionalLightOpaqueShadowFactor(wNormal, d_Dir[0].xyz, input.wPos);
-    float shadowTranspFactor = DirectionalLightTranspShadowFactor(d_Dir[0].xyz, input.wPos);
-    //debug--------------------------------------------------
-    float4 pLightPos = mul(lightVPT, float4(input.wPos, 1));
-    float3 lightPerspective = pLightPos.xyz / pLightPos.w;
-    return float4(shadowTranspFactor.xxx, 1);
 
-    float mapWidth, mapHeight;
-    shadowTranspTex.GetDimensions(mapWidth, mapHeight);
-    float dx = 1.0f / mapWidth;
-    float dy = 1.0f / mapHeight;
-    float4 centerSample = shadowTranspTex.SampleLevel(shadowTranspSamp, lightPerspective.xy, 0);
-    float3 centerWDir = centerSample.xyz;
-    float centerPDist = centerSample.w;
-    
-    /*
-    float totalIntensity = dot(centerWDir, d_Dir[0].xyz);
-    float totalWeight = 0.2f;
-    
-    float3 offsets[8] =
-    {
-        float3(-dx, -dy, 0.075f), float3(0, -dy, 0.125f), float3(dx, -dy, 0.075),
-        float3(-dx, 0, 0.125), float3(dx, 0, 0.125),
-       float3(-dx, dy, 0.075), float3(0, dy, 0.125), float3(dx, dy, 0.075)
-    };
-    
-    for (int i = 0; i < 8; ++i)
-    {
-        float4 shadowSample = shadowTranspTex.SampleLevel(shadowTranspSamp, lightPerspective.xy + offsets[i].xy, 0);
-        float3 pWDir = shadowSample.xyz;
-        float pDepth = shadowSample.w;
-        
-        if (dot(pWDir, centerWDir) >= 0.8 &&
-            abs(pDepth - centerPDist) <= 0.2)
-        {
-            totalIntensity += dot(pWDir, lightDir);
-            totalWeight += offsets[i].z;
-        }
 
-    }
-    
-    return totalIntensity / totalWeight;
-    */
-    
-    return float4(shadowTranspFactor.xxx, 1);
-    //-------------------------------------------------------
-    
     tex = ComputeTransparency(tex, wNormal, look);
     
-    float3 color = 0;
+    color = light * tex;
+    
+    
+
+    tex = ComputeMetalic(tex, wNormal, look, input.tex);
+
+    float smoothness = 1 - roughnessTex.SampleLevel(samp, input.tex, 0).x;
+    specular *= smoothness;
+    diffuse = Lerp(diffuse, diffuse * float4(tex, 1), smoothness);
+    ambient = Lerp(ambient, ambient * float4(tex, 1), smoothness)*ssao;
+    
+    color = ambient + diffuse + specular;
+    
+    //debug
+    float3 cmDir = reflect(look, wNormal);
+    return float4(cmTex.Sample(cmSamp, cmDir).xyz, 1);
+    
     return float4(color, mDiffuse.w);
 }

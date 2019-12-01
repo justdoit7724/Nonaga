@@ -7,7 +7,7 @@
 #include "Cylinder.h"
 
 Tile::Tile(unsigned int id)
-	:Object(new Cylinder(30), nullptr, nullptr),id(id), fallingSpeed(fminf(Rand01()+0.5f,1)*100)
+	:Object(new Cylinder(30), nullptr, nullptr),id(id)
 {
 	TextureMgr::Instance()->Load("normal", "Data\\Texture\\default_normal.png");
 	TextureMgr::Instance()->Load("red", "Data\\Texture\\red_light.png");

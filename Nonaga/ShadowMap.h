@@ -1,28 +1,27 @@
 #pragma once
 #include "DX_info.h"
-#include <vector>
 
 class RasterizerState;
 class DepthStencilState;
 class BlendState;
 class Object;
 class VShader;
-class PShader;
+class Scene;
 class DirectionalLight;
 class Camera;
 class Buffer;
 
-class OpaqueShadowMap
+class ShadowMap
 {
 public:
-	OpaqueShadowMap(UINT resX, UINT resY, UINT width, UINT height, const std::vector<Object const*>& objs);
-	~OpaqueShadowMap();
+	ShadowMap(UINT resX, UINT resY, UINT width, UINT height);
+	~ShadowMap();
 
 	ID3D11ShaderResourceView* Depth();
-	void Mapping(const DirectionalLight* light);
+	void Mapping(const Scene* depthScene, const DirectionalLight* light);
 
 private:
-	OpaqueShadowMap(const OpaqueShadowMap& rhs);
+	ShadowMap(const ShadowMap& rhs);
 	//ShadowMap& operator=(const ShadowMap& rhs);
 
 	Camera* view;
@@ -36,32 +35,6 @@ private:
 	VShader* mapVS;
 	D3D11_VIEWPORT vp;
 	Buffer* cbVPMat;
-
-	Object const* drawObjs[3];
-};
-
-class TranspShadowMap
-{
-public:
-	TranspShadowMap(XMUINT2 res, XMUINT2 volume, const std::vector<Object const*>& objs);
-	~TranspShadowMap();
-
-	void Mapping(const DirectionalLight* dLight);
-private:
-	ComPtr<ID3D11RenderTargetView> rtv;
-	ComPtr<ID3D11ShaderResourceView> srv;
-	ComPtr<ID3D11DepthStencilView> dsv;
-	DepthStencilState* dsState;
-	RasterizerState* rsState;
-	BlendState* blendState;
-
-	Camera* view;
-
-	D3D11_VIEWPORT vp;
-	VShader* mapVS;
-	PShader* mapPS;
-	Buffer* cbVPTMat;
-
-	Object const* drawObjs[3];
+	
 };
 

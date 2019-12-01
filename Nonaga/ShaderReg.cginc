@@ -12,13 +12,11 @@
 #define SHADER_REG_PS_SRV_CM register(t0)
 #define SHADER_REG_PS_SRV_DIFFUSE register(t1)
 #define SHADER_REG_PS_SRV_NORMAL register(t2)
-#define SHADER_REG_PS_SRV_SSAO register(t3)
-#define SHADER_REG_PS_SRV_SHADOW register(t4)
-#define SHADER_REG_PS_SRV_SHADOW_TRANSP register(t5)
+#define SHADER_REG_PS_SRV_SHADOW register(t3)
+#define SHADER_REG_PS_SRV_SSAO register(t4)
 
 #define SHADER_REG_PS_SAMP_CM register(s0)
 #define SHADER_REG_PS_SAMP_TEX register(s1)
 #define SHADER_REG_PS_SAMP_SHADOW register(s2)
-#define SHADER_REG_PS_SAMP_SHADOW_TRANSP register(s3)
 
 #endif

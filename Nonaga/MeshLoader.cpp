@@ -196,7 +196,8 @@ void MeshLoader::LoadToken(Shape** storage)
 		aiProcess_FlipUVs |
 		aiProcess_FlipWindingOrder |
 		aiProcess_CalcTangentSpace |
-		aiProcess_Triangulate);
+		aiProcess_Triangulate |
+		aiProcess_JoinIdenticalVertices);
 
 	assert(
 		pScene != nullptr &&

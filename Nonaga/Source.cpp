@@ -47,10 +47,10 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		{
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
-
 		}
 		else
 		{
+			worldTimer->Update();
 
 			SceneMgr::Instance()->Process(worldTimer->Elapsed(), worldTimer->SPF());
 
@@ -59,9 +59,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 			graphic->Present();
 
 			window.SetTitle(std::to_string(worldTimer->FPS()));
-			worldTimer->Update();
 		}
-
 
 	}
 

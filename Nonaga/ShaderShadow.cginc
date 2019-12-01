@@ -7,12 +7,9 @@ cbuffer LIGHT_PERSPECTIVE : SHADER_REG_PS_CB_LIGHTVP
 };
 
 Texture2D shadowTex : SHADER_REG_PS_SRV_SHADOW;
-Texture2D shadowTranspTex : SHADER_REG_PS_SRV_SHADOW_TRANSP;
-
 SamplerComparisonState shadowSamp : SHADER_REG_PS_SAMP_SHADOW;
-SamplerState shadowTranspSamp : SHADER_REG_PS_SAMP_SHADOW_TRANSP;
 
-float DirectionalLightOpaqueShadowFactor(float3 wNormal, float3 lightDir, float3 wPos)
+float DirectionalLightShadowFactor(float3 wNormal, float3 lightDir, float3 wPos)
 {
     if (dot(wNormal, lightDir)>0)
     {
@@ -44,58 +41,6 @@ float DirectionalLightOpaqueShadowFactor(float3 wNormal, float3 lightDir, float3
     }
     return percentLit * 0.04f;
 }
-float DirectionalLightTranspShadowFactor(float3 lightDir, float3 wPos)
-{
-    float4 pLightPos = mul(lightVPT, float4(wPos, 1));
-    float3 lightPerspective = pLightPos.xyz / pLightPos.w;
-
-    float mapWidth, mapHeight;
-    shadowTranspTex.GetDimensions(mapWidth, mapHeight);
-    float dx = 1.0f / mapWidth;
-    float dy = 1.0f / mapHeight;
-    
-    // center first
-    //debug chang
-    float4 centerSample = shadowTranspTex.SampleLevel(shadowTranspSamp, lightPerspective.xy, 0);
-    float3 centerWDir = centerSample.xyz;
-    float centerPDist = centerSample.w;
-
-    //debug remove
-    if (abs(centerPDist - lightPerspective.z) <= 0.0075f)
-        return 0;
-    
-    
-    float totalIntensity = dot(centerWDir, lightDir);
-    float totalWeight = 0.2f;
-    
-    return totalIntensity;
-    
-    // 3x3 except center
-    float3 offsets[8] =
-    {
-        float3(-dx, -dy,0.075f), float3(0, -dy,0.125f), float3(dx, -dy, 0.075),
-        float3(-dx, 0, 0.125), /* center */float3(dx, 0, 0.125),
-       float3(-dx, dy, 0.075), float3(0, dy, 0.125), float3(dx, dy, 0.075)
-    };
-    
-    for (int i = 0; i < 8; ++i)
-    {
-        float4 shadowSample = shadowTranspTex.SampleLevel(shadowTranspSamp, lightPerspective.xy + offsets[i].xy, 0);
-        float3 pWDir = shadowSample.xyz;
-        float pDepth = shadowSample.w;
-        
-        if(dot(pWDir, centerWDir)>=0.8 &&
-            abs(pDepth - centerPDist)<=0.2)
-        {
-            totalIntensity += dot(-pWDir, lightDir);
-            totalWeight += offsets[i].z;
-        }
-
-    }
-    
-    return totalIntensity / totalWeight;
-}
-
 float PointLightShadowFactor(float3 wNormal, float3 wPos, float3 lightPos, TextureCube map, SamplerState samp, float2 shadowPMatElem)
 {
     float3 lPos = wPos - lightPos;

@@ -471,11 +471,5 @@
     <FxCompile Include="SSAO_ND_PS.hlsl">
       <Filter>hlsl</Filter>
     </FxCompile>
-    <FxCompile Include="ShadowTranspVS.hlsl">
-      <Filter>hlsl</Filter>
-    </FxCompile>
-    <FxCompile Include="ShadowTranspPS.hlsl">
-      <Filter>hlsl</Filter>
-    </FxCompile>
   </ItemGroup>
 </Project>
