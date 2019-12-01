@@ -51,17 +51,22 @@ GamePlayScene::GamePlayScene()
 	AddObj(skybox);
 
 	nonaga = new NonagaStage(this);
-	std::vector<Object*> gameObjs;
-	nonaga->Objs(gameObjs);
-	for (auto go : gameObjs)
+	std::vector<Object*> opaqueTokens;
+	std::vector<Object*> transpTokens;
+	nonaga->GetOpaqueTokens(opaqueTokens);
+	nonaga->GetTranspTokens(transpTokens);
+	for (auto go : opaqueTokens)
 	{
 		AddObj(go);
 	}
-	
+	for (auto go : transpTokens)
+	{
+		AddObj(go);
+	}
 
 	cbEye = new Buffer(sizeof(XMFLOAT4));
 
-	//Debugging::Instance()->EnableGrid(10);
+	Debugging::Instance()->EnableGrid(10);
 
 	curP = XMMatrixIdentity();
 
@@ -72,7 +77,16 @@ GamePlayScene::GamePlayScene()
 	moveAngleX = acos(Dot(FORWARD, slideEndForward));
 	moveAngleY = 0;
 
-	shadowMapping = new ShadowMap(4096, 4096, 128, 128);
+	std::vector<Object const*> cOpaqueTokens(3);
+	cOpaqueTokens[0] = opaqueTokens[0];
+	cOpaqueTokens[1] = opaqueTokens[1];
+	cOpaqueTokens[2] = opaqueTokens[2]; 
+	std::vector<Object const*> cTranspTokens(3);
+	cTranspTokens[0] = transpTokens[0];
+	cTranspTokens[1] = transpTokens[1];
+	cTranspTokens[2] = transpTokens[2];
+	oShadowMapping = new OpaqueShadowMap(2048, 2048, 128, 128, cOpaqueTokens);
+	tShadowMapping = new TranspShadowMap(XMUINT2(2048, 2048), XMUINT2(128, 128), cTranspTokens);
 	ssao = new SSAOMap();
 }
 
@@ -119,6 +133,10 @@ void GamePlayScene::CameraMove(float spf)
 }
 void GamePlayScene::Update(float elapsed, float spf)
 {
+	static float curTime = 0;
+	curTime += spf;
+	dLight->SetDir(MultiplyDir(dLight->GetDir(), XMMatrixRotationY(curTime)));
+
 	switch (curStage)
 	{
 	case GAMEPLAY_STAGE_LOBBY:
@@ -141,7 +159,7 @@ void GamePlayScene::Update(float elapsed, float spf)
 		Geometrics::Ray camRay;
 		camera->Pick(&camRay);
 
-		nonaga->Update(camRay);
+		nonaga->Update(camRay, spf);
 		break;
 	}
 
@@ -152,8 +170,9 @@ void GamePlayScene::Update(float elapsed, float spf)
 	//binding
 	BindEye();
 	skybox->Mapping();
-	shadowMapping->Mapping(this, dLight);
-	ssao->Mapping(this, camera);
+	//oShadowMapping->Mapping(dLight);
+	tShadowMapping->Mapping(dLight);
+	//ssao->Mapping(this, camera);
 }
 
 void GamePlayScene::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) const
@@ -174,6 +193,7 @@ void GamePlayScene::Render(const XMMATRIX& vp, const Frustum& frustum, UINT scen
 	}
 
 	Scene::Render(curTempVP, frustum, sceneDepth);
+	nonaga->Render(curTempVP, frustum, sceneDepth);
 }
 
 void GamePlayScene::Message(UINT msg)

@@ -15,4 +15,6 @@ public:
 
 private:
 	unsigned int id;
+
+	float fallingSpeed;
 };

@@ -4,7 +4,8 @@
 class NonagaStage;
 class DirectionalLight;
 class Buffer;
-class ShadowMap;
+class OpaqueShadowMap;
+class TranspShadowMap;
 class Camera;
 class SSAOMap;
 class Skybox;
@@ -61,7 +62,8 @@ private:
 	const float angleSpeed = 3.141592f * 0.025f;
 
 	Skybox* skybox;
-	ShadowMap* shadowMapping;
+	OpaqueShadowMap* oShadowMapping;
+	TranspShadowMap* tShadowMapping;
 	SSAOMap* ssao;
 
 	UICanvas* canvas;

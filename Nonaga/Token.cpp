@@ -21,7 +21,7 @@ Token::Token(Scene* environemnt, unsigned int id, bool p1)
 		"StdDisplacementVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts),
 		"StdDisplacementHS.cso", "StdDisplacementDS.cso", "",
 		"StandardPS.cso", Z_ORDER_STANDARD),
-		id(id), isP1(p1), environment(environemnt), isIndicator(false)
+		id(id), isP1(p1), environment(environemnt), isIndicator(false), fallingSpeed(fminf(Rand01() + 0.5f, 1) * 100)
 {
 	TextureMgr::Instance()->Load("token", "Data\\Model\\Token\\pawn.png");
 	TextureMgr::Instance()->Load("tokenNormal", "Data\\Model\\Token\\pawn_normal.png");
@@ -30,7 +30,6 @@ Token::Token(Scene* environemnt, unsigned int id, bool p1)
 	if (captureCam == nullptr)
 	{
 		captureCam = new Camera(FRAME_KIND_PERSPECTIVE, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1f, 100, XM_PIDIV2, 1,false);
-		Debugging::Instance()->Visualize(captureCam);
 	}
 	if (mesh==nullptr)
 	{
@@ -43,7 +42,7 @@ Token::Token(Scene* environemnt, unsigned int id, bool p1)
 	vs->AddCB(1, 1, sizeof(XMFLOAT4));
 	ds->AddCB(0, 1, sizeof(XMMATRIX));
 	ds->AddCB(1, 1, sizeof(float));
-	float dpScale = 0.5f;
+	float dpScale = 0.0f;
 	ds->WriteCB(1, &dpScale);
 	ds->AddSRV(0, 1);
 	ds->WriteSRV(0, TextureMgr::Instance()->Get("tokenDP"));
@@ -72,8 +71,8 @@ Token::Token(Scene* environemnt, unsigned int id, bool p1)
 	capture_desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
 	capture_desc.CPUAccessFlags = 0;
 	capture_desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	capture_desc.MipLevels = 0;
-	capture_desc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE | D3D11_RESOURCE_MISC_GENERATE_MIPS;
+	capture_desc.MipLevels = 1;
+	capture_desc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
 	capture_desc.SampleDesc = { 1,0 };
 	capture_desc.Usage = D3D11_USAGE_DEFAULT;
 	ComPtr<ID3D11Texture2D> captureTex;
@@ -96,7 +95,7 @@ Token::Token(Scene* environemnt, unsigned int id, bool p1)
 	srv_desc.Format = capture_desc.Format;
 	srv_desc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
 	srv_desc.TextureCube.MostDetailedMip = 0;
-	srv_desc.TextureCube.MipLevels = -1;
+	srv_desc.TextureCube.MipLevels = 1;
 	r_assert(
 		DX_Device->CreateShaderResourceView(captureTex.Get(), &srv_desc, captureSRV.GetAddressOf())
 	);
@@ -145,6 +144,9 @@ Token::Token(bool isRed)
 
 void Token::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) const
 {
+	if (!enabled || !show)
+		return;
+
 	if (IsInsideFrustum(frustum))
 	{
 		const SHADER_STD_TRANSF STransformation(transform->WorldMatrix(), vp);
@@ -183,10 +185,9 @@ void Token::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) 
 	}
 }
 
-void Token::Move(int toId, XMFLOAT3 pos)
+void Token::Move(int toId)
 {
 	id = toId;
-	transform->SetTranslation(pos);
 }
 
 void Token::Capture(XMFLOAT3 forward, XMFLOAT3 up, ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsv, UINT sceneDepth)const
@@ -196,7 +197,7 @@ void Token::Capture(XMFLOAT3 forward, XMFLOAT3 up, ID3D11RenderTargetView* rtv, 
 	DX_DContext->OMSetRenderTargets(1, &rtv ,dsv);
 
 	captureCam->transform->SetRot(forward, up);
-	captureCam->SetView();
+	captureCam->Update();
 
 	environment->Render(captureCam->VMat() * captureCam->StdProjMat(), captureCam->GetFrustum(), sceneDepth);
 }
@@ -215,13 +216,12 @@ void Token::DrawDCM(UINT sceneDepth)const
 	ID3D11ShaderResourceView* nullSRV = nullptr;
 	DX_DContext->PSSetShaderResources(SHADER_REG_PS_SRV_CM, 1, &nullSRV);
 
-	//debug decomment all cpature func
-	//Capture(RIGHT, UP, captureRTV[0].Get(), captureDSV.Get(), sceneDepth);
-	//Capture(-RIGHT, UP, captureRTV[1].Get(), captureDSV.Get(), sceneDepth);
+	Capture(RIGHT, UP, captureRTV[0].Get(), captureDSV.Get(), sceneDepth);
+	Capture(-RIGHT, UP, captureRTV[1].Get(), captureDSV.Get(), sceneDepth);
 	Capture(UP, -FORWARD, captureRTV[2].Get(), captureDSV.Get(), sceneDepth);
-	//Capture(-UP, FORWARD, captureRTV[3].Get(), captureDSV.Get(), sceneDepth);
-	//Capture(FORWARD, UP, captureRTV[4].Get(), captureDSV.Get(), sceneDepth);
-	//Capture(-FORWARD, UP, captureRTV[5].Get(), captureDSV.Get(), sceneDepth);
+	Capture(-UP, FORWARD, captureRTV[3].Get(), captureDSV.Get(), sceneDepth);
+	Capture(FORWARD, UP, captureRTV[4].Get(), captureDSV.Get(), sceneDepth);
+	Capture(-FORWARD, UP, captureRTV[5].Get(), captureDSV.Get(), sceneDepth);
 
 	DX_DContext->OMSetRenderTargets(1, &oriRTV, oriDSV);
 

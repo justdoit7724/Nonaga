@@ -42,7 +42,7 @@ Object::Object(Shape* shape, ID3D11ShaderResourceView* diffSRV, ID3D11ShaderReso
 
 	vs->AddCB(0, 1, sizeof(SHADER_STD_TRANSF));
 	ps->AddCB(SHADER_REG_PS_CB_MATERIAL, 1, sizeof(SHADER_MATERIAL));
-	ps->WriteCB(SHADER_REG_PS_CB_MATERIAL,&SHADER_MATERIAL(XMFLOAT3(0.7,0.7,0.7), 0.2, XMFLOAT3(0.2, 0.2, 0.2), XMFLOAT3(0.8, 0.8, 0.8), 32));
+	ps->WriteCB(SHADER_REG_PS_CB_MATERIAL,&SHADER_MATERIAL(XMFLOAT3(0.7,0.7,0.7), 0.2, XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(0.8, 0.8, 0.8), 32));
 	
 	D3D11_SAMPLER_DESC body_desc;
 	ZeroMemory(&body_desc, sizeof(D3D11_SAMPLER_DESC));
@@ -120,11 +120,11 @@ void Object::Render()const
 }
 void Object::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) const
 {
+	if (!enabled || !show)
+		return;
+
 	if (IsInsideFrustum(frustum))
 	{
-		if (!enabled || !show)
-			return;
-
 		const SHADER_STD_TRANSF STransformation(transform->WorldMatrix(), vp);
 
 		vs->WriteCB(0, &STransformation);

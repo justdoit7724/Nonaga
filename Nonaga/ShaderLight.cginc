@@ -38,39 +38,39 @@ cbuffer MATERIAL : register(b4)
     float4 mAmbient;
     float4 mSpecular;
 };
-void ComputeDirectionalLight(float3 normal, float3 toEye, out float4 ambient, out float4 diffuse, out float4 spec)
+void ComputeDirectionalLight(float3 normal, float3 toEye, out float3 ambient, out float3 diffuse, out float3 spec)
 {
-    ambient = float4(0.0f, 0.0f, 0.0f, 0.0f);
-    diffuse = float4(0.0f, 0.0f, 0.0f, 0.0f);
-    spec = float4(0.0f, 0.0f, 0.0f, 0.0f);
+    ambient = float3(0.0f, 0.0f, 0.0f);
+    diffuse = float3(0.0f, 0.0f, 0.0f);
+    spec = float3(0.0f, 0.0f, 0.0f);
     
     for (int i = 0; i < LIGHT_MAX_EACH; ++i)
     {
         if (d_Enabled[i].x == LIGHT_DISABLED)
             continue;
         
-        ambient += mAmbient * d_Ambient[i];
+        ambient += mAmbient.xyz * d_Ambient[i].xyz;
         float diffuseFactor = max(0.0f, dot(-d_Dir[i].xyz, normal));
     
         float3 v = reflect(d_Dir[i].xyz, normal);
         float specFactor = pow(saturate(dot(v, toEye)), mSpecular.w);
-        diffuse += diffuseFactor * mDiffuse * d_Diffuse[i];
-        spec += specFactor * mSpecular * d_Specular[i];
+        diffuse += diffuseFactor * mDiffuse.xyz * d_Diffuse[i].xyz;
+        spec += specFactor * mSpecular.xyz * d_Specular[i].xyz;
     }
 }
-void ComputePointLight(float3 pos, float3 normal, float3 toEye, out float4 ambient, out float4 diffuse, out float4 spec)
+void ComputePointLight(float3 pos, float3 normal, float3 toEye, out float3 ambient, out float3 diffuse, out float3 spec)
 {
-    ambient = float4(0.0f, 0.0f, 0.0f, 0.0f);
-    diffuse = float4(0.0f, 0.0f, 0.0f, 0.0f);
-    spec = float4(0.0f, 0.0f, 0.0f, 0.0f);
+    ambient = float3(0.0f, 0.0f, 0.0f);
+    diffuse = float3(0.0f, 0.0f, 0.0f);
+    spec = float3(0.0f, 0.0f, 0.0f);
     
     for (int i = 0; i < LIGHT_MAX_EACH; ++i)
     {
         if (p_Info[i].x == LIGHT_DISABLED)
             continue;
         
-        float4 tmpD = 0;
-        float4 tmpS = 0;
+        float3 tmpD = 0;
+        float3 tmpS = 0;
 
         float3 lightVec = p_Pos[i].xyz - pos;
         float d = length(lightVec);
@@ -82,28 +82,28 @@ void ComputePointLight(float3 pos, float3 normal, float3 toEye, out float4 ambie
         float specFactor = pow(saturate(dot(hVec, normal)), mSpecular.w);
         float att = 1.0f / dot(p_Att[i].xyz, float3(1.0f, d, d * d));
         
-        tmpD = diffuseFactor * mDiffuse * p_Diffuse[i] * att;
-        tmpS = specFactor * mSpecular * p_Specular[i] * att;
+        tmpD = diffuseFactor * mDiffuse.xyz * p_Diffuse[i].xyz * att;
+        tmpS = specFactor * mSpecular.xyz * p_Specular[i].xyz * att;
 
-        ambient += mAmbient * p_Ambient[i];
+        ambient += mAmbient.xyz * p_Ambient[i].xyz;
         diffuse += tmpD;
         spec += tmpS;
     }
 }
-void ComputeSpotLight(float3 pos, float3 normal, float3 toEye, out float4 ambient, out float4 diffuse, out float4 spec)
+void ComputeSpotLight(float3 pos, float3 normal, float3 toEye, out float3 ambient, out float3 diffuse, out float3 spec)
 {
-    ambient = float4(0.0f, 0.0f, 0.0f, 0.0f);
-    diffuse = float4(0.0f, 0.0f, 0.0f, 0.0f);
-    spec = float4(0.0f, 0.0f, 0.0f, 0.0f);
+    ambient = float3(0.0f, 0.0f, 0.0f);
+    diffuse = float3(0.0f, 0.0f, 0.0f);
+    spec = float3(0.0f, 0.0f, 0.0f);
     
     for (int i = 0; i < LIGHT_MAX_EACH; ++i)
     {
         if (s_info[i].x == LIGHT_DISABLED)
             continue;
         
-        float4 tmpA = 0;
-        float4 tmpD = 0;
-        float4 tmpS = 0;
+        float3 tmpA = 0;
+        float3 tmpD = 0;
+        float3 tmpS = 0;
 
         float3 lightVec = s_Pos[i].xyz - pos;
         float d = length(lightVec);
@@ -118,9 +118,9 @@ void ComputeSpotLight(float3 pos, float3 normal, float3 toEye, out float4 ambien
         float specFactor = pow(saturate(dot(v, toEye)), mSpecular.w);
         float spot = pow(saturate(dot(-lightVec, s_Dir[i].xyz)), s_info[i].w);
         float att = spot / dot(s_Att[i].xyz, float3(1.0f, d, d * d));
-        tmpD = diffuseFactor * mDiffuse * s_Diffuse[i] * att;
-        tmpS = specFactor * mSpecular * s_Specular[i] * att;
-        tmpA = mAmbient * s_Ambient[i] * spot;
+        tmpD = diffuseFactor * mDiffuse.xyz * s_Diffuse[i].xyz * att;
+        tmpS = specFactor * mSpecular.xyz * s_Specular[i].xyz * att;
+        tmpA = mAmbient.xyz * s_Ambient[i].xyz * spot;
         
         ambient += tmpA;
         diffuse += tmpD;
