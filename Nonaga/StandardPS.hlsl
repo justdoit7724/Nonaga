@@ -108,49 +108,8 @@ float4 main(PS_INPUT input) : SV_Target
     float shadowFactor = DirectionalLightOpaqueShadowFactor(wNormal, d_Dir[0].xyz, input.wPos);
     float shadowTranspFactor = DirectionalLightTranspShadowFactor(d_Dir[0].xyz, input.wPos);
     //debug--------------------------------------------------
-    float4 pLightPos = mul(lightVPT, float4(input.wPos, 1));
-    float3 lightPerspective = pLightPos.xyz / pLightPos.w;
-    return float4(shadowTranspFactor.xxx, 1);
-
-    float mapWidth, mapHeight;
-    shadowTranspTex.GetDimensions(mapWidth, mapHeight);
-    float dx = 1.0f / mapWidth;
-    float dy = 1.0f / mapHeight;
-    float4 centerSample = shadowTranspTex.SampleLevel(shadowTranspSamp, lightPerspective.xy, 0);
-    float3 centerWDir = centerSample.xyz;
-    float centerPDist = centerSample.w;
-    
-    /*
-    float totalIntensity = dot(centerWDir, d_Dir[0].xyz);
-    float totalWeight = 0.2f;
-    
-    float3 offsets[8] =
-    {
-        float3(-dx, -dy, 0.075f), float3(0, -dy, 0.125f), float3(dx, -dy, 0.075),
-        float3(-dx, 0, 0.125), float3(dx, 0, 0.125),
-       float3(-dx, dy, 0.075), float3(0, dy, 0.125), float3(dx, dy, 0.075)
-    };
-    
-    for (int i = 0; i < 8; ++i)
-    {
-        float4 shadowSample = shadowTranspTex.SampleLevel(shadowTranspSamp, lightPerspective.xy + offsets[i].xy, 0);
-        float3 pWDir = shadowSample.xyz;
-        float pDepth = shadowSample.w;
-        
-        if (dot(pWDir, centerWDir) >= 0.8 &&
-            abs(pDepth - centerPDist) <= 0.2)
-        {
-            totalIntensity += dot(pWDir, lightDir);
-            totalWeight += offsets[i].z;
-        }
-
-    }
-    
-    return totalIntensity / totalWeight;
-    */
-    
-    return float4(shadowTranspFactor.xxx, 1);
-    //-------------------------------------------------------
+  
+    return float4(max(shadowTranspFactor, shadowFactor).xxx, 1);
     
     tex = ComputeTransparency(tex, wNormal, look);
     

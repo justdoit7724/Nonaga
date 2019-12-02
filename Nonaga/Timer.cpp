@@ -5,8 +5,8 @@ using namespace std::chrono;
 float fpsSec = 0;
 void Timer::Update()
 {
-	time_point<steady_clock> curTime = steady_clock::now();
-	spf = duration<double, std::deca>(curTime - prev).count();
+	auto curTime = high_resolution_clock::now();
+	spf = duration<double, std::deca>(curTime - prev).count()*10;
 	prev = curTime;
 
 	fpsSec += spf;
@@ -20,7 +20,7 @@ void Timer::Update()
 
 float Timer::Elapsed()
 {
-	return duration<double, std::deca>(steady_clock::now() - first).count();
+	return duration<double, std::deca>(high_resolution_clock::now() - first).count()*10;
 }
 
 Timer::Timer()
@@ -28,7 +28,7 @@ Timer::Timer()
 
 	fps = 0;
 	spf = 0;
-	prev = steady_clock::now();
-	first = steady_clock::now();
+	prev = high_resolution_clock::now();
+	first = high_resolution_clock::now();
 }
 

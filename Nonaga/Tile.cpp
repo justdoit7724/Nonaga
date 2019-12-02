@@ -20,7 +20,7 @@ Tile::Tile(unsigned int id)
 }
 
 Tile::Tile(bool isRed)
-	:Object(new Cylinder(30), nullptr, nullptr)
+	:Object(new Cylinder(15), nullptr, nullptr)
 {
 	TextureMgr::Instance()->Load("normal", "Data\\Texture\\default_normal.png");
 	TextureMgr::Instance()->Load("red", "Data\\Texture\\red_light.png");

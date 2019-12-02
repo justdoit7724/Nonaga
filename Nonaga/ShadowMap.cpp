@@ -185,7 +185,7 @@ TranspShadowMap::TranspShadowMap(XMUINT2 res, XMUINT2 volume, const std::vector<
 	tex_desc.ArraySize = 1;
 	tex_desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
 	tex_desc.CPUAccessFlags = 0;
-	tex_desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	tex_desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
 	tex_desc.Width = res.x;
 	tex_desc.Height = res.y;
 	tex_desc.MipLevels = 1;
@@ -255,15 +255,7 @@ TranspShadowMap::TranspShadowMap(XMUINT2 res, XMUINT2 volume, const std::vector<
 
 	cbVPTMat = new Buffer(sizeof(XMMATRIX));
 
-	D3D11_RASTERIZER_DESC rs_desc;
-	ZeroMemory(&rs_desc, sizeof(D3D11_RASTERIZER_DESC));
-	rs_desc.FillMode = D3D11_FILL_SOLID;
-	rs_desc.CullMode = D3D11_CULL_BACK;
-	rs_desc.FrontCounterClockwise = false;
-	rs_desc.DepthBias = 0x000000;
-	rs_desc.DepthBiasClamp = 0.0f;
-	rs_desc.SlopeScaledDepthBias = 0.0f;
-	rsState = new RasterizerState(&rs_desc);
+	rsState = new RasterizerState(nullptr);
 	dsState = new DepthStencilState(nullptr);
 	blendState = new BlendState(nullptr);
 
@@ -290,9 +282,14 @@ void TranspShadowMap::Mapping(const DirectionalLight* dLight)
 	DX_DContext->RSGetViewports(&vpNum, &oriVP);
 
 	ID3D11ShaderResourceView* nullSRV = nullptr;
+
+	//debug remove
+	DX_DContext->PSSetShaderResources(0, 1, &nullSRV);
+
+
 	DX_DContext->PSSetShaderResources(SHADER_REG_PS_SRV_SHADOW_TRANSP, 1, &nullSRV);
 
-	DX_DContext->ClearRenderTargetView(rtv.Get(), Colors::Black);
+	DX_DContext->ClearRenderTargetView(rtv.Get(), Colors::Transparent);
 	DX_DContext->ClearDepthStencilView(dsv.Get(), D3D11_CLEAR_DEPTH, 1.0f, NULL);
 	DX_DContext->OMSetRenderTargets(1, rtv.GetAddressOf(), dsv.Get());
 	DX_DContext->RSSetViewports(1, &vp);

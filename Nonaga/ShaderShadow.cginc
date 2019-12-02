@@ -15,9 +15,7 @@ SamplerState shadowTranspSamp : SHADER_REG_PS_SAMP_SHADOW_TRANSP;
 float DirectionalLightOpaqueShadowFactor(float3 wNormal, float3 lightDir, float3 wPos)
 {
     if (dot(wNormal, lightDir)>0)
-    {
-        return 0;
-    }
+        return 1;
 
     float4 pLightPos = mul(lightVPT, float4(wPos, 1));
     float3 lightPos = pLightPos.xyz / pLightPos.w;
@@ -27,71 +25,67 @@ float DirectionalLightOpaqueShadowFactor(float3 wNormal, float3 lightDir, float3
     float dx = 1.0f / mapWidth;
     float dy = 1.0f / mapHeight;
 
-    float2 offsets[25] =
+    float3 offsets[9] =
     {
-        float2(-dx * 2, -dy * 2), float2(-dx, -dy * 2), float2(0, -dy * 2), float2(dx, -dy * 2), float2(dx * 2, -dy * 2),
-        float2(-dx * 2, -dy), float2(-dx, -dy), float2(0, -dy), float2(dx, -dy), float2(dx * 2, -dy),
-        float2(-dx * 2, 0), float2(-dx, 0), float2(0, 0), float2(dx, 0), float2(dx * 2, 0),
-        float2(-dx * 2, dy), float2(-dx, dy), float2(0, dy), float2(dx, dy), float2(dx * 2, dy),
-        float2(-dx * 2, dy * 2), float2(-dx, dy * 2), float2(0, dy * 2), float2(dx, dy * 2), float2(dx * 2, dy * 2)
+        float3(-dx, -dy, 0.05), float3(0, -dy, 0.15), float3(dx, -dy, 0.05),
+        float3(-dx, 0, 0.15), float3(0, 0, 0.2), float3(dx, 0, 0.15),
+        float3(-dx, dy, 0.05), float3(0, dy, 0.15), float3(dx, dy, 0.05)
     };
     
-    float percentLit = 0;
+    float totalFactor = 0;
     [unroll]
-    for (int i = 0; i < 25; ++i)
+    for (int i = 0; i < 9; ++i)
     {
-        percentLit += shadowTex.SampleCmpLevelZero(shadowSamp, lightPos.xy + offsets[i], lightPos.z).r;
+        totalFactor += shadowTex.SampleCmpLevelZero(shadowSamp, lightPos.xy + offsets[i].xy, lightPos.z).r * offsets[i].z;
     }
-    return percentLit * 0.04f;
+    return (1-totalFactor);
 }
 float DirectionalLightTranspShadowFactor(float3 lightDir, float3 wPos)
 {
     float4 pLightPos = mul(lightVPT, float4(wPos, 1));
     float3 lightPerspective = pLightPos.xyz / pLightPos.w;
 
-    float mapWidth, mapHeight;
-    shadowTranspTex.GetDimensions(mapWidth, mapHeight);
-    float dx = 1.0f / mapWidth;
-    float dy = 1.0f / mapHeight;
     
     // center first
-    //debug chang
     float4 centerSample = shadowTranspTex.SampleLevel(shadowTranspSamp, lightPerspective.xy, 0);
     float3 centerWDir = centerSample.xyz;
     float centerPDist = centerSample.w;
 
-    //debug remove
-    if (abs(centerPDist - lightPerspective.z) <= 0.0075f)
+    // front surface = no shadow factor
+    if ((lightPerspective.z-centerPDist) <= 0.001f)
         return 0;
     
+
     
-    float totalIntensity = dot(centerWDir, lightDir);
+    
+    
+    float totalIntensity = dot(-centerWDir, lightDir)*0.2f;
     float totalWeight = 0.2f;
     
-    return totalIntensity;
-    
     // 3x3 except center
-    float3 offsets[8] =
+    float mapWidth, mapHeight;
+    shadowTranspTex.GetDimensions(mapWidth, mapHeight);
+    float dx = 1.0f / mapWidth;
+    float dy = 1.0f / mapHeight;
+    float3 offsets[4] =
     {
-        float3(-dx, -dy,0.075f), float3(0, -dy,0.125f), float3(dx, -dy, 0.075),
-        float3(-dx, 0, 0.125), /* center */float3(dx, 0, 0.125),
-       float3(-dx, dy, 0.075), float3(0, dy, 0.125), float3(dx, dy, 0.075)
+        float3(0, -dy, 0.2f), float3(0, dy, 0.2f),
+        float3(-dx, 0, 0.2f), float3(dx, 0, 0.2f)
     };
     
-    for (int i = 0; i < 8; ++i)
+    for (int i = 0; i < 4; ++i)
     {
         float4 shadowSample = shadowTranspTex.SampleLevel(shadowTranspSamp, lightPerspective.xy + offsets[i].xy, 0);
         float3 pWDir = shadowSample.xyz;
         float pDepth = shadowSample.w;
         
-        if(dot(pWDir, centerWDir)>=0.8 &&
-            abs(pDepth - centerPDist)<=0.2)
+        if(abs(pDepth - centerPDist)<=0.2)
         {
-            totalIntensity += dot(-pWDir, lightDir);
+            totalIntensity += dot(-pWDir, lightDir) * offsets[i].z;
             totalWeight += offsets[i].z;
         }
-
     }
+    
     
     return totalIntensity / totalWeight;
 }

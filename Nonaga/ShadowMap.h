@@ -47,6 +47,7 @@ public:
 	~TranspShadowMap();
 
 	void Mapping(const DirectionalLight* dLight);
+	ID3D11ShaderResourceView* SRV() { return srv.Get(); }
 private:
 	ComPtr<ID3D11RenderTargetView> rtv;
 	ComPtr<ID3D11ShaderResourceView> srv;

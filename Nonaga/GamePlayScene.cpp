@@ -88,6 +88,8 @@ GamePlayScene::GamePlayScene()
 	oShadowMapping = new OpaqueShadowMap(2048, 2048, 128, 128, cOpaqueTokens);
 	tShadowMapping = new TranspShadowMap(XMUINT2(2048, 2048), XMUINT2(128, 128), cTranspTokens);
 	ssao = new SSAOMap();
+
+	canvas = new UICanvas(SCREEN_WIDTH, SCREEN_HEIGHT);
 }
 
 GamePlayScene::~GamePlayScene()
@@ -133,9 +135,7 @@ void GamePlayScene::CameraMove(float spf)
 }
 void GamePlayScene::Update(float elapsed, float spf)
 {
-	static float curTime = 0;
-	curTime += spf;
-	dLight->SetDir(MultiplyDir(dLight->GetDir(), XMMatrixRotationY(curTime)));
+	dLight->SetDir(MultiplyDir(Normalize(XMFLOAT3(1.7, -1, 0)), XMMatrixRotationY(elapsed*0.1f)));
 
 	switch (curStage)
 	{
@@ -170,9 +170,11 @@ void GamePlayScene::Update(float elapsed, float spf)
 	//binding
 	BindEye();
 	skybox->Mapping();
-	//oShadowMapping->Mapping(dLight);
+	oShadowMapping->Mapping(dLight);
 	tShadowMapping->Mapping(dLight);
 	//ssao->Mapping(this, camera);
+
+	canvas->Update(spf);
 }
 
 void GamePlayScene::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) const
@@ -192,6 +194,7 @@ void GamePlayScene::Render(const XMMATRIX& vp, const Frustum& frustum, UINT scen
 		break;
 	}
 
+	canvas->Render(sceneDepth);
 	Scene::Render(curTempVP, frustum, sceneDepth);
 	nonaga->Render(curTempVP, frustum, sceneDepth);
 }
