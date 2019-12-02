@@ -20,10 +20,11 @@ Texture2D ssaoTex : SHADER_REG_PS_SRV_SSAO;
 
 SamplerState cmSamp : SHADER_REG_PS_SAMP_CM;
 SamplerState samp : SHADER_REG_PS_SAMP_TEX;
+SamplerState normalSamp : SHADER_REG_PS_SAMP_NORMAL;
 
 float3 GetBodyNormal(float2 tex)
 {
-    float3 ori_tex = normalTex.Sample(samp, tex).xyz;
+    float3 ori_tex = normalTex.Sample(normalSamp, tex).xyz;
     return (ori_tex * 2 - 1);
 }
 float3 Refract(float3 d, float3 n, float i)

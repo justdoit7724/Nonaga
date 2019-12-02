@@ -8,7 +8,7 @@
 #include "Game_info.h"
 
 Glass::Glass(Scene* captureScene, Shape* shape)
-	:Object(shape,
+	:Object(shape,shape,
 		"GlassVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts),
 		"", "", "",
 		"GlassPS.cso",

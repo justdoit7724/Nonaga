@@ -39,6 +39,25 @@ GamePlayScene::GamePlayScene()
 
 	CameraMgr::Instance()->SetMain("GamePlay");
 
+
+	D3D11_SAMPLER_DESC nSamp_desc;
+	ZeroMemory(&nSamp_desc, sizeof(D3D11_SAMPLER_DESC));
+	nSamp_desc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+	nSamp_desc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+	nSamp_desc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+	nSamp_desc.BorderColor[0] = 0;
+	nSamp_desc.BorderColor[1] = 0;
+	nSamp_desc.BorderColor[2] = 0;
+	nSamp_desc.BorderColor[3] = 0;
+	nSamp_desc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+	nSamp_desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	nSamp_desc.MinLOD = 0;
+	nSamp_desc.MaxLOD = D3D11_FLOAT32_MAX;
+	r_assert(
+		DX_Device->CreateSamplerState(&nSamp_desc, normalSamp.GetAddressOf())
+	);
+	DX_DContext->PSSetSamplers(SHADER_REG_PS_SAMP_NORMAL, 1, normalSamp.GetAddressOf());
+
 	std::vector<std::string> cm;
 	cm.push_back("Data\\Texture\\cm_px.jpg");
 	cm.push_back("Data\\Texture\\cm_nx.jpg");

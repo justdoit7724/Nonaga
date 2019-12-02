@@ -35,6 +35,8 @@ private:
 	XMFLOAT4X4 perspectiveP;
 	XMMATRIX curP;
 
+	ComPtr<ID3D11SamplerState> normalSamp;
+
 	enum GAMEPLAY_STAGE
 	{
 		GAMEPLAY_STAGE_LOBBY=0,

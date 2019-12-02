@@ -11,7 +11,7 @@ struct PS_INPUT
 };
 
 Texture2D normalTex : SHADER_REG_PS_SRV_NORMAL;
-SamplerState normalSamp : SHADER_REG_PS_SAMP_TEX;
+SamplerState normalSamp : SHADER_REG_PS_SAMP_NORMAL;
 
 float4 main(PS_INPUT input) : SV_Target
 {
@@ -24,5 +24,5 @@ float4 main(PS_INPUT input) : SV_Target
     float3 tNormal = normalTex.Sample(normalSamp, input.ui);
     float3 finalNormal = mul(tNormal * 2 - 1, tbn);
     
-    return float4(normalize(input.wNormal), input.pDist);
+    return float4(finalNormal, input.pDist);
 }

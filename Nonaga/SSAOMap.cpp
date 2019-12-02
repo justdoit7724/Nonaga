@@ -276,13 +276,7 @@ void SSAOMap::DrawNormalDepth(const Scene* scene, const Camera* camera)
 		ndVS->WriteCB(0, drawTransf);
 		ndVS->Apply();
 
-		// only triangle
-		D3D11_PRIMITIVE_TOPOLOGY curPrimitiveType = t->shape->GetPrimitiveType();
-		t->shape->SetPrimitiveType(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
 		t->RenderGeom();
-
-		t->shape->SetPrimitiveType(curPrimitiveType);
 	}
 }
 

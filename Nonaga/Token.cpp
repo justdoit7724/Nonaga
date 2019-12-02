@@ -14,10 +14,11 @@
 #include "Debugging.h"
 
 Shape* Token::mesh = nullptr;
+Shape* Token::lodMesh = nullptr;
 Camera* Token::captureCam = nullptr;
 
 Token::Token(Scene* environemnt, unsigned int id, bool p1)
-	:Object(nullptr,
+	:Object(nullptr,nullptr,
 		"StdDisplacementVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts),
 		"StdDisplacementHS.cso", "StdDisplacementDS.cso", "",
 		"StandardPS.cso", Z_ORDER_STANDARD),
@@ -33,10 +34,12 @@ Token::Token(Scene* environemnt, unsigned int id, bool p1)
 	}
 	if (mesh==nullptr)
 	{
-		MeshLoader::LoadToken(&mesh);
+		MeshLoader::LoadToken(&mesh, "Data\\Model\\Token\\TOKENf2.obj");
+		MeshLoader::LoadToken(&lodMesh, "Data\\Model\\Token\\TOKENf05.obj");
 	}
 	shape = mesh;
 	shape->SetPrimitiveType(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
+	lodShape = lodMesh;
 
 	vs->AddCB(0, 1, sizeof(SHADER_STD_TRANSF));
 	vs->AddCB(1, 1, sizeof(XMFLOAT4));
@@ -128,7 +131,7 @@ Token::Token(Scene* environemnt, unsigned int id, bool p1)
 }
 
 Token::Token(bool isRed)
-	:Object(new Cube(),
+	:Object(new Cube(),nullptr,
 		nullptr,nullptr), isIndicator(true)
 {
 	TextureMgr::Instance()->Load("red", "Data\\Texture\\red_light.png");

@@ -11,7 +11,7 @@
 #include "ShaderReg.h"
 
 Skybox::Skybox(ID3D11ShaderResourceView* srv)
-	:Object(new Sphere(0),
+	:Object(new Sphere(0),nullptr,
 		"CMVS.cso", Std_ILayouts,ARRAYSIZE(Std_ILayouts),
 		"","","",
 		"CMPS.cso",Z_ORDER_STANDARD)

@@ -29,6 +29,7 @@ private:
 	static Camera* captureCam;
 
 	static Shape* mesh;
+	static Shape* lodMesh;
 
 	ComPtr<ID3D11RenderTargetView> captureRTV[6];
 	ComPtr<ID3D11ShaderResourceView> captureSRV;

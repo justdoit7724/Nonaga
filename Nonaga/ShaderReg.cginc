@@ -18,7 +18,8 @@
 
 #define SHADER_REG_PS_SAMP_CM register(s0)
 #define SHADER_REG_PS_SAMP_TEX register(s1)
-#define SHADER_REG_PS_SAMP_SHADOW register(s2)
-#define SHADER_REG_PS_SAMP_SHADOW_TRANSP register(s3)
+#define SHADER_REG_PS_SAMP_NORMAL register(s2)
+#define SHADER_REG_PS_SAMP_SHADOW register(s3)
+#define SHADER_REG_PS_SAMP_SHADOW_TRANSP register(s4)
 
 #endif

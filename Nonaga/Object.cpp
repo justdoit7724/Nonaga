@@ -14,8 +14,8 @@
 #include "Debugging.h"
 
 //fundamental elements
-Object::Object(Shape* shape, std::string sVS, const D3D11_INPUT_ELEMENT_DESC* iLayouts, UINT layoutCount, std::string sHS, std::string sDS, std::string sGS, std::string sPS,int zOrder)
-	:shape(shape), zOrder(zOrder)
+Object::Object(Shape* shape, Shape* lodShape, std::string sVS, const D3D11_INPUT_ELEMENT_DESC* iLayouts, UINT layoutCount, std::string sHS, std::string sDS, std::string sGS, std::string sPS,int zOrder)
+	:shape(shape),lodShape(lodShape), zOrder(zOrder)
 {
 	transform = new Transform();
 	vs = new VShader(sVS, iLayouts, layoutCount);
@@ -30,8 +30,8 @@ Object::Object(Shape* shape, std::string sVS, const D3D11_INPUT_ELEMENT_DESC* iL
 }
 
 //standard elements
-Object::Object(Shape* shape, ID3D11ShaderResourceView* diffSRV, ID3D11ShaderResourceView* normalSRV)
-	:zOrder(Z_ORDER_STANDARD), shape(shape)
+Object::Object(Shape* shape, Shape* lodShape, ID3D11ShaderResourceView* diffSRV, ID3D11ShaderResourceView* normalSRV)
+	:zOrder(Z_ORDER_STANDARD), shape(shape), lodShape(lodShape)
 {
 	transform = new Transform();
 	vs = new VShader("StandardVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
@@ -138,7 +138,7 @@ void Object::RenderGeom() const
 	if (!enabled || !show)
 		return;
 
-	shape->Apply();
+	lodShape->Apply();
 }
 
 bool Object::IsInsideFrustum(const Frustum& frustum) const

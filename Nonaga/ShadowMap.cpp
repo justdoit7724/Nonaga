@@ -13,7 +13,7 @@
 #include "Camera.h"
 #include "Debugging.h"
 #include "Buffer.h"
-#include <queue>
+#include "TextureMgr.h"
 
 OpaqueShadowMap::OpaqueShadowMap(UINT resX, UINT resY, UINT width, UINT height, const std::vector<Object const*>& objs)
 	:depthSRV(nullptr), depthDSV(nullptr)
@@ -135,7 +135,6 @@ void OpaqueShadowMap::Mapping(const DirectionalLight* light)
 	
 	for(auto t : drawObjs)
 	{
-		//debug decomment all in this scope
 		rsState->Apply();
 		dsState->Apply();
 		blendState->Apply();
@@ -143,13 +142,7 @@ void OpaqueShadowMap::Mapping(const DirectionalLight* light)
 		mapVS->WriteCB(0, &(t->transform->WorldMatrix() * lightVP));
 		mapVS->Apply();
 
-		// only triangles
-		D3D11_PRIMITIVE_TOPOLOGY curPrimitiveType = t->shape->GetPrimitiveType();
-		t->shape->SetPrimitiveType(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
 		t->RenderGeom();
-
-		t->shape->SetPrimitiveType(curPrimitiveType);
 	}
 
 	DX_DContext->RSSetViewports(1, &oriVP);
@@ -253,6 +246,7 @@ TranspShadowMap::TranspShadowMap(XMUINT2 res, XMUINT2 volume, const std::vector<
 	samp_desc.MaxLOD = D3D11_FLOAT32_MAX;
 	mapPS->AddSamp(SHADER_REG_PS_SAMP_SHADOW_TRANSP, 1, &samp_desc);
 
+
 	cbVPTMat = new Buffer(sizeof(XMMATRIX));
 
 	rsState = new RasterizerState(nullptr);
@@ -308,6 +302,8 @@ void TranspShadowMap::Mapping(const DirectionalLight* dLight)
 		0.5f, 0.5f, 0, 1);
 	cbVPTMat->Write(&vpt);
 	DX_DContext->PSSetConstantBuffers(SHADER_REG_PS_CB_LIGHTVP, 1, cbVPTMat->GetAddress());
+	ID3D11ShaderResourceView* const nSRV = TextureMgr::Instance()->Get("tokenNormal");
+	DX_DContext->PSSetShaderResources(SHADER_REG_PS_SRV_NORMAL, 1, &nSRV);
 
 	for (auto curObj : drawObjs)
 	{
@@ -322,12 +318,7 @@ void TranspShadowMap::Mapping(const DirectionalLight* dLight)
 		blendState->Apply();
 		rsState->Apply();
 
-		D3D11_PRIMITIVE_TOPOLOGY curPrimitiveType = curObj->shape->GetPrimitiveType();
-		curObj->shape->SetPrimitiveType(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
 		curObj->RenderGeom();
-
-		curObj->shape->SetPrimitiveType(curPrimitiveType);
 	}
 
 	DX_DContext->OMSetRenderTargets(1, &oriRTV, oriDSV);

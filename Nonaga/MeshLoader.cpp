@@ -26,16 +26,6 @@ void ProcessTokenNode(Shape** storage, aiNode* node, const aiScene* scene)
 
 		std::vector<Vertex> vertice(mesh->mNumVertices);
 		std::vector<UINT> indice(mesh->mNumFaces * 3);
-		std::string diffMtl = "";
-		std::string normalMtl = "";
-
-		aiString textureName;
-		//debug decomment
-		//assert(material->GetTexture(aiTextureType_DIFFUSE, 0, &textureName) == aiReturn_SUCCESS);
-		diffMtl = textureName.C_Str();
-		//debug decomment
-		//assert(material->GetTexture(aiTextureType_HEIGHT, 0, &textureName) == aiReturn_SUCCESS);
-		normalMtl = textureName.C_Str();
 
 		for (int i = 0; i < mesh->mNumVertices; ++i)
 		{
@@ -69,7 +59,7 @@ void ProcessTokenNode(Shape** storage, aiNode* node, const aiScene* scene)
 
 
 
-		std::vector<std::pair<XMFLOAT3,int>> sNorm(vertice.size());
+		/*std::vector<std::pair<XMFLOAT3,int>> sNorm(vertice.size());
 		for (int i = 0; i < indice.size(); ++i)
 		{
 			sNorm[indice[i]].first += vertice[indice[i]].n;
@@ -79,23 +69,16 @@ void ProcessTokenNode(Shape** storage, aiNode* node, const aiScene* scene)
 		for (int i = 0; i < sNorm.size(); ++i)
 		{
 			vertice[i].n = Normalize(sNorm[i].first);
-		}
+		}*/
 
 		Vertex* vData = vertice.data();
 		UINT* iData = indice.data();
-		//debug decomment
-		//TextureMgr::Instance()->Load(diffMtl, "Data\\Model\\" + filepath + "\\" + diffMtl);
-		//TextureMgr::Instance()->Load(normalMtl, "Data\\Model\\" + filepath + "\\" + normalMtl);
 
 		*storage=new Shape(vData, sizeof(Vertex), vertice.size(), iData, indice.size(), D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	}
 
 	for (UINT i = 0; i < node->mNumChildren; i++)
 	{
-		//debug remove
-		/*if (i != 3)
-			continue;*/
-
 		ProcessTokenNode(storage, node->mChildren[i], scene);
 	}
 }
@@ -157,8 +140,9 @@ void ProcessNode(std::vector<Object*>& storage, std::string filepath, aiNode* no
 		TextureMgr::Instance()->Load(diffMtl, "Data\\Model\\" + filepath + "\\" + diffMtl);
 		TextureMgr::Instance()->Load(normalMtl, "Data\\Model\\" + filepath + "\\" + normalMtl);
 		
+		Shape* curShape = new Shape(vData, sizeof(Vertex), vertice.size(), iData, indice.size(), D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		storage.push_back(new Object(
-			new Shape(vData, sizeof(Vertex), vertice.size(), iData, indice.size(), D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST),
+			curShape, curShape,
 			TextureMgr::Instance()->Get(diffMtl),
 			TextureMgr::Instance()->Get(normalMtl)));
 	}
@@ -187,11 +171,11 @@ void MeshLoader::Load(std::vector<Object*>& storage, std::string filepath, std::
 	ProcessNode(storage, filepath, pScene->mRootNode, pScene);
 }
 
-void MeshLoader::LoadToken(Shape** storage)
+void MeshLoader::LoadToken(Shape** storage, std::string path)
 {
 	Assimp::Importer importer;
 
-	const aiScene* pScene = importer.ReadFile("Data\\Model\\Token\\TOKENf1.obj",
+	const aiScene* pScene = importer.ReadFile(path,
 		aiProcess_MakeLeftHanded |
 		aiProcess_FlipUVs |
 		aiProcess_FlipWindingOrder |
