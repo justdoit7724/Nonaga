@@ -138,22 +138,12 @@ SSAOMap::SSAOMap()
 	acsPS->AddCB(0, 1, sizeof(XMMATRIX));
 	acsPS->AddCB(1, 1, sizeof(XMFLOAT4) * 14);
 	acsPS->AddSRV(0, 1);
-	D3D11_SAMPLER_DESC samp_desc;
-	ZeroMemory(&samp_desc, sizeof(D3D11_SAMPLER_DESC));
-	samp_desc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-	samp_desc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
-	samp_desc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
-	samp_desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	samp_desc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
-	samp_desc.MinLOD = 0;
-	samp_desc.MaxLOD = 1;
-	acsPS->AddSamp(0, 1, &samp_desc);
+	
 	acsPS->WriteSRV(0, ndSRV.Get());
 	blurPS = new PShader("SSAO_BlurPS.cso");
 	blurPS->AddCB(0, 1, sizeof(float));
 	blurPS->AddSRV(0, 1);
 	blurPS->AddSRV(1, 1);
-	blurPS->AddSamp(0, 1, &samp_desc);
 
 
 	dsState = new DepthStencilState(nullptr);
@@ -225,7 +215,7 @@ void SSAOMap::Mapping(const Scene* scene, const Camera* camera)
 	DX_DContext->RSGetViewports(&oriVPNum, &oriVP);
 
 	ID3D11ShaderResourceView* oriCM = nullptr;
-	DX_DContext->PSGetShaderResources(SHADER_REG_PS_SRV_CM, 1, &oriCM);
+	DX_DContext->PSGetShaderResources(SHADER_REG_SRV_CM, 1, &oriCM);
 
 	DX_DContext->HSSetShader(nullptr, nullptr, 0);
 	DX_DContext->DSSetShader(nullptr, nullptr, 0);
@@ -237,10 +227,10 @@ void SSAOMap::Mapping(const Scene* scene, const Camera* camera)
 	BlurVertical();
 
 
-	DX_DContext->PSSetShaderResources(SHADER_REG_PS_SRV_CM, 1, &oriCM);
+	DX_DContext->PSSetShaderResources(SHADER_REG_SRV_CM, 1, &oriCM);
 
 	DX_DContext->OMSetRenderTargets(1, &oriPassRTV, oriDSV);
-	DX_DContext->PSSetShaderResources(SHADER_REG_PS_SRV_SSAO, 1, finalSRV.GetAddressOf());
+	DX_DContext->PSSetShaderResources(SHADER_REG_SRV_SSAO, 1, finalSRV.GetAddressOf());
 	DX_DContext->RSSetViewports(1, &oriVP);
 }
 
@@ -251,7 +241,7 @@ void SSAOMap::DrawNormalDepth(const Scene* scene, const Camera* camera)
 	// unbinding srv used in blurPS shader
 	ID3D11ShaderResourceView* curFirstSRV;
 	DX_DContext->PSGetShaderResources(0, 1, &curFirstSRV);
-	DX_DContext->PSSetShaderResources(SHADER_REG_PS_SRV_SSAO, 1, &nullSRV);
+	DX_DContext->PSSetShaderResources(SHADER_REG_SRV_SSAO, 1, &nullSRV);
 
 	DX_DContext->RSSetViewports(1, &vp);
 	DX_DContext->ClearRenderTargetView(ndRTV.Get(), defaultColor);
