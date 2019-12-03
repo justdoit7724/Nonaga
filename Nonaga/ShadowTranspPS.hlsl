@@ -10,8 +10,8 @@ struct PS_INPUT
     float2 ui : TEXCOORD3;
 };
 
-Texture2D normalTex : SHADER_REG_PS_SRV_NORMAL;
-SamplerState normalSamp : SHADER_REG_PS_SAMP_NORMAL;
+Texture2D normalTex : SHADER_REG_SRV_NORMAL;
+SamplerState normalSamp : SHADER_REG_SAMP_POINT;
 
 float4 main(PS_INPUT input) : SV_Target
 {

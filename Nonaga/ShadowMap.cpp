@@ -253,7 +253,7 @@ void TranspShadowMap::Mapping(const DirectionalLight* dLight)
 
 
 	DX_DContext->PSSetShaderResources(SHADER_REG_SRV_SHADOW_TRANSP, 1, &nullSRV);
-	float defaultColor[4] = { 0,0,0,-1 };
+	float defaultColor[4] = { 0,0,0,1 };
 	DX_DContext->ClearRenderTargetView(rtv.Get(), defaultColor);
 	DX_DContext->ClearDepthStencilView(dsv.Get(), D3D11_CLEAR_DEPTH, 1.0f, NULL);
 	DX_DContext->OMSetRenderTargets(1, rtv.GetAddressOf(), dsv.Get());

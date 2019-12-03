@@ -243,7 +243,7 @@ void GamePlayScene::Update(float elapsed, float spf)
 	//binding
 	BindEye();
 	skybox->Mapping();
-	//oShadowMapping->Mapping(dLight);
+	oShadowMapping->Mapping(dLight);
 	tShadowMapping->Mapping(dLight);
 	//ssao->Mapping(this, camera);
 

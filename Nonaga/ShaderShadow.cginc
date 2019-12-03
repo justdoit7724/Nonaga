@@ -14,9 +14,8 @@ SamplerState pointSamp : SHADER_REG_SAMP_POINT;
 
 float DirectionalLightOpaqueShadowFactor(float3 wNormal, float3 lightDir, float3 wPos)
 {
-    if (dot(wNormal, lightDir)>0)
-        return 1;
-
+    float power = pow(2 * dot(wNormal, lightDir), 2);
+    
     float4 pLightPos = mul(lightVPT, float4(wPos, 1));
     float3 lightPos = pLightPos.xyz / pLightPos.w;
 
@@ -38,9 +37,11 @@ float DirectionalLightOpaqueShadowFactor(float3 wNormal, float3 lightDir, float3
     {
         totalFactor += shadowTex.SampleCmpLevelZero(shadowSamp, lightPos.xy + offsets[i].xy, lightPos.z).r * offsets[i].z;
     }
-    return (1-totalFactor);
+    
+    totalFactor = 1 - totalFactor;
+    return totalFactor * power;
 }
-float DirectionalLightTranspShadowFactor(float3 lightDir, float3 wPos)
+float DirectionalLightTranspShadowFactor(float3 wDir, float3 lightDir, float3 wPos)
 {
     float4 pLightPos = mul(lightVPT, float4(wPos, 1));
     float3 lightPerspective = pLightPos.xyz / pLightPos.w;
@@ -51,14 +52,11 @@ float DirectionalLightTranspShadowFactor(float3 lightDir, float3 wPos)
     float3 centerWDir = centerSample.xyz;
     float centerPDist = centerSample.w;
 
-    // front surface = no shadow factor
-    if ((lightPerspective.z-centerPDist) <= 0.001f)
-        return 0;
-
     
+    float power = saturate(pow(3 * dot(-wDir, lightDir), 3));
+    float overlap = saturate((lightPerspective.z - centerPDist) * 100);
     
-    
-    float totalIntensity = dot(-centerWDir, lightDir)*0.2f;
+    float totalIntensity =  (1 - dot(-centerWDir, lightDir)) * 0.2f;
     float totalWeight = 0.2f;
     
     // 3x3 except center
@@ -77,16 +75,16 @@ float DirectionalLightTranspShadowFactor(float3 lightDir, float3 wPos)
         float4 shadowSample = shadowTranspTex.SampleLevel(pointSamp, lightPerspective.xy + offsets[i].xy, 0);
         float3 pWDir = shadowSample.xyz;
         float pDepth = shadowSample.w;
-        
-        if(abs(pDepth - centerPDist)<=0.1)
+    
+        if (abs(pDepth - centerPDist) <= 0.1)
         {
-            totalIntensity += dot(-pWDir, lightDir) * offsets[i].z;
+            totalIntensity += (1 - dot(-pWDir, lightDir)) * offsets[i].z;
             totalWeight += offsets[i].z;
         }
     }
     
     
-    return totalIntensity / totalWeight;
+    return power*overlap * totalIntensity / totalWeight;
 }
 
 float PointLightShadowFactor(float3 wNormal, float3 wPos, float3 lightPos, TextureCube map, SamplerState samp, float2 shadowPMatElem)

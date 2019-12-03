@@ -104,10 +104,10 @@ float4 main(PS_INPUT input) : SV_Target
     float3 tex = diffuseTex.Sample(anisotropicSamp, input.tex).xyz;
     
     float shadowFactor = DirectionalLightOpaqueShadowFactor(wNormal, d_Dir[0].xyz, input.wPos);
-    float shadowTranspFactor = DirectionalLightTranspShadowFactor(d_Dir[0].xyz, input.wPos);
+    float shadowTranspFactor = DirectionalLightTranspShadowFactor(wNormal,d_Dir[0].xyz, input.wPos);
     //debug--------------------------------------------------
   
-    return float4(max(shadowTranspFactor, -10000).xxx, 1);
+    return float4(max(shadowTranspFactor, shadowFactor).xxx, 1);
     
     tex = ComputeTransparency(tex, wNormal, look);
     
