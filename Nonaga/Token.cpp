@@ -59,12 +59,13 @@ Token::Token(Scene* environemnt, unsigned int id, bool p1)
 	samp_desc.MinLOD = 0;
 	samp_desc.MaxLOD = D3D11_FLOAT32_MAX;
 	ds->AddSamp(0, 1, &samp_desc);
-	ps->AddCB(SHADER_REG_CB_MATERIAL, 1, sizeof(SHADER_MATERIAL));
-	ps->WriteCB(SHADER_REG_CB_MATERIAL, &SHADER_MATERIAL(XMFLOAT3(0.7, 0.7, 0.7), 1, XMFLOAT3(0.5,0.5,0.5), XMFLOAT3(0.8,0.8,0.8), 16));
-	ps->AddSRV(SHADER_REG_SRV_DIFFUSE, 1);
-	ps->AddSRV(SHADER_REG_SRV_NORMAL, 1);
-	ps->WriteSRV(SHADER_REG_SRV_DIFFUSE, TextureMgr::Instance()->Get("token"));
-	ps->WriteSRV(SHADER_REG_SRV_NORMAL, TextureMgr::Instance()->Get("tokenNormal"));
+	ps->AddCB(SHADER_REG_PS_CB_MATERIAL, 1, sizeof(SHADER_MATERIAL));
+	ps->WriteCB(SHADER_REG_PS_CB_MATERIAL, &SHADER_MATERIAL(XMFLOAT3(0.7, 0.7, 0.7), 1, XMFLOAT3(0.5,0.5,0.5), XMFLOAT3(0.8,0.8,0.8), 16));
+	ps->AddSRV(SHADER_REG_PS_SRV_DIFFUSE, 1);
+	ps->AddSRV(SHADER_REG_PS_SRV_NORMAL, 1);
+	ps->WriteSRV(SHADER_REG_PS_SRV_DIFFUSE, TextureMgr::Instance()->Get("token"));
+	ps->WriteSRV(SHADER_REG_PS_SRV_NORMAL, TextureMgr::Instance()->Get("tokenNormal"));
+	ps->AddSamp(SHADER_REG_PS_SAMP_TEX, 1, &samp_desc);
 
 	D3D11_TEXTURE2D_DESC capture_desc;
 	capture_desc.Width = SCREEN_WIDTH;
@@ -135,13 +136,13 @@ Token::Token(bool isRed)
 {
 	TextureMgr::Instance()->Load("red", "Data\\Texture\\red_light.png");
 	TextureMgr::Instance()->Load("green", "Data\\Texture\\green_light.png");
-	ps->WriteSRV(SHADER_REG_SRV_DIFFUSE, TextureMgr::Instance()->Get(isRed ? "red":"green"));
-	ps->WriteSRV(SHADER_REG_SRV_DIFFUSE, TextureMgr::Instance()->Get("tokenNormal"));
+	ps->WriteSRV(SHADER_REG_PS_SRV_DIFFUSE, TextureMgr::Instance()->Get(isRed ? "red":"green"));
+	ps->WriteSRV(SHADER_REG_PS_SRV_DIFFUSE, TextureMgr::Instance()->Get("tokenNormal"));
 
 	transform->SetScale(7, 10, 7);
 	enabled = false;
-	ps->WriteSRV(SHADER_REG_SRV_DIFFUSE, TextureMgr::Instance()->Get("token"));
-	ps->WriteSRV(SHADER_REG_SRV_NORMAL, TextureMgr::Instance()->Get("tokenNormal"));
+	ps->WriteSRV(SHADER_REG_PS_SRV_DIFFUSE, TextureMgr::Instance()->Get("token"));
+	ps->WriteSRV(SHADER_REG_PS_SRV_NORMAL, TextureMgr::Instance()->Get("tokenNormal"));
 }
 
 void Token::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) const
@@ -169,13 +170,13 @@ void Token::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) 
 				else
 				{
 					ID3D11ShaderResourceView* oriCM = nullptr;
-					DX_DContext->PSGetShaderResources(SHADER_REG_SRV_CM, 1, &oriCM);
+					DX_DContext->PSGetShaderResources(SHADER_REG_PS_SRV_CM, 1, &oriCM);
 
 					DrawDCM(sceneDepth + 1);
 
 					Object::Render();
 
-					DX_DContext->PSSetShaderResources(SHADER_REG_SRV_CM, 1, &oriCM);
+					DX_DContext->PSSetShaderResources(SHADER_REG_PS_SRV_CM, 1, &oriCM);
 				}
 			}
 			else
@@ -216,7 +217,7 @@ void Token::DrawDCM(UINT sceneDepth)const
 	DX_DContext->OMGetRenderTargets(1, &oriRTV, &oriDSV);
 
 	ID3D11ShaderResourceView* nullSRV = nullptr;
-	DX_DContext->PSSetShaderResources(SHADER_REG_SRV_CM, 1, &nullSRV);
+	DX_DContext->PSSetShaderResources(SHADER_REG_PS_SRV_CM, 1, &nullSRV);
 
 	Capture(RIGHT, UP, captureRTV[0].Get(), captureDSV.Get(), sceneDepth);
 	Capture(-RIGHT, UP, captureRTV[1].Get(), captureDSV.Get(), sceneDepth);
@@ -227,7 +228,7 @@ void Token::DrawDCM(UINT sceneDepth)const
 
 	DX_DContext->OMSetRenderTargets(1, &oriRTV, oriDSV);
 
-	DX_DContext->PSSetShaderResources(SHADER_REG_SRV_CM, 1, captureSRV.GetAddressOf());
+	DX_DContext->PSSetShaderResources(SHADER_REG_PS_SRV_CM, 1, captureSRV.GetAddressOf());
 }
 
 

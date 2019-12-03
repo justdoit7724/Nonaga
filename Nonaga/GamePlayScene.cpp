@@ -39,78 +39,24 @@ GamePlayScene::GamePlayScene()
 
 	CameraMgr::Instance()->SetMain("GamePlay");
 
-	D3D11_SAMPLER_DESC pointSamp_desc;
-	ZeroMemory(&pointSamp_desc, sizeof(D3D11_SAMPLER_DESC));
-	pointSamp_desc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
-	pointSamp_desc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-	pointSamp_desc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
-	pointSamp_desc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
-	pointSamp_desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	pointSamp_desc.MinLOD = 0;
-	pointSamp_desc.MaxLOD = D3D11_FLOAT32_MAX;
-	D3D11_SAMPLER_DESC anisotropicSamp_desc;
-	ZeroMemory(&anisotropicSamp_desc, sizeof(D3D11_SAMPLER_DESC));
-	anisotropicSamp_desc.Filter = D3D11_FILTER_ANISOTROPIC;
-	anisotropicSamp_desc.MaxAnisotropy = 4;
-	anisotropicSamp_desc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-	anisotropicSamp_desc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
-	anisotropicSamp_desc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
-	anisotropicSamp_desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	anisotropicSamp_desc.MinLOD = 0;
-	anisotropicSamp_desc.MaxLOD = D3D11_FLOAT32_MAX;
-	D3D11_SAMPLER_DESC cmpPointSamp_desc;
-	ZeroMemory(&cmpPointSamp_desc, sizeof(D3D11_SAMPLER_DESC));
-	cmpPointSamp_desc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-	cmpPointSamp_desc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
-	cmpPointSamp_desc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
-	cmpPointSamp_desc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
-	cmpPointSamp_desc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
-	cmpPointSamp_desc.MinLOD = 0;
-	cmpPointSamp_desc.MaxLOD = D3D11_FLOAT32_MAX;
-	/*
-	D3D11_SAMPLER_DESC oShadowSamp_desc;
-	ZeroMemory(&oShadowSamp_desc, sizeof(D3D11_SAMPLER_DESC));
-	oShadowSamp_desc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-	oShadowSamp_desc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
-	oShadowSamp_desc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
-	oShadowSamp_desc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
-	oShadowSamp_desc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
-	oShadowSamp_desc.MinLOD = 0;
-	oShadowSamp_desc.MaxLOD = D3D11_FLOAT32_MAX;
-	D3D11_SAMPLER_DESC tShadowSamp_desc;
-	ZeroMemory(&tShadowSamp_desc, sizeof(D3D11_SAMPLER_DESC));
-	tShadowSamp_desc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-	tShadowSamp_desc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
-	tShadowSamp_desc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
-	tShadowSamp_desc.BorderColor[0] = 1;
-	tShadowSamp_desc.BorderColor[1] = 0;
-	tShadowSamp_desc.BorderColor[2] = 1;
-	tShadowSamp_desc.BorderColor[3] = 1;
-	tShadowSamp_desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	tShadowSamp_desc.Filter = D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR;
-	tShadowSamp_desc.MinLOD = 0;
-	tShadowSamp_desc.MaxLOD = D3D11_FLOAT32_MAX;
-	D3D11_SAMPLER_DESC ssaoSamp_desc;
-	ZeroMemory(&ssaoSamp_desc, sizeof(D3D11_SAMPLER_DESC));
-	ssaoSamp_desc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-	ssaoSamp_desc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
-	ssaoSamp_desc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
-	ssaoSamp_desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	ssaoSamp_desc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
-	ssaoSamp_desc.MinLOD = 0;
-	ssaoSamp_desc.MaxLOD = 1;*/
-	r_assert(DX_Device->CreateSamplerState(&pointSamp_desc, pointSamp.GetAddressOf()));
-	r_assert(DX_Device->CreateSamplerState(&anisotropicSamp_desc, anisotropicSamp.GetAddressOf()));
-	r_assert(DX_Device->CreateSamplerState(&cmpPointSamp_desc, cmpPointSamp.GetAddressOf()));
-	/*
-	r_assert(DX_Device->CreateSamplerState(&oShadowSamp_desc, oShadowSamp.GetAddressOf()));
-	r_assert(DX_Device->CreateSamplerState(&tShadowSamp_desc, tShadowSamp.GetAddressOf()));*/
-	DX_DContext->PSSetSamplers(SHADER_REG_SAMP_POINT, 1, pointSamp.GetAddressOf());
-	DX_DContext->PSSetSamplers(SHADER_REG_SAMP_ANISOTROPIC, 1, anisotropicSamp.GetAddressOf());
-	DX_DContext->PSSetSamplers(SHADER_REG_SAMP_CMP_POINT, 1, cmpPointSamp.GetAddressOf());
-	/*
-	DX_DContext->PSSetSamplers(SHADER_REG_PS_SAMP_SHADOW, 1, oShadowSamp.GetAddressOf());
-	DX_DContext->PSSetSamplers(SHADER_REG_PS_SAMP_SHADOW_TRANSP, 1, tShadowSamp.GetAddressOf());*/
+
+	D3D11_SAMPLER_DESC nSamp_desc;
+	ZeroMemory(&nSamp_desc, sizeof(D3D11_SAMPLER_DESC));
+	nSamp_desc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+	nSamp_desc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+	nSamp_desc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+	nSamp_desc.BorderColor[0] = 0;
+	nSamp_desc.BorderColor[1] = 0;
+	nSamp_desc.BorderColor[2] = 0;
+	nSamp_desc.BorderColor[3] = 0;
+	nSamp_desc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+	nSamp_desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	nSamp_desc.MinLOD = 0;
+	nSamp_desc.MaxLOD = D3D11_FLOAT32_MAX;
+	r_assert(
+		DX_Device->CreateSamplerState(&nSamp_desc, normalSamp.GetAddressOf())
+	);
+	DX_DContext->PSSetSamplers(SHADER_REG_PS_SAMP_NORMAL, 1, normalSamp.GetAddressOf());
 
 	std::vector<std::string> cm;
 	cm.push_back("Data\\Texture\\cm_px.jpg");
@@ -180,7 +126,7 @@ void GamePlayScene::BindEye()
 		CameraMgr::Instance()->Main()->transform->GetPos().y,
 		CameraMgr::Instance()->Main()->transform->GetPos().z, 0);
 	cbEye->Write(&camEye);
-	DX_DContext->PSSetConstantBuffers(SHADER_REG_CB_EYE, 1, cbEye->GetAddress());
+	DX_DContext->PSSetConstantBuffers(SHADER_REG_PS_CB_EYE, 1, cbEye->GetAddress());
 }
 
 void GamePlayScene::CameraMove(float spf)
@@ -243,7 +189,7 @@ void GamePlayScene::Update(float elapsed, float spf)
 	//binding
 	BindEye();
 	skybox->Mapping();
-	//oShadowMapping->Mapping(dLight);
+	oShadowMapping->Mapping(dLight);
 	tShadowMapping->Mapping(dLight);
 	//ssao->Mapping(this, camera);
 

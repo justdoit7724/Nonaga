@@ -19,6 +19,17 @@ Skybox::Skybox(ID3D11ShaderResourceView* srv)
 	transform->SetScale(300, 300, 300);
 	
 	vs->AddCB(0, 1, sizeof(SHADER_STD_TRANSF));
+	D3D11_SAMPLER_DESC sampDesc;
+	ZeroMemory(&sampDesc, sizeof(D3D11_SAMPLER_DESC));
+	sampDesc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	sampDesc.MinLOD = 0;
+	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	r_assert(
+		DX_Device->CreateSamplerState(&sampDesc, samplerState.GetAddressOf()));
 	delete rsState;
 	D3D11_RASTERIZER_DESC rs_desc;
 	ZeroMemory(&rs_desc, sizeof(D3D11_RASTERIZER_DESC));
@@ -31,7 +42,8 @@ Skybox::Skybox(ID3D11ShaderResourceView* srv)
 void Skybox::Mapping()
 {
 	ID3D11ShaderResourceView* cmSRV = TextureMgr::Instance()->Get("cm");
-	DX_DContext->PSSetShaderResources(SHADER_REG_SRV_CM, 1, &cmSRV);
+	DX_DContext->PSSetShaderResources(SHADER_REG_PS_SRV_CM, 1, &cmSRV);
+	DX_DContext->PSSetSamplers(SHADER_REG_PS_SAMP_CM, 1, samplerState.GetAddressOf());
 }
 
 void Skybox::Update()

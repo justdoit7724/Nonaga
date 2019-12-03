@@ -1,11 +1,9 @@
 
-#include "ShaderReg.cginc"
-
 #define LIGHT_ENABLED 1
 #define LIGHT_DISABLED 0
 #define LIGHT_MAX_EACH 5
 
-cbuffer DIRECTIONAL_LIGHT : SHADER_REG_CB_DIRLIGHT
+cbuffer DIRECTIONAL_LIGHT : register(b0)
 {
     float4 d_Ambient[LIGHT_MAX_EACH];
     float4 d_Diffuse[LIGHT_MAX_EACH];
@@ -13,7 +11,7 @@ cbuffer DIRECTIONAL_LIGHT : SHADER_REG_CB_DIRLIGHT
     float4 d_Dir[LIGHT_MAX_EACH];
     float4 d_Enabled[LIGHT_MAX_EACH];
 };
-cbuffer POINT_LIGHT : SHADER_REG_CB_POINTLIGHT
+cbuffer POINT_LIGHT : register(b1)
 {
     float4 p_Ambient[LIGHT_MAX_EACH];
     float4 p_Diffuse[LIGHT_MAX_EACH];
@@ -23,7 +21,7 @@ cbuffer POINT_LIGHT : SHADER_REG_CB_POINTLIGHT
     float4 p_Info[LIGHT_MAX_EACH]; 
     float4 p_Att[LIGHT_MAX_EACH];
 };
-cbuffer SPOT_LIGHT : SHADER_REG_CB_SPOTLIGHT
+cbuffer SPOT_LIGHT : register(b2)
 {
     float4 s_Ambient[LIGHT_MAX_EACH];
     float4 s_Diffuse[LIGHT_MAX_EACH];

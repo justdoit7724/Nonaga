@@ -103,7 +103,7 @@ void DirectionalLight::Apply()
 	CopyMemory(mappedData.pData, &data, sizeof(SHADER_DIRECTIONAL_LIGHT));
 	DX_DContext->Unmap(cb.Get(), 0);
 
-	DX_DContext->PSSetConstantBuffers(SHADER_REG_CB_DIRECTIONAL_LIGHT, 1, cb.GetAddressOf());
+	DX_DContext->PSSetConstantBuffers(SHADER_REG_PS_CB_DIRECTIONAL_LIGHT, 1, cb.GetAddressOf());
 }
 
 
@@ -200,7 +200,7 @@ void PointLight::Apply()
 	CopyMemory(mappedData.pData, &data, sizeof(SHADER_POINT_LIGHT));
 	DX_DContext->Unmap(cb, 0);
 
-	DX_DContext->PSSetConstantBuffers(SHADER_REG_CB_POINT_LIGHT, 1, &cb);
+	DX_DContext->PSSetConstantBuffers(SHADER_REG_PS_CB_POINT_LIGHT, 1, &cb);
 }
 
 SpotLight::SpotLight(XMFLOAT3 a, XMFLOAT3 d, XMFLOAT3 s, float r, float spot, float rad, XMFLOAT3 att, XMFLOAT3 pos, XMFLOAT3 dir)
@@ -317,6 +317,6 @@ void SpotLight::Apply()
 	CopyMemory(mappedData.pData, &data, sizeof(SHADER_SPOT_LIGHT));
 	DX_DContext->Unmap(cb, 0);
 
-	DX_DContext->PSSetConstantBuffers(SHADER_REG_CB_SPOT_LIGHT, 1, &cb);
+	DX_DContext->PSSetConstantBuffers(SHADER_REG_PS_CB_SPOT_LIGHT, 1, &cb);
 }
 
