@@ -62,19 +62,6 @@ OpaqueShadowMap::OpaqueShadowMap(UINT resX, UINT resY, UINT width, UINT height, 
 		DX_Device->CreateShaderResourceView(tex.Get(), &srv_desc, depthSRV.GetAddressOf())
 	);
 
-	D3D11_SAMPLER_DESC samp_desc;
-	ZeroMemory(&samp_desc, sizeof(D3D11_SAMPLER_DESC));
-	samp_desc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-	samp_desc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
-	samp_desc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
-	samp_desc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
-	samp_desc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
-	samp_desc.MinLOD = 0;
-	samp_desc.MaxLOD = D3D11_FLOAT32_MAX;
-	r_assert(
-		DX_Device->CreateSamplerState(&samp_desc, samp.GetAddressOf())
-	);
-
 	D3D11_RASTERIZER_DESC rs_desc;
 	ZeroMemory(&rs_desc, sizeof(D3D11_RASTERIZER_DESC));
 	rs_desc.CullMode = D3D11_CULL_BACK;
@@ -117,7 +104,7 @@ void OpaqueShadowMap::Mapping(const DirectionalLight* light)
 	DX_DContext->RSSetViewports(1, &vp);
 
 	ID3D11ShaderResourceView* nullSRV=nullptr;
-	DX_DContext->PSSetShaderResources(SHADER_REG_PS_SRV_SHADOW, 1, &nullSRV);
+	DX_DContext->PSSetShaderResources(SHADER_REG_SRV_SHADOW, 1, &nullSRV);
 	ID3D11RenderTargetView* nullRTV = nullptr;
 	DX_DContext->OMSetRenderTargets(1, &nullRTV, depthDSV.Get());
 	DX_DContext->ClearDepthStencilView(depthDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, NULL);
@@ -155,9 +142,8 @@ void OpaqueShadowMap::Mapping(const DirectionalLight* light)
 		0, 0, 1, 0,
 		0.5f, 0.5f, 0, 1);
 	cbVPMat->Write(&(lightVP * uvMat));
-	DX_DContext->PSSetConstantBuffers(SHADER_REG_PS_CB_LIGHTVP, 1, cbVPMat->GetAddress());
-	DX_DContext->PSSetShaderResources(SHADER_REG_PS_SRV_SHADOW, 1, depthSRV.GetAddressOf());
-	DX_DContext->PSSetSamplers(SHADER_REG_PS_SAMP_SHADOW, 1, samp.GetAddressOf());
+	DX_DContext->PSSetConstantBuffers(SHADER_REG_CB_LIGHTVP, 1, cbVPMat->GetAddress());
+	DX_DContext->PSSetShaderResources(SHADER_REG_SRV_SHADOW, 1, depthSRV.GetAddressOf());
 
 }
 
@@ -231,22 +217,7 @@ TranspShadowMap::TranspShadowMap(XMUINT2 res, XMUINT2 volume, const std::vector<
 	mapVS = new VShader("ShadowTranspVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
 	mapVS->AddCB(0, 1, sizeof(XMMATRIX) * 2);
 	mapPS = new PShader("ShadowTranspPS.cso");
-	D3D11_SAMPLER_DESC samp_desc;
-	ZeroMemory(&samp_desc, sizeof(D3D11_SAMPLER_DESC));
-	samp_desc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-	samp_desc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
-	samp_desc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
-	samp_desc.BorderColor[0] = 1;
-	samp_desc.BorderColor[1] = 0;
-	samp_desc.BorderColor[2] = 1;
-	samp_desc.BorderColor[3] = 1;
-	samp_desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	samp_desc.Filter = D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR;
-	samp_desc.MinLOD = 0;
-	samp_desc.MaxLOD = D3D11_FLOAT32_MAX;
-	mapPS->AddSamp(SHADER_REG_PS_SAMP_SHADOW_TRANSP, 1, &samp_desc);
-
-
+	
 	cbVPTMat = new Buffer(sizeof(XMMATRIX));
 
 	rsState = new RasterizerState(nullptr);
@@ -281,9 +252,9 @@ void TranspShadowMap::Mapping(const DirectionalLight* dLight)
 	DX_DContext->PSSetShaderResources(0, 1, &nullSRV);
 
 
-	DX_DContext->PSSetShaderResources(SHADER_REG_PS_SRV_SHADOW_TRANSP, 1, &nullSRV);
-
-	DX_DContext->ClearRenderTargetView(rtv.Get(), Colors::Transparent);
+	DX_DContext->PSSetShaderResources(SHADER_REG_SRV_SHADOW_TRANSP, 1, &nullSRV);
+	float defaultColor[4] = { 0,0,0,-1 };
+	DX_DContext->ClearRenderTargetView(rtv.Get(), defaultColor);
 	DX_DContext->ClearDepthStencilView(dsv.Get(), D3D11_CLEAR_DEPTH, 1.0f, NULL);
 	DX_DContext->OMSetRenderTargets(1, rtv.GetAddressOf(), dsv.Get());
 	DX_DContext->RSSetViewports(1, &vp);
@@ -301,9 +272,9 @@ void TranspShadowMap::Mapping(const DirectionalLight* dLight)
 		0, 0, 1, 0,
 		0.5f, 0.5f, 0, 1);
 	cbVPTMat->Write(&vpt);
-	DX_DContext->PSSetConstantBuffers(SHADER_REG_PS_CB_LIGHTVP, 1, cbVPTMat->GetAddress());
+	DX_DContext->PSSetConstantBuffers(SHADER_REG_CB_LIGHTVP, 1, cbVPTMat->GetAddress());
 	ID3D11ShaderResourceView* const nSRV = TextureMgr::Instance()->Get("tokenNormal");
-	DX_DContext->PSSetShaderResources(SHADER_REG_PS_SRV_NORMAL, 1, &nSRV);
+	DX_DContext->PSSetShaderResources(SHADER_REG_SRV_NORMAL, 1, &nSRV);
 
 	for (auto curObj : drawObjs)
 	{
@@ -324,5 +295,5 @@ void TranspShadowMap::Mapping(const DirectionalLight* dLight)
 	DX_DContext->OMSetRenderTargets(1, &oriRTV, oriDSV);
 	DX_DContext->RSSetViewports(1, &oriVP);
 
-	DX_DContext->PSSetShaderResources(SHADER_REG_PS_SRV_SHADOW_TRANSP, 1, srv.GetAddressOf());
+	DX_DContext->PSSetShaderResources(SHADER_REG_SRV_SHADOW_TRANSP, 1, srv.GetAddressOf());
 }

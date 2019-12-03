@@ -29,7 +29,6 @@ private:
 
 	ComPtr<ID3D11ShaderResourceView> depthSRV;
 	ComPtr<ID3D11DepthStencilView> depthDSV;
-	ComPtr<ID3D11SamplerState> samp;
 	RasterizerState* rsState;
 	DepthStencilState* dsState;
 	BlendState* blendState;

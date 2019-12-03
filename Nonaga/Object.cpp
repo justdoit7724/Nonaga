@@ -41,23 +41,13 @@ Object::Object(Shape* shape, Shape* lodShape, ID3D11ShaderResourceView* diffSRV,
 	ps = new PShader("StandardPS.cso");
 
 	vs->AddCB(0, 1, sizeof(SHADER_STD_TRANSF));
-	ps->AddCB(SHADER_REG_PS_CB_MATERIAL, 1, sizeof(SHADER_MATERIAL));
-	ps->WriteCB(SHADER_REG_PS_CB_MATERIAL,&SHADER_MATERIAL(XMFLOAT3(0.7,0.7,0.7), 0.2, XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(0.8, 0.8, 0.8), 32));
+	ps->AddCB(SHADER_REG_CB_MATERIAL, 1, sizeof(SHADER_MATERIAL));
+	ps->WriteCB(SHADER_REG_CB_MATERIAL,&SHADER_MATERIAL(XMFLOAT3(0.7,0.7,0.7), 0.2, XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(0.8, 0.8, 0.8), 32));
 	
-	D3D11_SAMPLER_DESC body_desc;
-	ZeroMemory(&body_desc, sizeof(D3D11_SAMPLER_DESC));
-	body_desc.Filter = D3D11_FILTER_ANISOTROPIC;
-	body_desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	body_desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	body_desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	body_desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	body_desc.MinLOD = 0;
-	body_desc.MaxLOD = D3D11_FLOAT32_MAX;
-	ps->AddSamp(SHADER_REG_PS_SAMP_TEX, 1, &body_desc);
-	ps->AddSRV(SHADER_REG_PS_SRV_DIFFUSE, 1);
-	ps->AddSRV(SHADER_REG_PS_SRV_NORMAL, 1);
-	ps->WriteSRV(SHADER_REG_PS_SRV_DIFFUSE, diffSRV);
-	ps->WriteSRV(SHADER_REG_PS_SRV_NORMAL, normalSRV);
+	ps->AddSRV(SHADER_REG_SRV_DIFFUSE, 1);
+	ps->AddSRV(SHADER_REG_SRV_NORMAL, 1);
+	ps->WriteSRV(SHADER_REG_SRV_DIFFUSE, diffSRV);
+	ps->WriteSRV(SHADER_REG_SRV_NORMAL, normalSRV);
 
 	blendState = new BlendState(nullptr);
 	dsState = new DepthStencilState(nullptr);

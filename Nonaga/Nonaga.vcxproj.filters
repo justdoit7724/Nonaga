@@ -441,12 +441,6 @@
     <FxCompile Include="StdDisplacementDS.hlsl">
       <Filter>hlsl</Filter>
     </FxCompile>
-    <FxCompile Include="ProjectiveTextureVS.hlsl">
-      <Filter>hlsl</Filter>
-    </FxCompile>
-    <FxCompile Include="ProjectiveTexturePS.hlsl">
-      <Filter>hlsl</Filter>
-    </FxCompile>
     <FxCompile Include="GlassVS.hlsl">
       <Filter>Tasks</Filter>
     </FxCompile>

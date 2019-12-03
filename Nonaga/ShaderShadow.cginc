@@ -1,16 +1,16 @@
 
 #include "ShaderReg.cginc"
 
-cbuffer LIGHT_PERSPECTIVE : SHADER_REG_PS_CB_LIGHTVP
+cbuffer LIGHT_PERSPECTIVE : SHADER_REG_CB_LIGHTVP
 {
     float4x4 lightVPT;
 };
 
-Texture2D shadowTex : SHADER_REG_PS_SRV_SHADOW;
-Texture2D shadowTranspTex : SHADER_REG_PS_SRV_SHADOW_TRANSP;
+Texture2D shadowTex : SHADER_REG_SRV_SHADOW;
+Texture2D shadowTranspTex : SHADER_REG_SRV_SHADOW_TRANSP;
 
-SamplerComparisonState shadowSamp : SHADER_REG_PS_SAMP_SHADOW;
-SamplerState shadowTranspSamp : SHADER_REG_PS_SAMP_SHADOW_TRANSP;
+SamplerComparisonState shadowSamp : SHADER_REG_SAMP_CMP_POINT;
+SamplerState pointSamp : SHADER_REG_SAMP_POINT;
 
 float DirectionalLightOpaqueShadowFactor(float3 wNormal, float3 lightDir, float3 wPos)
 {
@@ -47,14 +47,14 @@ float DirectionalLightTranspShadowFactor(float3 lightDir, float3 wPos)
 
     
     // center first
-    float4 centerSample = shadowTranspTex.SampleLevel(shadowTranspSamp, lightPerspective.xy, 0);
+    float4 centerSample = shadowTranspTex.SampleLevel(pointSamp, lightPerspective.xy, 0);
     float3 centerWDir = centerSample.xyz;
     float centerPDist = centerSample.w;
 
     // front surface = no shadow factor
     if ((lightPerspective.z-centerPDist) <= 0.001f)
         return 0;
-    
+    return dot(-centerWDir, lightDir);
 
     
     
@@ -75,11 +75,11 @@ float DirectionalLightTranspShadowFactor(float3 lightDir, float3 wPos)
     
     for (int i = 0; i < 4; ++i)
     {
-        float4 shadowSample = shadowTranspTex.SampleLevel(shadowTranspSamp, lightPerspective.xy + offsets[i].xy, 0);
+        float4 shadowSample = shadowTranspTex.SampleLevel(pointSamp, lightPerspective.xy + offsets[i].xy, 0);
         float3 pWDir = shadowSample.xyz;
         float pDepth = shadowSample.w;
         
-        if(abs(pDepth - centerPDist)<=0.2)
+        if(abs(pDepth - centerPDist)<=0.1)
         {
             totalIntensity += dot(-pWDir, lightDir) * offsets[i].z;
             totalWeight += offsets[i].z;
