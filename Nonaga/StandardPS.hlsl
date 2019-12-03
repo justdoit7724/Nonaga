@@ -19,10 +19,11 @@ Texture2D ssaoTex : SHADER_REG_SRV_SSAO;
 //...
 
 SamplerState anisotropicSamp : SHADER_REG_SAMP_ANISOTROPIC;
+SamplerState linearPointSamp : SHADER_REG_SAMP_LINEAR_POINT;
 
 float3 GetBodyNormal(float2 tex)
 {
-    float3 ori_tex = normalTex.Sample(pointSamp, tex).xyz;
+    float3 ori_tex = normalTex.Sample(linearPointSamp, tex).xyz;
     return (ori_tex * 2 - 1);
 }
 float3 Refract(float3 d, float3 n, float i)

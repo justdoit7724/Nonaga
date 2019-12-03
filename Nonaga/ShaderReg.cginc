@@ -17,6 +17,7 @@
 #define SHADER_REG_SRV_SHADOW_TRANSP register(t5)
 
 #define SHADER_REG_SAMP_POINT register(s0)
+#define SHADER_REG_SAMP_LINEAR_POINT  register(s3)
 #define SHADER_REG_SAMP_ANISOTROPIC register(s4)
 #define SHADER_REG_SAMP_CMP_POINT register(s5)
 

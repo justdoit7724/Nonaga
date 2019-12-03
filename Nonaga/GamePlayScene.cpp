@@ -67,16 +67,16 @@ GamePlayScene::GamePlayScene()
 	cmpPointSamp_desc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
 	cmpPointSamp_desc.MinLOD = 0;
 	cmpPointSamp_desc.MaxLOD = D3D11_FLOAT32_MAX;
+	D3D11_SAMPLER_DESC linearPointSamp_desc;
+	ZeroMemory(&linearPointSamp_desc, sizeof(D3D11_SAMPLER_DESC));
+	linearPointSamp_desc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+	linearPointSamp_desc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+	linearPointSamp_desc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+	linearPointSamp_desc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+	linearPointSamp_desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	linearPointSamp_desc.MinLOD = 0;
+	linearPointSamp_desc.MaxLOD = D3D11_FLOAT32_MAX;
 	/*
-	D3D11_SAMPLER_DESC oShadowSamp_desc;
-	ZeroMemory(&oShadowSamp_desc, sizeof(D3D11_SAMPLER_DESC));
-	oShadowSamp_desc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-	oShadowSamp_desc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
-	oShadowSamp_desc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
-	oShadowSamp_desc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
-	oShadowSamp_desc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
-	oShadowSamp_desc.MinLOD = 0;
-	oShadowSamp_desc.MaxLOD = D3D11_FLOAT32_MAX;
 	D3D11_SAMPLER_DESC tShadowSamp_desc;
 	ZeroMemory(&tShadowSamp_desc, sizeof(D3D11_SAMPLER_DESC));
 	tShadowSamp_desc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
@@ -100,16 +100,16 @@ GamePlayScene::GamePlayScene()
 	ssaoSamp_desc.MinLOD = 0;
 	ssaoSamp_desc.MaxLOD = 1;*/
 	r_assert(DX_Device->CreateSamplerState(&pointSamp_desc, pointSamp.GetAddressOf()));
+	r_assert(DX_Device->CreateSamplerState(&linearPointSamp_desc, linearPointSamp.GetAddressOf()));
 	r_assert(DX_Device->CreateSamplerState(&anisotropicSamp_desc, anisotropicSamp.GetAddressOf()));
 	r_assert(DX_Device->CreateSamplerState(&cmpPointSamp_desc, cmpPointSamp.GetAddressOf()));
 	/*
-	r_assert(DX_Device->CreateSamplerState(&oShadowSamp_desc, oShadowSamp.GetAddressOf()));
 	r_assert(DX_Device->CreateSamplerState(&tShadowSamp_desc, tShadowSamp.GetAddressOf()));*/
 	DX_DContext->PSSetSamplers(SHADER_REG_SAMP_POINT, 1, pointSamp.GetAddressOf());
+	DX_DContext->PSSetSamplers(SHADER_REG_SAMP_LINEAR_POINT, 1, linearPointSamp.GetAddressOf());
 	DX_DContext->PSSetSamplers(SHADER_REG_SAMP_ANISOTROPIC, 1, anisotropicSamp.GetAddressOf());
 	DX_DContext->PSSetSamplers(SHADER_REG_SAMP_CMP_POINT, 1, cmpPointSamp.GetAddressOf());
 	/*
-	DX_DContext->PSSetSamplers(SHADER_REG_PS_SAMP_SHADOW, 1, oShadowSamp.GetAddressOf());
 	DX_DContext->PSSetSamplers(SHADER_REG_PS_SAMP_SHADOW_TRANSP, 1, tShadowSamp.GetAddressOf());*/
 
 	std::vector<std::string> cm;

@@ -54,7 +54,6 @@ float DirectionalLightTranspShadowFactor(float3 lightDir, float3 wPos)
     // front surface = no shadow factor
     if ((lightPerspective.z-centerPDist) <= 0.001f)
         return 0;
-    return dot(-centerWDir, lightDir);
 
     
     
