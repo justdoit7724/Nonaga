@@ -8,48 +8,13 @@ Cylinder::Cylinder(const int sliceCount)
 
 	const float smoothOffsetSide = 0.8f;
 	const float smoothOffsetCap = 0.95f;
-
-#pragma region side
-
 	float dTheta = XM_2PI / sliceCount;
 	float hHeight = 1.0f;
 
-	std::vector<Vertex> vertice;
-	for (int i = 0; i < 2; ++i) {
-		float y = (-hHeight + i*2) * smoothOffsetSide;
-
-		for (int j = 0; j <= sliceCount; ++j) {
-			Vertex vertex;
-			float c = cosf(j*dTheta);
-			float s = sinf(j*dTheta);
-			vertex.pos = XMFLOAT3(0.5f*c, y, 0.5f*s);
-			vertex.tex.x = float(j) / sliceCount;
-			vertex.tex.y = 1.0f - i;
-
-			XMFLOAT3 tangent = XMFLOAT3(-s, 0, c);
-			XMFLOAT3 bitangent = -UP;
-			vertex.n = Cross(tangent, bitangent);
-
-			vertice.push_back(vertex);
-		}
-	}
-
-	std::vector<UINT> indice;
-	int ringVertexCount = sliceCount + 1;
-	for (int i = 0; i < sliceCount; ++i)
-	{
-		indice.push_back(i);
-		indice.push_back(ringVertexCount + i);
-		indice.push_back(ringVertexCount + i + 1);
-		indice.push_back(i);
-		indice.push_back(ringVertexCount + i + 1);
-		indice.push_back(i + 1);
-	}
-#pragma endregion
-
 #pragma region cap
 	// top
-	int baseIdx = vertice.size();
+	std::vector<Vertex> capTopVertice;
+	std::vector<UINT> capTopIndice;
 	for (int i = 0; i < sliceCount + 1; ++i)
 	{
 		float x = 0.5f * cosf(i*dTheta)*smoothOffsetCap;
@@ -58,28 +23,31 @@ Cylinder::Cylinder(const int sliceCount)
 		float v = z / 2.0f + 0.5f;
 
 		Vertex vertex;
-		vertex.pos = XMFLOAT3(x, hHeight, z);
-		vertex.n = UP;
+		XMFLOAT3 pos = XMFLOAT3(x, hHeight, z);
+		vertex.pos = pos;
+		pos.y = 0;
+		vertex.n = Normalize(UP+pos*3.5f);
 		vertex.tex = XMFLOAT2(u, v);
-		vertice.push_back(vertex);
+		capTopVertice.push_back(vertex);
 	}
 
 	Vertex vertex;
 	vertex.pos = XMFLOAT3(0, hHeight, 0);
 	vertex.n = UP;
 	vertex.tex = XMFLOAT2(0.5f, 0.5f);
-	vertice.push_back(vertex);
+	capTopVertice.push_back(vertex);
 
-	int centerIdx = vertice.size()-1;
+	int centerIdx = capTopVertice.size()-1;
 	for (int i = 0; i < sliceCount; ++i)
 	{
-		indice.push_back(centerIdx);
-		indice.push_back(baseIdx + i + 1);
-		indice.push_back(baseIdx + i);
+		capTopIndice.push_back(centerIdx);
+		capTopIndice.push_back(i + 1);
+		capTopIndice.push_back(i);
 	}
 
 	//bottom
-	baseIdx = vertice.size();
+	std::vector<Vertex> capBottomVertice;
+	std::vector<UINT> capBottomIndice;
 	for (int i = 0; i < sliceCount + 1; ++i)
 	{
 		float x = 0.5f * cosf(i*dTheta);
@@ -91,29 +59,141 @@ Cylinder::Cylinder(const int sliceCount)
 		vertex.pos = XMFLOAT3(x, -hHeight, z);
 		vertex.n = -UP;
 		vertex.tex = XMFLOAT2(u, v);
-		vertice.push_back(vertex);
+		capBottomVertice.push_back(vertex);
 	}
 
 	vertex.pos = XMFLOAT3(0, -hHeight, 0);
 	vertex.n = -UP;
 	vertex.tex = XMFLOAT2(0.5f, 0.5f);
-	vertice.push_back(vertex);
+	capBottomVertice.push_back(vertex);
 
-	centerIdx = vertice.size() - 1;
+	centerIdx = capBottomVertice.size() - 1;
 	for (int i = 0; i < sliceCount; ++i)
 	{
-		indice.push_back(centerIdx);
-		indice.push_back(baseIdx + i);
-		indice.push_back(baseIdx + i + 1);
+		capBottomIndice.push_back(centerIdx);
+		capBottomIndice.push_back( i);
+		capBottomIndice.push_back( i + 1);
 	}
 #pragma endregion
 
 #pragma region smooth
+
+	std::vector<Vertex> smoothTopVertice;
+	std::vector<UINT> smoothTopIndice;
+	for (int i = 0; i < sliceCount + 1; ++i)
+	{
+		float x = 0.5f * cosf(i * dTheta) * smoothOffsetCap;
+		float z = 0.5f * sinf(i * dTheta) * smoothOffsetCap;
+		float u = x / 2.0f + 0.5f;
+		float v = z / 2.0f + 0.5f;
+
+		Vertex vertex;
+		XMFLOAT3 pos = XMFLOAT3(x, hHeight, z);
+		vertex.pos = pos;
+		pos.y = 0;
+		vertex.n = Normalize(UP + pos * 3.5f);
+		vertex.tex = XMFLOAT2(u, v);
+		smoothTopVertice.push_back(vertex);
+	}
+
+	float y = smoothOffsetSide;
+	for (int j = 0; j <= sliceCount; ++j) {
+		Vertex vertex;
+		float c = cosf(j * dTheta);
+		float s = sinf(j * dTheta);
+		XMFLOAT3 pos = XMFLOAT3(0.5f * c, y, 0.5f * s);
+		vertex.pos = pos;
+		vertex.tex.x = (0.5f * c) / 2.0f + 0.5f;
+		vertex.tex.y = (0.5f * s) / 2.0f + 0.5f;
+
+		pos.y = 0;
+		vertex.n = Normalize(pos * 40 + UP);
+
+		smoothTopVertice.push_back(vertex);
+	}
+
 	for (int i = 0; i < sliceCount; ++i)
 	{
+		smoothTopIndice.push_back(i);
+		smoothTopIndice.push_back(i+1);
+		smoothTopIndice.push_back(i+ sliceCount+1);
+		smoothTopIndice.push_back(i+1);
+		smoothTopIndice.push_back(i + sliceCount + 2);
+		smoothTopIndice.push_back(i + sliceCount + 1);
 	}
 #pragma endregion
 
+
+#pragma region side
+
+	std::vector<Vertex> sideVertice;
+	std::vector<UINT> sideIndice;
+	y = hHeight * smoothOffsetSide;
+
+	for (int j = 0; j <= sliceCount; ++j) {
+		Vertex vertex;
+		float c = cosf(j*dTheta);
+		float s = sinf(j*dTheta);
+		XMFLOAT3 pos = XMFLOAT3(0.5f * c, y, 0.5f * s);
+		vertex.pos = pos;
+		vertex.tex.x = float(j) / sliceCount;
+		vertex.tex.y = 1.0f;
+
+		pos.y = 0;
+		vertex.n = Normalize(pos * 40 + UP);
+
+		sideVertice.push_back(vertex);
+	}
+	y = -hHeight;
+	for (int j = 0; j <= sliceCount; ++j) {
+		Vertex vertex;
+		float c = cosf(j * dTheta);
+		float s = sinf(j * dTheta);
+		vertex.pos = XMFLOAT3(0.5f * c, y, 0.5f * s);
+		vertex.tex.x = float(j) / sliceCount;
+		vertex.tex.y = 0;
+
+		XMFLOAT3 tangent = XMFLOAT3(-s, 0, c);
+		XMFLOAT3 bitangent = -UP;
+		vertex.n = Cross(tangent, bitangent);
+
+		sideVertice.push_back(vertex);
+	}
+
+	int ringVertexCount = sliceCount + 1;
+	for (int i = 0; i < sliceCount; ++i)
+	{
+		sideIndice.push_back(i);
+		sideIndice.push_back(i+1);
+		sideIndice.push_back(i+ringVertexCount);
+		sideIndice.push_back(i+1);
+		sideIndice.push_back(i+ringVertexCount+1);
+		sideIndice.push_back(i+ringVertexCount);
+	}
+#pragma endregion
+
+
+	std::vector<Vertex> vertice;
+	std::vector<UINT> indice;
+	for (Vertex& cap : capTopVertice)
+		vertice.push_back(cap);
+	for (UINT cap : capTopIndice)
+		indice.push_back(cap);
+	int startIdx = vertice.size();
+	for (Vertex& smooth : smoothTopVertice)
+		vertice.push_back(smooth);
+	for (UINT smooth : smoothTopIndice)
+		indice.push_back(smooth + startIdx);
+	startIdx = vertice.size();
+	for (Vertex& side : sideVertice)
+		vertice.push_back(side);
+	for (UINT side : sideIndice)
+		indice.push_back(side + startIdx);
+	startIdx = vertice.size();
+	for (Vertex& cap : capBottomVertice)
+		vertice.push_back(cap);
+	for (UINT cap : capBottomIndice)
+		indice.push_back(cap + startIdx);
 
 	int polySize = indice.size()/3;
 	for (UINT64 i=0; i< polySize; ++i)
