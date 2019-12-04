@@ -124,14 +124,14 @@ GamePlayScene::GamePlayScene()
 	nonaga->GetOpaqueTokens(opaqueTokens);
 	nonaga->GetTranspTokens(transpTokens);
 	nonaga->GetTiles(tiles);
-	/*for (auto go : opaqueTokens)
+	for (auto go : opaqueTokens)
 	{
 		AddObj(go);
 	}
 	for (auto go : transpTokens)
 	{
 		AddObj(go);
-	}*/
+	}
 	for (auto go : tiles)
 	{
 		AddObj(go);
@@ -209,7 +209,7 @@ void GamePlayScene::CameraMove(float spf)
 }
 void GamePlayScene::Update(float elapsed, float spf)
 {
-	dLight->SetDir(MultiplyDir(Normalize(XMFLOAT3(1.7, -1, 0)), XMMatrixRotationY(elapsed*0.1f)));
+	dLight->SetDir(MultiplyDir(Normalize(XMFLOAT3(1.7, -1, 0)), XMMatrixRotationY(elapsed*0.01f)));
 
 	switch (curStage)
 	{
@@ -218,6 +218,7 @@ void GamePlayScene::Update(float elapsed, float spf)
 	case GAMEPLAY_STAGE_CAM_MODIFY:
 	{
 		curTime += spf;
+
 
 		float t = curTime / camFrameLerpingTime;
 		CameraFrameLerping(t);
@@ -244,6 +245,7 @@ void GamePlayScene::Update(float elapsed, float spf)
 
 	//binding
 	BindEye();
+	skybox->Mapping();
 	oShadowMapping->Mapping(dLight);
 	tShadowMapping->Mapping(dLight);
 	ssao->Mapping(this, camera);

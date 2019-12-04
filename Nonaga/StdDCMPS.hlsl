@@ -61,7 +61,7 @@ float ComputeSSAO(float4 pPos)
     viewUV.x = viewUV.x * 0.5f + 0.5f;
     viewUV.y = -viewUV.y * 0.5f + 0.5f;
     float ssao = ssaoTex.SampleLevel(pointSamp, viewUV, 0).r;
-    return (ssao * ssao);
+    return pow(ssao, 1.8f);
 }
 
 struct PS_INPUT
@@ -99,19 +99,17 @@ float4 main(PS_INPUT input) : SV_Target
     float3 tex = diffuseTex.Sample(anisotropicSamp, input.tex).xyz;
     float3 reflec = ComputeReflect(wNormal, look);
     
-    float3 surface = Lerp(tex, transp, mInfo.x);
+    float oShadowFactor = DirectionalLightOpaqueShadowFactor(wNormal, d_Dir[0].xyz, input.wPos);
+    float2 tShadowFactor = DirectionalLightTranspShadowFactor(wNormal, d_Dir[0].xyz, input.wPos);
+    float shadowFactor = max(oShadowFactor, tShadowFactor.x);
+    
+    ambient *= tex;
+    diffuse *= tex * saturate(1 - shadowFactor);
+    float3 surface = Lerp(ambient + diffuse, transp, mInfo.x);
     surface = Lerp(surface, reflec, mInfo.y);
-    return float4(surface, 1);
     
-    float shadowFactor = max(DirectionalLightOpaqueShadowFactor(wNormal, d_Dir[0].xyz, input.wPos), DirectionalLightTranspShadowFactor(wNormal, d_Dir[0].xyz, input.wPos));
+    specular *= (1 + saturate(0.2f - tShadowFactor.x) * tShadowFactor.y);
     
-    float3 color = 0;
-    
-    //debug remove
-    diffuse *= (1 - shadowFactor);
-    specular *= (1 - shadowFactor);
-    color = diffuse + specular + ambient;
-    return float4(color, 1);
-    
-    return float4(color, /*mDiffuse.w*/1);
+    return float4(surface + specular, 1);
+
 }

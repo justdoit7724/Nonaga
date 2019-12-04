@@ -8,7 +8,6 @@ public:
 	Tile(bool isRed, std::shared_ptr<Shape> shape);
 
 	void Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth)const override;
-	void RenderGeom()const override;
 	void UpdateBound()override;
 
 	void Move(int toId);

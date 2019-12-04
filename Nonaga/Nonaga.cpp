@@ -253,6 +253,9 @@ void NonagaStage::UpdateGame(const Geometrics::Ray ray, float spf)
 		if (!GetCurID2(ray))
 			return;
 
+		if (playSpace[pDetectID]->GetTile()!=nullptr)
+			Debugging::Instance()->Draw("Cur tile's id = ", playSpace[pDetectID]->GetTile()->ID(), 10, 10);
+
 		switch (Mouse::Instance()->LeftState())
 		{
 		case MOUSE_STATE_DOWN:

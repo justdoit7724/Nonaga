@@ -14,7 +14,8 @@ SamplerState pointSamp : SHADER_REG_SAMP_POINT;
 
 float DirectionalLightOpaqueShadowFactor(float3 wNormal, float3 lightDir, float3 wPos)
 {
-    float power = pow(2 * dot(wNormal, lightDir), 2);
+    if (dot(wNormal, lightDir) > 0)
+        return 0;
     
     float4 pLightPos = mul(lightVPT, float4(wPos, 1));
     float3 lightPos = pLightPos.xyz / pLightPos.w;
@@ -39,9 +40,9 @@ float DirectionalLightOpaqueShadowFactor(float3 wNormal, float3 lightDir, float3
     }
     
     totalFactor = 1 - totalFactor;
-    return totalFactor * power;
+    return saturate(totalFactor);
 }
-float DirectionalLightTranspShadowFactor(float3 wDir, float3 lightDir, float3 wPos)
+float2 DirectionalLightTranspShadowFactor(float3 wDir, float3 lightDir, float3 wPos)
 {
     float4 pLightPos = mul(lightVPT, float4(wPos, 1));
     float3 lightPerspective = pLightPos.xyz / pLightPos.w;
@@ -54,9 +55,9 @@ float DirectionalLightTranspShadowFactor(float3 wDir, float3 lightDir, float3 wP
 
     
     float power = saturate(pow(3 * dot(-wDir, lightDir), 3));
-    float overlap = saturate((lightPerspective.z - centerPDist) * 100);
     
     float totalIntensity =  (1 - dot(-centerWDir, lightDir)) * 0.2f;
+    float overlap = saturate((lightPerspective.z - centerPDist) * 100);
     float totalWeight = 0.2f;
     
     // 3x3 except center
@@ -64,13 +65,14 @@ float DirectionalLightTranspShadowFactor(float3 wDir, float3 lightDir, float3 wP
     shadowTranspTex.GetDimensions(mapWidth, mapHeight);
     float dx = 1.0f / mapWidth;
     float dy = 1.0f / mapHeight;
-    float3 offsets[4] =
+    float3 offsets[8] =
     {
-        float3(0, -dy, 0.2f), float3(0, dy, 0.2f),
-        float3(-dx, 0, 0.2f), float3(dx, 0, 0.2f)
+        float3(-dx, -dy, 0.075f), float3(0, dy, 0.125f), float3(dx, dy, 0.075f),
+        float3(-dx, 0, 0.125f), /*                 */float3(dx, 0, 0.125f),
+        float3(-dx, dy, 0.075f), float3(0, dy, 0.125f), float3(dx, dy, 0.075f)
     };
     
-    for (int i = 0; i < 4; ++i)
+    for (int i = 0; i < 8; ++i)
     {
         float4 shadowSample = shadowTranspTex.SampleLevel(pointSamp, lightPerspective.xy + offsets[i].xy, 0);
         float3 pWDir = shadowSample.xyz;
@@ -83,8 +85,8 @@ float DirectionalLightTranspShadowFactor(float3 wDir, float3 lightDir, float3 wP
         }
     }
     
-    
-    return power*overlap * totalIntensity / totalWeight;
+    float area = saturate(ceil(lightPerspective.z - centerPDist));
+    return float2(power * (overlap * totalWeight) * totalIntensity / totalWeight, area);
 }
 
 float PointLightShadowFactor(float3 wNormal, float3 wPos, float3 lightPos, TextureCube map, SamplerState samp, float2 shadowPMatElem)

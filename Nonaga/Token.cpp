@@ -23,6 +23,8 @@ Token::Token(std::shared_ptr<Shape> shape, std::shared_ptr<Shape> lodShape, Scen
 		id(id), isP1(p1), environment(environemnt), isIndicator(false), fallingSpeed(fminf(Rand01() + 0.5f, 1) * 100)
 {
 	TextureMgr::Instance()->Load("token", "Data\\Model\\Token\\pawn.png");
+	TextureMgr::Instance()->Load("tokenTransp", "Data\\Texture\\blue_light.png");
+	TextureMgr::Instance()->Load("tokenTranspNormal", "Data\\Texture\\default_normal.png");
 	TextureMgr::Instance()->Load("tokenNormal", "Data\\Model\\Token\\pawn_normal.png");
 	TextureMgr::Instance()->Load("tokenDP", "Data\\Model\\Token\\pawn_displace.png");
 	
@@ -36,7 +38,7 @@ Token::Token(std::shared_ptr<Shape> shape, std::shared_ptr<Shape> lodShape, Scen
 	vs->AddCB(1, 1, sizeof(XMFLOAT4));
 	ds->AddCB(0, 1, sizeof(XMMATRIX));
 	ds->AddCB(1, 1, sizeof(float));
-	float dpScale = 0.0f;
+	float dpScale = 0.5f;
 	ds->WriteCB(1, &dpScale);
 	ds->AddSRV(0, 1);
 	ds->WriteSRV(0, TextureMgr::Instance()->Get("tokenDP"));
@@ -54,10 +56,10 @@ Token::Token(std::shared_ptr<Shape> shape, std::shared_ptr<Shape> lodShape, Scen
 	if(isP1)
 		ps->WriteCB(SHADER_REG_CB_MATERIAL, &SHADER_MATERIAL(XMFLOAT3(0.7, 0.7, 0.7), 0, XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(0.8, 0.8, 0.8), 16, 0.15f));
 	else
-		ps->WriteCB(SHADER_REG_CB_MATERIAL, &SHADER_MATERIAL(XMFLOAT3(0.7, 0.7, 0.7), 0.9, XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(0.8, 0.8, 0.8), 16, 0.3f));
+		ps->WriteCB(SHADER_REG_CB_MATERIAL, &SHADER_MATERIAL(XMFLOAT3(0.7, 0.7, 0.7), 0.8, XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(0.8, 0.8, 0.8), 16, 0.3f));
 	ps->AddSRV(SHADER_REG_SRV_DIFFUSE, 1);
 	ps->AddSRV(SHADER_REG_SRV_NORMAL, 1);
-	ps->WriteSRV(SHADER_REG_SRV_DIFFUSE, TextureMgr::Instance()->Get("token"));
+	ps->WriteSRV(SHADER_REG_SRV_DIFFUSE, TextureMgr::Instance()->Get(isP1? "token" : "tokenTransp"));
 	ps->WriteSRV(SHADER_REG_SRV_NORMAL, TextureMgr::Instance()->Get("tokenNormal"));
 
 	D3D11_TEXTURE2D_DESC capture_desc;
@@ -163,6 +165,7 @@ void Token::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) 
 				}
 				else
 				{
+
 					DrawDCM(sceneDepth + 1);
 
 					Object::Render();

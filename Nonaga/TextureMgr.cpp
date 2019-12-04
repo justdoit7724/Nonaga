@@ -260,7 +260,7 @@ void TextureMgr::LoadCM(std::string key, const std::vector<std::string>& fileNam
 
 ID3D11ShaderResourceView* TextureMgr::Get(std::string key)
 {
-	assert(SRVs.find(key) != SRVs.end());
+	assert(SRVs.count(key));
 
 	return SRVs[key];
 }

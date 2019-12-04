@@ -70,13 +70,6 @@ void Tile::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) c
 	}
 }
 
-void Tile::RenderGeom() const
-{
-	if (id == -1)
-		return;
-
-	shape->Apply();
-}
 
 void Tile::UpdateBound()
 {
