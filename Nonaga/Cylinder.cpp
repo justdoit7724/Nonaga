@@ -6,6 +6,9 @@ Cylinder::Cylinder(const int sliceCount)
 {
 	assert(sliceCount >= 3);
 
+	const float smoothOffsetSide = 0.8f;
+	const float smoothOffsetCap = 0.95f;
+
 #pragma region side
 
 	float dTheta = XM_2PI / sliceCount;
@@ -13,7 +16,7 @@ Cylinder::Cylinder(const int sliceCount)
 
 	std::vector<Vertex> vertice;
 	for (int i = 0; i < 2; ++i) {
-		float y = -hHeight + i*2;
+		float y = (-hHeight + i*2) * smoothOffsetSide;
 
 		for (int j = 0; j <= sliceCount; ++j) {
 			Vertex vertex;
@@ -49,8 +52,8 @@ Cylinder::Cylinder(const int sliceCount)
 	int baseIdx = vertice.size();
 	for (int i = 0; i < sliceCount + 1; ++i)
 	{
-		float x = 0.5f * cosf(i*dTheta);
-		float z = 0.5f * sinf(i*dTheta);
+		float x = 0.5f * cosf(i*dTheta)*smoothOffsetCap;
+		float z = 0.5f * sinf(i*dTheta)*smoothOffsetCap;
 		float u = x / 2.0f + 0.5f;
 		float v = z / 2.0f + 0.5f;
 
@@ -104,6 +107,13 @@ Cylinder::Cylinder(const int sliceCount)
 		indice.push_back(baseIdx + i + 1);
 	}
 #pragma endregion
+
+#pragma region smooth
+	for (int i = 0; i < sliceCount; ++i)
+	{
+	}
+#pragma endregion
+
 
 	int polySize = indice.size()/3;
 	for (UINT64 i=0; i< polySize; ++i)

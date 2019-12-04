@@ -8,20 +8,18 @@
 #include "Camera.h"
 #include "ShaderReg.h"
 #include "CameraMgr.h"
-#include "MeshLoader.h"
 #include "Game_info.h"
 #include "Scene.h"
 #include "Debugging.h"
 
-Shape* Token::mesh = nullptr;
-Shape* Token::lodMesh = nullptr;
 Camera* Token::captureCam = nullptr;
 
-Token::Token(Scene* environemnt, unsigned int id, bool p1)
-	:Object(nullptr,nullptr,
+Token::Token(std::shared_ptr<Shape> shape, std::shared_ptr<Shape> lodShape, Scene* environemnt, unsigned int id, bool p1)
+	:Object("Token",
+		shape, lodShape,
 		"StdDisplacementVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts),
 		"StdDisplacementHS.cso", "StdDisplacementDS.cso", "",
-		"StandardPS.cso", Z_ORDER_STANDARD),
+		p1?"StandardPS.cso":"StdDCMPS.cso", Z_ORDER_STANDARD),
 		id(id), isP1(p1), environment(environemnt), isIndicator(false), fallingSpeed(fminf(Rand01() + 0.5f, 1) * 100)
 {
 	TextureMgr::Instance()->Load("token", "Data\\Model\\Token\\pawn.png");
@@ -32,14 +30,7 @@ Token::Token(Scene* environemnt, unsigned int id, bool p1)
 	{
 		captureCam = new Camera(FRAME_KIND_PERSPECTIVE, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1f, 100, XM_PIDIV2, 1,false);
 	}
-	if (mesh==nullptr)
-	{
-		MeshLoader::LoadToken(&mesh, "Data\\Model\\Token\\TOKENf2.obj");
-		MeshLoader::LoadToken(&lodMesh, "Data\\Model\\Token\\TOKENf05.obj");
-	}
-	shape = mesh;
 	shape->SetPrimitiveType(D3D11_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
-	lodShape = lodMesh;
 
 	vs->AddCB(0, 1, sizeof(SHADER_STD_TRANSF));
 	vs->AddCB(1, 1, sizeof(XMFLOAT4));
@@ -60,7 +51,10 @@ Token::Token(Scene* environemnt, unsigned int id, bool p1)
 	samp_desc.MaxLOD = D3D11_FLOAT32_MAX;
 	ds->AddSamp(0, 1, &samp_desc);
 	ps->AddCB(SHADER_REG_CB_MATERIAL, 1, sizeof(SHADER_MATERIAL));
-	ps->WriteCB(SHADER_REG_CB_MATERIAL, &SHADER_MATERIAL(XMFLOAT3(0.7, 0.7, 0.7), 1, XMFLOAT3(0.5,0.5,0.5), XMFLOAT3(0.8,0.8,0.8), 16));
+	if(isP1)
+		ps->WriteCB(SHADER_REG_CB_MATERIAL, &SHADER_MATERIAL(XMFLOAT3(0.7, 0.7, 0.7), 0, XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(0.8, 0.8, 0.8), 16, 0.15f));
+	else
+		ps->WriteCB(SHADER_REG_CB_MATERIAL, &SHADER_MATERIAL(XMFLOAT3(0.7, 0.7, 0.7), 0.9, XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(0.8, 0.8, 0.8), 16, 0.3f));
 	ps->AddSRV(SHADER_REG_SRV_DIFFUSE, 1);
 	ps->AddSRV(SHADER_REG_SRV_NORMAL, 1);
 	ps->WriteSRV(SHADER_REG_SRV_DIFFUSE, TextureMgr::Instance()->Get("token"));
@@ -126,11 +120,11 @@ Token::Token(Scene* environemnt, unsigned int id, bool p1)
 		DX_Device->CreateDepthStencilView(dsTex.Get(), &dsv_desc, captureDSV.GetAddressOf())
 	);
 
-	transform->SetScale(0.3, 0.3, 0.3);
+	transform->SetScale(0.2, 0.2, 0.2);
 }
 
-Token::Token(bool isRed)
-	:Object(new Cube(),nullptr,
+Token::Token(std::shared_ptr<Shape> shape, bool isRed)
+	:Object("Token", shape,nullptr,
 		nullptr,nullptr), isIndicator(true)
 {
 	TextureMgr::Instance()->Load("red", "Data\\Texture\\red_light.png");
@@ -138,11 +132,12 @@ Token::Token(bool isRed)
 	ps->WriteSRV(SHADER_REG_SRV_DIFFUSE, TextureMgr::Instance()->Get(isRed ? "red":"green"));
 	ps->WriteSRV(SHADER_REG_SRV_DIFFUSE, TextureMgr::Instance()->Get("tokenNormal"));
 
-	transform->SetScale(7, 10, 7);
+	transform->SetScale(0.2, 0.2, 0.2);
 	enabled = false;
 	ps->WriteSRV(SHADER_REG_SRV_DIFFUSE, TextureMgr::Instance()->Get("token"));
 	ps->WriteSRV(SHADER_REG_SRV_NORMAL, TextureMgr::Instance()->Get("tokenNormal"));
 }
+
 
 void Token::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) const
 {
@@ -168,14 +163,9 @@ void Token::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) 
 				}
 				else
 				{
-					ID3D11ShaderResourceView* oriCM = nullptr;
-					DX_DContext->PSGetShaderResources(SHADER_REG_SRV_CM, 1, &oriCM);
-
 					DrawDCM(sceneDepth + 1);
 
 					Object::Render();
-
-					DX_DContext->PSSetShaderResources(SHADER_REG_SRV_CM, 1, &oriCM);
 				}
 			}
 			else
@@ -195,7 +185,7 @@ void Token::Move(int toId)
 void Token::Capture(XMFLOAT3 forward, XMFLOAT3 up, ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsv, UINT sceneDepth)const
 {
 	DX_DContext->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH, 1.0f, NULL);
-	DX_DContext->ClearRenderTargetView(rtv, Colors::Red);
+	DX_DContext->ClearRenderTargetView(rtv, Colors::Transparent);
 	DX_DContext->OMSetRenderTargets(1, &rtv ,dsv);
 
 	captureCam->transform->SetRot(forward, up);
@@ -216,7 +206,7 @@ void Token::DrawDCM(UINT sceneDepth)const
 	DX_DContext->OMGetRenderTargets(1, &oriRTV, &oriDSV);
 
 	ID3D11ShaderResourceView* nullSRV = nullptr;
-	DX_DContext->PSSetShaderResources(SHADER_REG_SRV_CM, 1, &nullSRV);
+	DX_DContext->PSSetShaderResources(SHADER_REG_SRV_DCM, 1, &nullSRV);
 
 	Capture(RIGHT, UP, captureRTV[0].Get(), captureDSV.Get(), sceneDepth);
 	Capture(-RIGHT, UP, captureRTV[1].Get(), captureDSV.Get(), sceneDepth);
@@ -227,7 +217,7 @@ void Token::DrawDCM(UINT sceneDepth)const
 
 	DX_DContext->OMSetRenderTargets(1, &oriRTV, oriDSV);
 
-	DX_DContext->PSSetShaderResources(SHADER_REG_SRV_CM, 1, captureSRV.GetAddressOf());
+	DX_DContext->PSSetShaderResources(SHADER_REG_SRV_DCM, 1, captureSRV.GetAddressOf());
 }
 
 

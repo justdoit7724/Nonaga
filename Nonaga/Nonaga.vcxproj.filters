@@ -138,9 +138,6 @@
     <ClCompile Include="DebuggingScene.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
-    <ClCompile Include="DynamicCubeMap.cpp">
-      <Filter>Object</Filter>
-    </ClCompile>
     <ClCompile Include="Transform.cpp">
       <Filter>Components</Filter>
     </ClCompile>
@@ -152,9 +149,6 @@
     </ClCompile>
     <ClCompile Include="MeshLoader.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Glass.cpp">
-      <Filter>Tasks</Filter>
     </ClCompile>
     <ClCompile Include="Lobby.cpp">
       <Filter>Scene</Filter>
@@ -181,6 +175,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SmoothNormalizing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MappingVisualization.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -293,9 +290,6 @@
     <ClInclude Include="DebuggingScene.h">
       <Filter>Scene</Filter>
     </ClInclude>
-    <ClInclude Include="DynamicCubeMap.h">
-      <Filter>Object</Filter>
-    </ClInclude>
     <ClInclude Include="Transform.h">
       <Filter>Components</Filter>
     </ClInclude>
@@ -310,9 +304,6 @@
     </ClInclude>
     <ClInclude Include="MeshLoader.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Glass.h">
-      <Filter>Tasks</Filter>
     </ClInclude>
     <ClInclude Include="ObserverDP.h">
       <Filter>DesignPattern</Filter>
@@ -351,6 +342,9 @@
       <Filter>Tasks</Filter>
     </ClInclude>
     <ClInclude Include="SmoothNormalizing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MappingVisualization.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -441,12 +435,6 @@
     <FxCompile Include="StdDisplacementDS.hlsl">
       <Filter>hlsl</Filter>
     </FxCompile>
-    <FxCompile Include="GlassVS.hlsl">
-      <Filter>Tasks</Filter>
-    </FxCompile>
-    <FxCompile Include="GlassPS.hlsl">
-      <Filter>Tasks</Filter>
-    </FxCompile>
     <FxCompile Include="SSAO_ND_VS.hlsl">
       <Filter>hlsl</Filter>
     </FxCompile>
@@ -469,6 +457,15 @@
       <Filter>hlsl</Filter>
     </FxCompile>
     <FxCompile Include="ShadowTranspPS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="StdDCMPS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="IndicatorVS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
+    <FxCompile Include="IndicatorPS.hlsl">
       <Filter>hlsl</Filter>
     </FxCompile>
   </ItemGroup>

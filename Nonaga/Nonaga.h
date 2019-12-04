@@ -40,9 +40,11 @@ public:
 	NonagaStage(Scene* environment);
 	~NonagaStage();
 
-	void Update(const Geometrics::Ray ray, float spf);
+	void UpdateObj();
+	void UpdateGame(const Geometrics::Ray ray, float spf);
 	void GetOpaqueTokens(std::vector<Object*>& objOutput);
 	void GetTranspTokens(std::vector<Object*>& objOutput);
+	void GetTiles(std::vector<Object*>& objOutput);
 
 	void Render(const XMMATRIX& vp, const Frustum& frustum, unsigned int sceneDepth)const;
 	

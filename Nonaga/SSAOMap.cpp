@@ -238,9 +238,6 @@ void SSAOMap::Mapping(const Scene* scene, const Camera* camera)
 void SSAOMap::DrawNormalDepth(const Scene* scene, const Camera* camera)
 {
 	ID3D11ShaderResourceView* nullSRV = nullptr;
-	// unbinding srv used in blurPS shader
-	ID3D11ShaderResourceView* curFirstSRV;
-	DX_DContext->PSGetShaderResources(0, 1, &curFirstSRV);
 	DX_DContext->PSSetShaderResources(SHADER_REG_SRV_SSAO, 1, &nullSRV);
 
 	DX_DContext->RSSetViewports(1, &vp);
@@ -256,6 +253,9 @@ void SSAOMap::DrawNormalDepth(const Scene* scene, const Camera* camera)
 
 	for(auto t : totalObjs)
 	{
+		if ((t->name == "Skybox"))
+			continue;
+
 		XMMATRIX world = t->transform->WorldMatrix();
 		XMMATRIX drawTransf[4] = {
 			world,

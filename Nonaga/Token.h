@@ -8,8 +8,8 @@ class Scene;
 class Token : public Object
 {
 public:
-	Token(Scene* environemnt, unsigned int id, bool p1);
-	Token(bool isRed);
+	Token(std::shared_ptr<Shape> shape, std::shared_ptr<Shape> lodShape, Scene* environemnt, unsigned int id, bool p1);
+	Token(std::shared_ptr<Shape> shape, bool isRed);
 
 	void Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) const override;
 
@@ -27,9 +27,6 @@ private:
 	bool isP1;
 
 	static Camera* captureCam;
-
-	static Shape* mesh;
-	static Shape* lodMesh;
 
 	ComPtr<ID3D11RenderTargetView> captureRTV[6];
 	ComPtr<ID3D11ShaderResourceView> captureSRV;

@@ -11,7 +11,7 @@
 #include "ShaderReg.h"
 
 Skybox::Skybox(ID3D11ShaderResourceView* srv)
-	:Object(new Sphere(0),nullptr,
+	:Object("Skybox", std::make_shared<Sphere>(0),nullptr,
 		"CMVS.cso", Std_ILayouts,ARRAYSIZE(Std_ILayouts),
 		"","","",
 		"CMPS.cso",Z_ORDER_STANDARD)
@@ -26,10 +26,7 @@ Skybox::Skybox(ID3D11ShaderResourceView* srv)
 	rs_desc.FillMode = D3D11_FILL_SOLID;
 	rs_desc.FrontCounterClockwise = false;
 	rsState = new RasterizerState(&rs_desc);
-}
 
-void Skybox::Mapping()
-{
 	ID3D11ShaderResourceView* cmSRV = TextureMgr::Instance()->Get("cm");
 	DX_DContext->PSSetShaderResources(SHADER_REG_SRV_CM, 1, &cmSRV);
 }

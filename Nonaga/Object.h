@@ -3,6 +3,7 @@
 #include "DX_info.h"
 #include "Network.h"
 #include "Geometrics.h"
+#include <memory>
 
 struct Frustum;
 class Transform;
@@ -20,8 +21,8 @@ class RasterizerState;
 class Object : public IDebug
 {
 public:
-	Object(Shape* shape, Shape* lodShape, std::string sVS, const D3D11_INPUT_ELEMENT_DESC* iLayouts, UINT layoutCount, std::string sHS, std::string sDS, std::string sGS, std::string sPS, int zOrder);
-	Object(Shape* shape, Shape* lodShape, ID3D11ShaderResourceView* diffSRV, ID3D11ShaderResourceView* normalSRV);
+	Object(std::string name, std::shared_ptr<Shape> shape, std::shared_ptr<Shape> lodShape, std::string sVS, const D3D11_INPUT_ELEMENT_DESC* iLayouts, UINT layoutCount, std::string sHS, std::string sDS, std::string sGS, std::string sPS, int zOrder);
+	Object(std::string name, std::shared_ptr<Shape> shape, std::shared_ptr<Shape> lodShape, ID3D11ShaderResourceView* diffSRV, ID3D11ShaderResourceView* normalSRV);
 	~Object();
 
 	virtual void Update();
@@ -37,8 +38,8 @@ public:
 
 	//TODO
 	Transform* transform;
-	Shape* shape;
-	Shape* lodShape;
+	std::shared_ptr < Shape> shape;
+	std::shared_ptr < Shape> lodShape;
 	VShader* vs;
 	HShader* hs;
 	DShader* ds;
@@ -48,6 +49,7 @@ public:
 	DepthStencilState * dsState = nullptr;
 	RasterizerState* rsState = nullptr;
 
+	const std::string name;
 	const int zOrder;
 	Geometrics::Sphere Bound() { return bound; }
 

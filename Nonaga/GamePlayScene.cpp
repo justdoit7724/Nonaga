@@ -42,9 +42,9 @@ GamePlayScene::GamePlayScene()
 	D3D11_SAMPLER_DESC pointSamp_desc;
 	ZeroMemory(&pointSamp_desc, sizeof(D3D11_SAMPLER_DESC));
 	pointSamp_desc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
-	pointSamp_desc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-	pointSamp_desc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
-	pointSamp_desc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+	pointSamp_desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	pointSamp_desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	pointSamp_desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 	pointSamp_desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
 	pointSamp_desc.MinLOD = 0;
 	pointSamp_desc.MaxLOD = D3D11_FLOAT32_MAX;
@@ -52,44 +52,40 @@ GamePlayScene::GamePlayScene()
 	ZeroMemory(&anisotropicSamp_desc, sizeof(D3D11_SAMPLER_DESC));
 	anisotropicSamp_desc.Filter = D3D11_FILTER_ANISOTROPIC;
 	anisotropicSamp_desc.MaxAnisotropy = 4;
-	anisotropicSamp_desc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-	anisotropicSamp_desc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
-	anisotropicSamp_desc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+	anisotropicSamp_desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	anisotropicSamp_desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	anisotropicSamp_desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 	anisotropicSamp_desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
 	anisotropicSamp_desc.MinLOD = 0;
 	anisotropicSamp_desc.MaxLOD = D3D11_FLOAT32_MAX;
 	D3D11_SAMPLER_DESC cmpPointSamp_desc;
 	ZeroMemory(&cmpPointSamp_desc, sizeof(D3D11_SAMPLER_DESC));
-	cmpPointSamp_desc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-	cmpPointSamp_desc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
-	cmpPointSamp_desc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+	cmpPointSamp_desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	cmpPointSamp_desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	cmpPointSamp_desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 	cmpPointSamp_desc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
 	cmpPointSamp_desc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
 	cmpPointSamp_desc.MinLOD = 0;
 	cmpPointSamp_desc.MaxLOD = D3D11_FLOAT32_MAX;
 	D3D11_SAMPLER_DESC linearPointSamp_desc;
 	ZeroMemory(&linearPointSamp_desc, sizeof(D3D11_SAMPLER_DESC));
-	linearPointSamp_desc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-	linearPointSamp_desc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
-	linearPointSamp_desc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+	linearPointSamp_desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	linearPointSamp_desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	linearPointSamp_desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 	linearPointSamp_desc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
 	linearPointSamp_desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
 	linearPointSamp_desc.MinLOD = 0;
 	linearPointSamp_desc.MaxLOD = D3D11_FLOAT32_MAX;
+	D3D11_SAMPLER_DESC linearSamp_desc;
+	ZeroMemory(&linearSamp_desc, sizeof(D3D11_SAMPLER_DESC));
+	linearSamp_desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	linearSamp_desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	linearSamp_desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	linearSamp_desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	linearSamp_desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	linearSamp_desc.MinLOD = 0;
+	linearSamp_desc.MaxLOD = D3D11_FLOAT32_MAX;
 	/*
-	D3D11_SAMPLER_DESC tShadowSamp_desc;
-	ZeroMemory(&tShadowSamp_desc, sizeof(D3D11_SAMPLER_DESC));
-	tShadowSamp_desc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-	tShadowSamp_desc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
-	tShadowSamp_desc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
-	tShadowSamp_desc.BorderColor[0] = 1;
-	tShadowSamp_desc.BorderColor[1] = 0;
-	tShadowSamp_desc.BorderColor[2] = 1;
-	tShadowSamp_desc.BorderColor[3] = 1;
-	tShadowSamp_desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	tShadowSamp_desc.Filter = D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR;
-	tShadowSamp_desc.MinLOD = 0;
-	tShadowSamp_desc.MaxLOD = D3D11_FLOAT32_MAX;
 	D3D11_SAMPLER_DESC ssaoSamp_desc;
 	ZeroMemory(&ssaoSamp_desc, sizeof(D3D11_SAMPLER_DESC));
 	ssaoSamp_desc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
@@ -103,14 +99,12 @@ GamePlayScene::GamePlayScene()
 	r_assert(DX_Device->CreateSamplerState(&linearPointSamp_desc, linearPointSamp.GetAddressOf()));
 	r_assert(DX_Device->CreateSamplerState(&anisotropicSamp_desc, anisotropicSamp.GetAddressOf()));
 	r_assert(DX_Device->CreateSamplerState(&cmpPointSamp_desc, cmpPointSamp.GetAddressOf()));
-	/*
-	r_assert(DX_Device->CreateSamplerState(&tShadowSamp_desc, tShadowSamp.GetAddressOf()));*/
+	r_assert(DX_Device->CreateSamplerState(&linearSamp_desc, linearSamp.GetAddressOf()));
 	DX_DContext->PSSetSamplers(SHADER_REG_SAMP_POINT, 1, pointSamp.GetAddressOf());
 	DX_DContext->PSSetSamplers(SHADER_REG_SAMP_LINEAR_POINT, 1, linearPointSamp.GetAddressOf());
 	DX_DContext->PSSetSamplers(SHADER_REG_SAMP_ANISOTROPIC, 1, anisotropicSamp.GetAddressOf());
 	DX_DContext->PSSetSamplers(SHADER_REG_SAMP_CMP_POINT, 1, cmpPointSamp.GetAddressOf());
-	/*
-	DX_DContext->PSSetSamplers(SHADER_REG_PS_SAMP_SHADOW_TRANSP, 1, tShadowSamp.GetAddressOf());*/
+	DX_DContext->PSSetSamplers(SHADER_REG_SAMP_LINEAR, 1, linearSamp.GetAddressOf());
 
 	std::vector<std::string> cm;
 	cm.push_back("Data\\Texture\\cm_px.jpg");
@@ -126,13 +120,19 @@ GamePlayScene::GamePlayScene()
 	nonaga = new NonagaStage(this);
 	std::vector<Object*> opaqueTokens;
 	std::vector<Object*> transpTokens;
+	std::vector<Object*> tiles;
 	nonaga->GetOpaqueTokens(opaqueTokens);
 	nonaga->GetTranspTokens(transpTokens);
-	for (auto go : opaqueTokens)
+	nonaga->GetTiles(tiles);
+	/*for (auto go : opaqueTokens)
 	{
 		AddObj(go);
 	}
 	for (auto go : transpTokens)
+	{
+		AddObj(go);
+	}*/
+	for (auto go : tiles)
 	{
 		AddObj(go);
 	}
@@ -186,6 +186,7 @@ void GamePlayScene::BindEye()
 void GamePlayScene::CameraMove(float spf)
 {
 	curCamDist -= spf * closeUpSpeed * Mouse::Instance()->GetWheel();
+	curCamDist = Clamp(20, 100, curCamDist);
 
 	static XMFLOAT2 prevMousePt = XMFLOAT2(0, 0);
 	XMFLOAT3 cameraForward = camera->transform->GetForward();
@@ -232,22 +233,20 @@ void GamePlayScene::Update(float elapsed, float spf)
 		Geometrics::Ray camRay;
 		camera->Pick(&camRay);
 
-		nonaga->Update(camRay, spf);
+		nonaga->UpdateGame(camRay, spf);
 		break;
 	}
 
 	camera->Update();
 
+	nonaga->UpdateObj();
 	Scene::Update(elapsed, spf);
 
 	//binding
 	BindEye();
-	skybox->Mapping();
 	oShadowMapping->Mapping(dLight);
 	tShadowMapping->Mapping(dLight);
-	//ssao->Mapping(this, camera);
-
-	canvas->Update(spf);
+	ssao->Mapping(this, camera);
 }
 
 void GamePlayScene::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) const
@@ -267,9 +266,8 @@ void GamePlayScene::Render(const XMMATRIX& vp, const Frustum& frustum, UINT scen
 		break;
 	}
 
-	canvas->Render(sceneDepth);
-	Scene::Render(curTempVP, frustum, sceneDepth);
 	nonaga->Render(curTempVP, frustum, sceneDepth);
+	Scene::Render(curTempVP, frustum, sceneDepth);
 }
 
 void GamePlayScene::Message(UINT msg)

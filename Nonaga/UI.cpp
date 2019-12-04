@@ -4,9 +4,11 @@
 #include "Camera.h"
 #include "Game_info.h"
 #include "ShaderFormat.h"
+#include "ShaderReg.h"
 
 #include "Transform.h"
 #include "DepthStencilState.h"
+#include "RasterizerState.h"
 #include "BlendState.h"
 #include "Mouse.h"
 #include "Debugging.h"
@@ -34,16 +36,7 @@ UI::UI(UICanvas* canvas, XMFLOAT2 pivot, XMFLOAT2 size, float zDepth, ID3D11Shad
 	vs->AddCB(0, 1, sizeof(SHADER_STD_TRANSF));
 	ps->AddCB(0, 1, sizeof(float));
 
-	D3D11_SAMPLER_DESC samplerDesc;
-	ZeroMemory(&samplerDesc, sizeof(D3D11_SAMPLER_DESC));
-	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
-	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
-	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-	samplerDesc.MinLOD = 0;
-	samplerDesc.MaxLOD = 1;
-	ps->AddSamp(0, 1, &samplerDesc);
-	ps->AddSRV(0, 1);
+	ps->AddSRV(SHADER_REG_SRV_DIFFUSE, 1);
 
 	D3D11_BLEND_DESC blend_desc;
 	blend_desc.AlphaToCoverageEnable = false;
@@ -57,7 +50,7 @@ UI::UI(UICanvas* canvas, XMFLOAT2 pivot, XMFLOAT2 size, float zDepth, ID3D11Shad
 	blend_desc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	blend_desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 	blendState = new BlendState(&blend_desc);
-
+	rsState = new RasterizerState(nullptr);
 	dsState = new DepthStencilState(nullptr);
 }
 
@@ -93,10 +86,11 @@ void UI::Render(const Camera* camera)const
 	DX_DContext->DSSetShader(nullptr, nullptr, 0);
 	DX_DContext->GSSetShader(nullptr, nullptr, 0);
 	ps->WriteCB(0, &transp);
-	ps->WriteSRV(0, srv);
+	ps->WriteSRV(SHADER_REG_SRV_DIFFUSE, srv);
 	ps->Apply();
 	blendState->Apply();
 	dsState->Apply();
+	rsState->Apply();
 	quad->Apply();
 }
 

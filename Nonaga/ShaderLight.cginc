@@ -39,6 +39,7 @@ cbuffer MATERIAL : register(b4)
     float4 mDiffuse;
     float4 mAmbient;
     float4 mSpecular;
+    float4 mInfo; // (transp, reflect, p, p)
 };
 void ComputeDirectionalLight(float3 normal, float3 toEye, out float3 ambient, out float3 diffuse, out float3 spec)
 {

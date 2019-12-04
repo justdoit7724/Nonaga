@@ -20,29 +20,35 @@ Texture2D ssaoTex : SHADER_REG_SRV_SSAO;
 
 SamplerState anisotropicSamp : SHADER_REG_SAMP_ANISOTROPIC;
 SamplerState linearPointSamp : SHADER_REG_SAMP_LINEAR_POINT;
+SamplerState linearSamp : SHADER_REG_SAMP_LINEAR;
 
 float3 GetBodyNormal(float2 tex)
 {
-    float3 ori_tex = normalTex.Sample(linearPointSamp, tex).xyz;
+    float3 ori_tex = normalTex.Sample(anisotropicSamp, tex).xyz;
     return (ori_tex * 2 - 1);
 }
-float3 Refract(float3 d, float3 n, float i)
-{
-    float3 newD = normalize(d - n);
-    return Lerp(d, newD, saturate(i - 1));
-}
 
-float3 ComputeTransparency(float3 color, float3 normal, float3 look)
+float3 ComputeTransparency(float3 wPos, float3 normal, float3 look)
 {
-    float3 rtex3d = Refract(look, normal, REFRACTION_INDEX_GLASS-0.02f);
-    float3 gtex3d = Refract(look, normal, REFRACTION_INDEX_GLASS);
-    float3 btex3d = Refract(look, normal, REFRACTION_INDEX_GLASS+0.02f);
-    float3 transpColor = float3(
+    float3 rtex3d = Lerp(look, normalize(look - normal), saturate(REFRACTION_INDEX_GLASS - 1.01f));
+    float3 gtex3d = Lerp(look, normalize(look - normal), saturate(REFRACTION_INDEX_GLASS - 1));
+    float3 btex3d = Lerp(look, normalize(look - normal), saturate(REFRACTION_INDEX_GLASS - 0.99));
+    return float3(
         cmTex.SampleLevel(pointSamp, rtex3d, 0).r,
         cmTex.SampleLevel(pointSamp, gtex3d, 0).g,
         cmTex.SampleLevel(pointSamp, btex3d, 0).b);
-
-    return Lerp(color, transpColor, 1 - mDiffuse.w);
+}
+float3 ComputeReflect(float3 wNormal, float3 look)
+{
+    return cmTex.SampleLevel(pointSamp, reflect(look, wNormal), 0).xyz;
+}
+float ComputeSSAO(float4 pPos)
+{
+    float2 viewUV = pPos.xy / pPos.w;
+    viewUV.x = viewUV.x * 0.5f + 0.5f;
+    viewUV.y = -viewUV.y * 0.5f + 0.5f;
+    float ssao = ssaoTex.SampleLevel(pointSamp, viewUV, 0).r;
+    return (ssao * ssao);
 }
 
 struct PS_INPUT
@@ -56,7 +62,6 @@ struct PS_INPUT
 };
 float4 main(PS_INPUT input) : SV_Target
 {
-
     input.normal = normalize(input.normal);
     input.tangent = normalize(input.tangent);
     input.tangent = normalize(input.tangent - dot(input.normal, input.tangent)*input.normal);
@@ -68,49 +73,31 @@ float4 main(PS_INPUT input) : SV_Target
 
     float3 look = normalize(input.wPos-eyePos.xyz);
     
-    
     float3 ambient = 0;
     float3 diffuse = 0;
     float3 specular = 0;
-    float3 reflection = 0;
-    float3 A, D, S;
-    ComputeDirectionalLight(wNormal, -look, A, D, S);
-    ambient += A;
-    diffuse += D;
-    specular += S;
-    
-    ComputePointLight(input.wPos, wNormal, -look, A, D, S);
-    ambient += A;
-    diffuse += D;
-    specular += S;
-    
-    ComputeSpotLight(input.wPos, wNormal, -look, A, D, S);
-    ambient += A;
-    diffuse += D;
-    specular += S;
+    ComputeDirectionalLight(wNormal, -look, ambient, diffuse, specular);
 
-    float4x4 uvMat = float4x4(
-        0.5, 0, 0, 0,
-        0, -0.5, 0, 0,
-        0, 0, 0, 0,
-        0.5, 0.5, 0, 1);
-    input.pPos = mul(input.pPos, uvMat);
-    float2 viewUV = input.pPos.xy / input.pPos.w;
-    float ssao = ssaoTex.SampleLevel(pointSamp, viewUV, 0).r;
-    ambient *= ssao;
+    ambient *= ComputeSSAO(input.pPos);
     
-    float3 light = specular + diffuse + ambient;
-    
+    float3 transp = ComputeTransparency(input.wPos, wNormal, look);
     float3 tex = diffuseTex.Sample(anisotropicSamp, input.tex).xyz;
+    float3 reflec = ComputeReflect(wNormal, look);
     
-    float shadowFactor = DirectionalLightOpaqueShadowFactor(wNormal, d_Dir[0].xyz, input.wPos);
-    float shadowTranspFactor = DirectionalLightTranspShadowFactor(wNormal,d_Dir[0].xyz, input.wPos);
-    //debug--------------------------------------------------
-  
-    return float4(max(shadowTranspFactor, shadowFactor).xxx, 1);
+    float3 surface = Lerp(tex,transp, mInfo.x);
+    surface = Lerp(surface, reflec, mInfo.y);
     
-    tex = ComputeTransparency(tex, wNormal, look);
+    ambient *= surface;
+    diffuse *= surface;
+    return float4(specular + ambient + diffuse, 1);
+    
+    float shadowFactor = max(DirectionalLightOpaqueShadowFactor(wNormal, d_Dir[0].xyz, input.wPos), DirectionalLightTranspShadowFactor(wNormal, d_Dir[0].xyz, input.wPos));
     
     float3 color = 0;
-    return float4(color, mDiffuse.w);
+    
+    //debug remove
+    diffuse *= (1 - shadowFactor);
+    specular *= (1 - shadowFactor);
+    color = diffuse + specular + ambient;
+    return float4(color, 1);
 }

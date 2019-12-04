@@ -247,11 +247,6 @@ void TranspShadowMap::Mapping(const DirectionalLight* dLight)
 	DX_DContext->RSGetViewports(&vpNum, &oriVP);
 
 	ID3D11ShaderResourceView* nullSRV = nullptr;
-
-	//debug remove
-	DX_DContext->PSSetShaderResources(0, 1, &nullSRV);
-
-
 	DX_DContext->PSSetShaderResources(SHADER_REG_SRV_SHADOW_TRANSP, 1, &nullSRV);
 	float defaultColor[4] = { 0,0,0,1 };
 	DX_DContext->ClearRenderTargetView(rtv.Get(), defaultColor);
@@ -278,6 +273,9 @@ void TranspShadowMap::Mapping(const DirectionalLight* dLight)
 
 	for (auto curObj : drawObjs)
 	{
+		if ((curObj->name == "Skybox") || (curObj->name == "Tile"))
+			continue;
+
 		XMMATRIX world = curObj->transform->WorldMatrix();
 
 		XMMATRIX mats[2] = {

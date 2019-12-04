@@ -15,6 +15,9 @@ int CalculateMaxMiplevel(int width, int height)
 }
 void TextureMgr::Load(std::string key, std::string fileName)
 {
+	if (SRVs.count(key))
+		return;
+
 	ComPtr<ID3D11Resource> ori_resources;
 	D3D11_TEXTURE2D_DESC ori_desc;
 	r_assert(

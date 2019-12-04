@@ -36,6 +36,7 @@ private:
 	XMMATRIX curP;
 
 	ComPtr<ID3D11SamplerState> pointSamp;
+	ComPtr<ID3D11SamplerState> linearSamp;
 	ComPtr<ID3D11SamplerState> anisotropicSamp;
 	ComPtr<ID3D11SamplerState> linearPointSamp;
 	ComPtr<ID3D11SamplerState> oShadowSamp;
@@ -65,7 +66,7 @@ private:
 	float moveAngleX = 0;
 	float moveAngleY = 0;
 	float curCamDist=60;
-	const float closeUpSpeed = 50;
+	const float closeUpSpeed = 100;
 	const float angleSpeed = 3.141592f * 0.025f;
 
 	Skybox* skybox;

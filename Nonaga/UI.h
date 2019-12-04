@@ -17,6 +17,7 @@ class GShader;
 class PShader;
 class DepthStencilState;
 class BlendState;
+class RasterizerState;
 class UICanvas;
 
 struct SHADER_STD_TRANSF;
@@ -40,6 +41,7 @@ protected:
 	PShader* ps;
 	DepthStencilState* dsState;
 	BlendState* blendState;
+	RasterizerState* rsState;
 	ID3D11ShaderResourceView* srv;
 
 	XMFLOAT2 size;

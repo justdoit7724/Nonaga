@@ -14,8 +14,8 @@
 #include "Debugging.h"
 
 //fundamental elements
-Object::Object(Shape* shape, Shape* lodShape, std::string sVS, const D3D11_INPUT_ELEMENT_DESC* iLayouts, UINT layoutCount, std::string sHS, std::string sDS, std::string sGS, std::string sPS,int zOrder)
-	:shape(shape),lodShape(lodShape), zOrder(zOrder)
+Object::Object(std::string name, std::shared_ptr < Shape> shape, std::shared_ptr < Shape> lodShape, std::string sVS, const D3D11_INPUT_ELEMENT_DESC* iLayouts, UINT layoutCount, std::string sHS, std::string sDS, std::string sGS, std::string sPS,int zOrder)
+	:name(name), shape(shape),lodShape(lodShape), zOrder(zOrder)
 {
 	transform = new Transform();
 	vs = new VShader(sVS, iLayouts, layoutCount);
@@ -30,8 +30,8 @@ Object::Object(Shape* shape, Shape* lodShape, std::string sVS, const D3D11_INPUT
 }
 
 //standard elements
-Object::Object(Shape* shape, Shape* lodShape, ID3D11ShaderResourceView* diffSRV, ID3D11ShaderResourceView* normalSRV)
-	:zOrder(Z_ORDER_STANDARD), shape(shape), lodShape(lodShape)
+Object::Object(std::string name, std::shared_ptr < Shape> shape, std::shared_ptr < Shape> lodShape, ID3D11ShaderResourceView* diffSRV, ID3D11ShaderResourceView* normalSRV)
+	:name(name), zOrder(Z_ORDER_STANDARD), shape(shape), lodShape(lodShape)
 {
 	transform = new Transform();
 	vs = new VShader("StandardVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
@@ -42,7 +42,7 @@ Object::Object(Shape* shape, Shape* lodShape, ID3D11ShaderResourceView* diffSRV,
 
 	vs->AddCB(0, 1, sizeof(SHADER_STD_TRANSF));
 	ps->AddCB(SHADER_REG_CB_MATERIAL, 1, sizeof(SHADER_MATERIAL));
-	ps->WriteCB(SHADER_REG_CB_MATERIAL,&SHADER_MATERIAL(XMFLOAT3(0.7,0.7,0.7), 0.2, XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(0.8, 0.8, 0.8), 32));
+	ps->WriteCB(SHADER_REG_CB_MATERIAL,&SHADER_MATERIAL(XMFLOAT3(0.7,0.7,0.7), 0.2, XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(0.8, 0.8, 0.8), 32, 0.2f));
 	
 	ps->AddSRV(SHADER_REG_SRV_DIFFUSE, 1);
 	ps->AddSRV(SHADER_REG_SRV_NORMAL, 1);
@@ -57,7 +57,6 @@ Object::Object(Shape* shape, Shape* lodShape, ID3D11ShaderResourceView* diffSRV,
 Object::~Object()
 {
 	delete transform;
-	delete shape;
 	delete vs;
 	delete hs;
 	delete ds;
@@ -136,27 +135,13 @@ bool Object::IsInsideFrustum(const Frustum& frustum) const
 	if (frustum.skip)
 		return true;
 
-	//debug change
-	if (!IntersectInPlaneSphere(frustum.front, bound))
-		return false;
-	if(!IntersectInPlaneSphere(frustum.back, bound))
-		return false;
-	if(!IntersectInPlaneSphere(frustum.right, bound))
-		return false;
-	if(!IntersectInPlaneSphere(frustum.left, bound))
-		return false;
-	if(!IntersectInPlaneSphere(frustum.top, bound))
-		return false;
-	if(!IntersectInPlaneSphere(frustum.bottom, bound))
-		return false;
-	return true;
-	/*return (
-		IntersectInPlaneSphere(frustum->front, bound) &&
-		IntersectInPlaneSphere(frustum->back, bound) &&
-		IntersectInPlaneSphere(frustum->right, bound) &&
-		IntersectInPlaneSphere(frustum->left, bound) &&
-		IntersectInPlaneSphere(frustum->top, bound) &&
-		IntersectInPlaneSphere(frustum->bottom, bound));*/
+	return (
+		IntersectInPlaneSphere(frustum.right, bound) &&
+		IntersectInPlaneSphere(frustum.left, bound) &&
+		IntersectInPlaneSphere(frustum.top, bound) &&
+		IntersectInPlaneSphere(frustum.bottom, bound) &&
+		IntersectInPlaneSphere(frustum.front, bound) &&
+		IntersectInPlaneSphere(frustum.back, bound));
 }
 
 bool Object::IsPicking(const Geometrics::Ray ray) const

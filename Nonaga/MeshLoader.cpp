@@ -140,8 +140,8 @@ void ProcessNode(std::vector<Object*>& storage, std::string filepath, aiNode* no
 		TextureMgr::Instance()->Load(diffMtl, "Data\\Model\\" + filepath + "\\" + diffMtl);
 		TextureMgr::Instance()->Load(normalMtl, "Data\\Model\\" + filepath + "\\" + normalMtl);
 		
-		Shape* curShape = new Shape(vData, sizeof(Vertex), vertice.size(), iData, indice.size(), D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		storage.push_back(new Object(
+		std::shared_ptr<Shape> curShape = std::make_shared<Shape>(vData, sizeof(Vertex), vertice.size(), iData, indice.size(), D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		storage.push_back(new Object("Mesh",
 			curShape, curShape,
 			TextureMgr::Instance()->Get(diffMtl),
 			TextureMgr::Instance()->Get(normalMtl)));

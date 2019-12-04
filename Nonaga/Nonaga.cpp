@@ -6,6 +6,8 @@
 #include "PlaySpace.h"
 #include "Transform.h"
 #include <vector>
+#include "MeshLoader.h"
+#include "Cylinder.h"
 
 /* 2d array tile.
 Only even index tile will be used in order to implement hexagonal arrangement of tile.
@@ -22,6 +24,12 @@ Transformation needed after.
 #define TILE_SPACE_COUNT_Z 25
 #define TILE_SPACE_INTERVAL_X 10.0f
 #define TILE_SPACE_INTERVAL_Z 12.0f
+
+XMFLOAT3 GetTokenPos(XMFLOAT3 pos)
+{
+	pos.y += 5;
+	return pos;
+}
 
 NonagaStage::NonagaStage(Scene* environment)
 {
@@ -45,6 +53,20 @@ NonagaStage::NonagaStage(Scene* environment)
 
 	int tileObjIdx = 0;
 
+	std::shared_ptr<Shape> tileShape(new Cylinder(30));
+	std::shared_ptr<Shape> tileLodShape(new Cylinder(15));
+	std::shared_ptr<Shape> tokenShape;
+	std::shared_ptr<Shape> tokenLodShape;
+
+	{
+		Shape* tempToken;
+		Shape* tempLodToken;
+		MeshLoader::LoadToken(&tempToken, "Data\\Model\\Token\\TOKENf2.obj");
+		MeshLoader::LoadToken(&tempLodToken, "Data\\Model\\Token\\TOKENf05.obj");
+		tokenShape.reset(tempToken);
+		tokenLodShape.reset(tempLodToken);
+	}
+
 	for (int z = 0; z < TILE_SPACE_COUNT_Z; ++z)
 	{
 		for (int x = 0; x < TILE_SPACE_COUNT_X; ++x)
@@ -63,41 +85,42 @@ NonagaStage::NonagaStage(Scene* environment)
 			float idDist = idDistX + idDistZ;
 			if (idDist <= 4 && idDistX <= 2)
 			{
-				Tile* newTile = new Tile((unsigned int)idx);
+				Tile* newTile = new Tile((unsigned int)idx,tileShape, tileLodShape);
 				tiles.push_back(newTile);
-				newTile->Move(idx, pos);
+				newTile->Move(idx);
+				newTile->transform->SetTranslation(pos);
 				playSpace[idx]->SetTile(newTile);
 
 				// find out token places by tile index
 				if (tileObjIdx == 0|| tileObjIdx == 13|| tileObjIdx == 15)
 				{
-					Token* newToken = new Token(environment, idx, true);
+					Token* newToken = new Token(tokenShape,tokenLodShape, environment, idx, true);
 					tokens.push_back(newToken);
 					playSpace[idx]->SetToken(newToken);
 					newToken->Move(idx);
-					newToken->transform->SetTranslation(pos);
+					newToken->transform->SetTranslation(GetTokenPos(pos));
 				}
 				else if (tileObjIdx == 3|| tileObjIdx == 5|| tileObjIdx == 18)
 				{
-					Token* newToken = new Token(environment, idx, false);
+					Token* newToken = new Token(tokenShape, tokenLodShape, environment, idx, false);
 
 					tokens.push_back(newToken);
 					playSpace[idx]->SetToken(newToken);
 					newToken->Move(idx);
-					newToken->transform->SetTranslation(pos);
+					newToken->transform->SetTranslation(GetTokenPos(pos));
 				}
 				tileObjIdx++;
 			}
 		}
 	}
 
-	redToken = new Token(true);
+	redToken = new Token(tokenLodShape, true);
 	redToken->SetEnabled(false);
-	greenToken = new Token(false);
+	greenToken = new Token(tokenLodShape, false);
 	greenToken->SetEnabled(false);
-	redTile = new Tile(true);
+	redTile = new Tile(true, tileLodShape);
 	redTile->SetEnabled(false);
-	greenTile = new Tile(false);
+	greenTile = new Tile(false, tileLodShape);
 	greenTile->SetEnabled(false);
 
 	isMove = false;
@@ -202,18 +225,27 @@ void NonagaStage::TileDragging()
 	if (isMove = logic->CanMoveTileTo(holdingTileID, pDetectID))
 	{
 		greenTile->SetEnabled(true);
-		greenTile->Move(NONE, playSpace[pDetectID]->pos);
+		greenTile->Move(NONE);
+		greenTile->transform->SetTranslation(playSpace[pDetectID]->pos);
 	}
 	else
 	{
 		redTile->SetEnabled(true);
-		redTile->Move(NONE, playSpace[pDetectID]->pos);
+		redTile->Move(NONE);
+		redTile->transform->SetTranslation(playSpace[pDetectID]->pos);
 	}
 }
 
 
-void NonagaStage::Update(const Geometrics::Ray ray, float spf)
+void NonagaStage::UpdateObj()
 {
+	for (auto t : tiles)
+		t->Update();
+}
+
+void NonagaStage::UpdateGame(const Geometrics::Ray ray, float spf)
+{
+
 	switch (curPlayState)
 	{
 	case PLAY_STATE_P1_TOKEN:
@@ -256,12 +288,12 @@ void NonagaStage::Update(const Geometrics::Ray ray, float spf)
 		float jumpT = sqrtf(sinf(curTime * XM_PI));
 		XMFLOAT3 lPos = Lerp(moveStart, moveDest, moveT);
 		lPos.y = jumpT * jumpTokenHeight;
-		moveObj->transform->SetTranslation(lPos);
+		moveObj->transform->SetTranslation(GetTokenPos(lPos));
 		if (curTime >= 1)
 		{
 			curTime = 0;
 			lPos.y = 0;
-			moveObj->transform->SetTranslation(lPos);
+			moveObj->transform->SetTranslation(GetTokenPos(lPos));
 			if (IsWin())
 				curPlayState = PLAY_STATE_FINISH;
 			else
@@ -360,12 +392,12 @@ void NonagaStage::Update(const Geometrics::Ray ray, float spf)
 		float jumpT = sqrtf(sinf(curTime * XM_PI));
 		XMFLOAT3 lPos = Lerp(moveStart, moveDest, moveT);
 		lPos.y = jumpT * jumpTokenHeight;
-		moveObj->transform->SetTranslation(lPos);
+		moveObj->transform->SetTranslation(GetTokenPos(lPos));
 		if (curTime >= 1)
 		{
 			curTime = 0;
 			lPos.y = 0;
-			moveObj->transform->SetTranslation(lPos);
+			moveObj->transform->SetTranslation(GetTokenPos(lPos));
 			if (IsWin())
 				curPlayState = PLAY_STATE_FINISH;
 			else
@@ -458,6 +490,14 @@ void NonagaStage::GetTranspTokens(std::vector<Object*>& objOutput)
 	}
 }
 
+void NonagaStage::GetTiles(std::vector<Object*>& objOutput)
+{
+	for (auto t : tiles)
+		objOutput.push_back(t);
+}
+
+
+
 void NonagaStage::Render(const XMMATRIX& vp, const Frustum& frustum, unsigned int sceneDepth) const
 {
 	if (sceneDepth == 0)
@@ -467,9 +507,6 @@ void NonagaStage::Render(const XMMATRIX& vp, const Frustum& frustum, unsigned in
 		redToken->Render(vp, frustum, sceneDepth);
 		greenToken->Render(vp, frustum, sceneDepth);
 	}
-
-	for (auto t : tiles)
-		t->Render(vp, frustum, sceneDepth);
 }
 
 
@@ -615,7 +652,8 @@ void NonagaLogic::TileMove(int from, int to)
 	space[from]->SetTile(nullptr);
 	space[to]->SetTile(movingTile);
 
-	movingTile->Move(to, space[to]->pos);
+	movingTile->Move(to);
+	movingTile->transform->SetTranslation(space[to]->pos);
 
 	p1Turn = !p1Turn;
 }
