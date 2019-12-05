@@ -19,7 +19,7 @@ Token::Token(std::shared_ptr<Shape> shape, std::shared_ptr<Shape> lodShape, Scen
 		shape, lodShape,
 		"StdDisplacementVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts),
 		"StdDisplacementHS.cso", "StdDisplacementDS.cso", "",
-		p1?"StandardPS.cso":"StdDCMPS.cso", Z_ORDER_STANDARD),
+		/*p1?"StandardPS.cso":"StdDCMPS.cso"*/"Std2PS.cso", Z_ORDER_STANDARD),
 		id(id), isP1(p1), environment(environemnt), isIndicator(false), fallingSpeed(fminf(Rand01() + 0.5f, 1) * 100)
 {
 	TextureMgr::Instance()->Load("token", "Data\\Model\\Token\\pawn.png");
@@ -173,6 +173,7 @@ void Token::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) 
 			}
 			else
 			{
+
 			}
 		}
 		else if (sceneDepth == 0)

@@ -468,5 +468,8 @@
     <FxCompile Include="IndicatorPS.hlsl">
       <Filter>hlsl</Filter>
     </FxCompile>
+    <FxCompile Include="Std2PS.hlsl">
+      <Filter>hlsl</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

@@ -11,7 +11,7 @@ Tile::Tile(unsigned int id, std::shared_ptr<Shape> shape, std::shared_ptr<Shape>
 	:Object("Tile", shape, lodShape,
 		"StandardVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts),
 		"","","",
-		"StandardPS.cso",2),id(id), fallingSpeed(fminf(Rand01()+0.5f,1)*100), isIndicator(false)
+		/*"StandardPS.cso"*/"Std2PS.cso",2),id(id), fallingSpeed(fminf(Rand01()+0.5f,1)*100), isIndicator(false)
 {
 	vs->AddCB(0, 1, sizeof(SHADER_STD_TRANSF));
 	ps->AddCB(SHADER_REG_CB_MATERIAL, 1, sizeof(SHADER_MATERIAL));
