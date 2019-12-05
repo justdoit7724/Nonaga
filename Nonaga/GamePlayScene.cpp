@@ -18,6 +18,7 @@
 #include "Cube.h"
 #include "BlendState.h"
 #include "UI.h"
+#include "TaskMgr.h"
 
 GamePlayScene::GamePlayScene()
 {
@@ -176,9 +177,9 @@ GamePlayScene::~GamePlayScene()
 void GamePlayScene::BindEye()
 {
 	XMFLOAT4 camEye = XMFLOAT4(
-		CameraMgr::Instance()->Main()->transform->GetPos().x,
-		CameraMgr::Instance()->Main()->transform->GetPos().y,
-		CameraMgr::Instance()->Main()->transform->GetPos().z, 0);
+		camera->transform->GetPos().x,
+		camera->transform->GetPos().y,
+		camera->transform->GetPos().z, 0);
 	cbEye->Write(&camEye);
 	DX_DContext->PSSetConstantBuffers(SHADER_REG_CB_EYE, 1, cbEye->GetAddress());
 }
@@ -200,6 +201,7 @@ void GamePlayScene::CameraMove(float spf)
 	}
 	prevMousePt.x = mPt.x;
 	prevMousePt.y = mPt.y;
+
 	XMMATRIX rot = XMMatrixRotationX(moveAngleX)*XMMatrixRotationY(moveAngleY);
 	XMFLOAT3 f = MultiplyDir(FORWARD, rot);
 	XMFLOAT3 r = Normalize(Cross(UP, f));
@@ -211,9 +213,12 @@ void GamePlayScene::Update(float elapsed, float spf)
 {
 	dLight->SetDir(MultiplyDir(Normalize(XMFLOAT3(1.7, -1, 0)), XMMatrixRotationY(elapsed*0.01f)));
 
+	XMMATRIX curTempP = camera->StdProjMat();
 	switch (curStage)
 	{
 	case GAMEPLAY_STAGE_LOBBY:
+
+		curTempP = XMLoadFloat4x4(&orthogonalP);
 		break;
 	case GAMEPLAY_STAGE_CAM_MODIFY:
 	{
@@ -224,6 +229,8 @@ void GamePlayScene::Update(float elapsed, float spf)
 		CameraFrameLerping(t);
 		CameraSliding(Clamp(0,1,t-0.9));
 		LightRotating(t);
+		curTempP = curP;
+
 		if (t>2)
 			curStage = GAMEPLAY_STAGE_PLAY;
 	}
@@ -235,6 +242,7 @@ void GamePlayScene::Update(float elapsed, float spf)
 		camera->Pick(&camRay);
 
 		nonaga->UpdateGame(camRay, spf);
+
 		break;
 	}
 
@@ -248,10 +256,12 @@ void GamePlayScene::Update(float elapsed, float spf)
 	skybox->Mapping();
 	oShadowMapping->Mapping(dLight);
 	tShadowMapping->Mapping(dLight);
-	ssao->Mapping(this, camera);
+	ssao->Mapping(this, camera->VMat(), curTempP);
+
+	TaskMgr::Instance()->Work();
 }
 
-void GamePlayScene::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) const
+void GamePlayScene::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth, void const* subject) const
 {
 	dLight->Apply();
 
@@ -269,7 +279,7 @@ void GamePlayScene::Render(const XMMATRIX& vp, const Frustum& frustum, UINT scen
 	}
 
 	nonaga->Render(curTempVP, frustum, sceneDepth);
-	Scene::Render(curTempVP, frustum, sceneDepth);
+	Scene::Render(curTempVP, frustum, sceneDepth, subject);
 }
 
 void GamePlayScene::Message(UINT msg)

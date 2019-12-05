@@ -93,16 +93,7 @@ float4 main(PS_INPUT input) : SV_Target
     float3 surface = Lerp(ambient + diffuse, transp, mInfo.x);
     surface = Lerp(surface, reflec, mInfo.y);
     
-    specular *= (1 + saturate(0.2f - tShadowFactor.x) * tShadowFactor.y);
+    specular += (0 + saturate(0.06f - tShadowFactor.x) * tShadowFactor.y);
     
     return float4(specular + surface, 1);
-    
-    
-    float3 color = 0;
-    
-    //debug remove
-    diffuse *= (1 - shadowFactor);
-    specular *= (1 - shadowFactor);
-    color = diffuse + specular + ambient;
-    return float4(color, 1);
 }

@@ -28,6 +28,8 @@ struct Frustum
 	Geometrics::PlaneInf left;
 	Geometrics::PlaneInf top;
 	Geometrics::PlaneInf bottom;
+
+	Frustum() {}
 };
 
 class Camera : public IDebug

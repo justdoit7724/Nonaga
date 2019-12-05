@@ -16,7 +16,7 @@ void DebuggingScene::Update(float elapsed,float spf)
 	Debugging::Instance()->Update(spf);
 }
 
-void DebuggingScene::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) const
+void DebuggingScene::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth, void const* subject) const
 {
 	Debugging::Instance()->Render(vp);
 }

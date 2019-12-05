@@ -16,19 +16,12 @@ cbuffer LIGHT_PERSPECTIVE : SHADER_REG_CB_LIGHTVP
 
 TextureCube cmTex : SHADER_REG_SRV_CM;
 Texture2D diffuseTex : SHADER_REG_SRV_DIFFUSE;
-Texture2D normalTex : SHADER_REG_SRV_NORMAL;
 Texture2D shadowTex : SHADER_REG_SRV_SHADOW;
 Texture2D shadowTranspTex : SHADER_REG_SRV_SHADOW_TRANSP;
 //...
 
 SamplerComparisonState shadowSamp : SHADER_REG_SAMP_CMP_POINT;
 SamplerState pointSamp : SHADER_REG_SAMP_POINT;
-
-float3 GetBodyNormal(float2 tex)
-{
-    float3 ori_tex = normalTex.Sample(pointSamp, tex).xyz;
-    return (ori_tex * 2 - 1);
-}
 
 float3 ComputeTransparency(float3 wPos, float3 normal, float3 look)
 {
@@ -85,14 +78,7 @@ struct PS_INPUT
 };
 float4 main(PS_INPUT input) : SV_Target
 {
-    input.normal = normalize(input.normal);
-    input.tangent = normalize(input.tangent);
-    input.tangent = normalize(input.tangent - dot(input.normal, input.tangent) * input.normal);
-    
-    float3 bitangent = cross(input.normal, input.tangent);
-    float3x3 tbn = float3x3(input.tangent, bitangent, input.normal);
-    float3 tNormal = GetBodyNormal(input.tex);
-    float3 wNormal = normalize(mul(tNormal, tbn));
+    float3 wNormal = normalize(input.normal);
 
     float3 look = normalize(input.wPos - eyePos.xyz);
     

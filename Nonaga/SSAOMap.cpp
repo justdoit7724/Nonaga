@@ -205,7 +205,7 @@ SSAOMap::~SSAOMap()
 	delete blurPS;
 }
 
-void SSAOMap::Mapping(const Scene* scene, const Camera* camera)
+void SSAOMap::Mapping(const Scene* scene, const XMMATRIX& vMat, const XMMATRIX& pMat)
 {
 	ID3D11RenderTargetView* oriPassRTV;
 	ID3D11DepthStencilView* oriDSV;
@@ -221,8 +221,8 @@ void SSAOMap::Mapping(const Scene* scene, const Camera* camera)
 	DX_DContext->DSSetShader(nullptr, nullptr, 0);
 	DX_DContext->GSSetShader(nullptr, nullptr, 0);
 
-	DrawNormalDepth(scene, camera);
-	DrawAccess(camera->StdProjMat(), oriVP);
+	DrawNormalDepth(scene, vMat, pMat);
+	DrawAccess(pMat, oriVP);
 	BlurHorizon();
 	BlurVertical();
 
@@ -235,7 +235,7 @@ void SSAOMap::Mapping(const Scene* scene, const Camera* camera)
 }
 
 
-void SSAOMap::DrawNormalDepth(const Scene* scene, const Camera* camera)
+void SSAOMap::DrawNormalDepth(const Scene* scene, const XMMATRIX& vMat, const XMMATRIX& pMat)
 {
 	ID3D11ShaderResourceView* nullSRV = nullptr;
 	DX_DContext->PSSetShaderResources(SHADER_REG_SRV_SSAO, 1, &nullSRV);
@@ -259,8 +259,8 @@ void SSAOMap::DrawNormalDepth(const Scene* scene, const Camera* camera)
 		XMMATRIX world = t->transform->WorldMatrix();
 		XMMATRIX drawTransf[4] = {
 			world,
-			camera->VMat(),
-			camera->StdProjMat(), // no z Priority for ssao
+			vMat,
+			pMat, // no z Priority for ssao
 			XMMatrixTranspose(XMMatrixInverse(&XMMatrixDeterminant(world), world))
 		};
 		ndVS->WriteCB(0, drawTransf);

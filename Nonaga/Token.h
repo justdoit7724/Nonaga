@@ -32,5 +32,8 @@ private:
 	ComPtr<ID3D11ShaderResourceView> captureSRV;
 	ComPtr<ID3D11DepthStencilView> captureDSV;
 
+	VShader* lodVs;
+	PShader* lodPs;
+
 	float fallingSpeed;
 };

@@ -181,6 +181,7 @@
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="Sphere.cpp" />
     <ClCompile Include="SSAOMap.cpp" />
+    <ClCompile Include="TaskMgr.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="TextureMgr.cpp" />
@@ -200,6 +201,7 @@
     <ClInclude Include="classTask.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="Cube.h" />
+    <ClInclude Include="TaskMgr.h" />
     <ClInclude Include="Lobby.h" />
     <ClInclude Include="MappingVisualization.h" />
     <ClInclude Include="MeshLoader.h" />

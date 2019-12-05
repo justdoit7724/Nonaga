@@ -268,8 +268,6 @@ void TranspShadowMap::Mapping(const DirectionalLight* dLight)
 		0.5f, 0.5f, 0, 1);
 	cbVPTMat->Write(&vpt);
 	DX_DContext->PSSetConstantBuffers(SHADER_REG_CB_LIGHTVP, 1, cbVPTMat->GetAddress());
-	ID3D11ShaderResourceView* const nSRV = TextureMgr::Instance()->Get("tokenNormal");
-	DX_DContext->PSSetShaderResources(SHADER_REG_SRV_NORMAL, 1, &nSRV);
 
 	for (auto curObj : drawObjs)
 	{

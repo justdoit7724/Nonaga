@@ -5,24 +5,35 @@
 #include "Shader.h"
 #include "ShaderReg.h"
 #include "Cylinder.h"
+#include "BlendState.h"
+#include "RasterizerState.h"
+#include "DepthStencilState.h"
 #include "ShaderFormat.h"
 
 Tile::Tile(unsigned int id, std::shared_ptr<Shape> shape, std::shared_ptr<Shape> lodShape)
 	:Object("Tile", shape, lodShape,
 		"StandardVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts),
 		"","","",
-		/*"StandardPS.cso"*/"Std2PS.cso",2),id(id), fallingSpeed(fminf(Rand01()+0.5f,1)*100), isIndicator(false)
+		"StandardPS.cso",2),id(id), fallingSpeed(fminf(Rand01()+0.5f,1)*100), isIndicator(false)
 {
 	vs->AddCB(0, 1, sizeof(SHADER_STD_TRANSF));
 	ps->AddCB(SHADER_REG_CB_MATERIAL, 1, sizeof(SHADER_MATERIAL));
-	ps->WriteCB(SHADER_REG_CB_MATERIAL, &SHADER_MATERIAL(XMFLOAT3(0.7, 0.7, 0.7), 0, XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(0.8, 0.8, 0.8), 40, 0.06f));
+	SHADER_MATERIAL material(XMFLOAT3(0.7, 0.7, 0.7), 0, XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(0.8, 0.8, 0.8), 40, 0.06f);
+	ps->WriteCB(SHADER_REG_CB_MATERIAL, &material);
 
 	TextureMgr::Instance()->Load("tileNormal", "Data\\Texture\\wood_normal.jpg");
 	TextureMgr::Instance()->Load("tile", "Data\\Texture\\wood.jpg");
+	TextureMgr::Instance()->Load("tileLod", "Data\\Texture\\wood_lod.jpg");
 	ps->AddSRV(SHADER_REG_SRV_DIFFUSE, 1);
 	ps->AddSRV(SHADER_REG_SRV_NORMAL, 1);
 	ps->WriteSRV(SHADER_REG_SRV_DIFFUSE, TextureMgr::Instance()->Get("tile")); 
 	ps->WriteSRV(SHADER_REG_SRV_NORMAL, TextureMgr::Instance()->Get("tileNormal"));
+
+	lodPs = new PShader("Std2PS.cso");
+	lodPs->AddCB(SHADER_REG_CB_MATERIAL, 1, sizeof(SHADER_MATERIAL));
+	lodPs->WriteCB(SHADER_REG_CB_MATERIAL, &material);
+	lodPs->AddSRV(SHADER_REG_SRV_DIFFUSE, 1);
+	lodPs->WriteSRV(SHADER_REG_SRV_DIFFUSE, TextureMgr::Instance()->Get("tileLod"));
 	
 	transform->SetScale(10, 1, 10);
 }
@@ -54,19 +65,44 @@ void Tile::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) c
 
 	if (IsInsideFrustum(frustum))
 	{
-		if (isIndicator)
+		if (sceneDepth == 0)
 		{
-			XMMATRIX wvp = transform->WorldMatrix() * vp;
-			vs->WriteCB(0, &wvp);
+			if (isIndicator)
+			{
+				XMMATRIX wvp = transform->WorldMatrix() * vp;
+				vs->WriteCB(0, &wvp);
+				Object::Render();
+			}
+			else // first depth
+			{
+				const SHADER_STD_TRANSF STransformation(transform->WorldMatrix(), vp);
+
+				vs->WriteCB(0, &STransformation);
+				Object::Render();
+			}
 		}
 		else
 		{
-			const SHADER_STD_TRANSF STransformation(transform->WorldMatrix(), vp);
+			assert(sceneDepth <= 1);
 
-			vs->WriteCB(0, &STransformation);
+			if (!isIndicator) // second depth (deepest)
+			{
+				const SHADER_STD_TRANSF STransformation(transform->WorldMatrix(), vp);
+
+				vs->WriteCB(0, &STransformation);
+				vs->Apply();
+				DX_DContext->HSSetShader(nullptr, nullptr, NULL);
+				DX_DContext->DSSetShader(nullptr, nullptr, NULL);
+				DX_DContext->GSSetShader(nullptr, nullptr, NULL);
+				lodPs->Apply();
+
+				blendState->Apply();
+				dsState->Apply();
+				rsState->Apply();
+
+				lodShape->Apply();
+			}
 		}
-
-		Object::Render();
 	}
 }
 

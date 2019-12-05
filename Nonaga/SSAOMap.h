@@ -6,7 +6,6 @@ class PShader;
 class Shape;
 class DepthStencilState;
 class BlendState;
-class Camera;
 class Object;
 class Scene;
 
@@ -16,11 +15,11 @@ public:
 	SSAOMap();
 	~SSAOMap();
 
-	void Mapping(const Scene* scene, const Camera* camera);
+	void Mapping(const Scene* scene, const XMMATRIX& vMat, const XMMATRIX& pMat);
 	ID3D11ShaderResourceView* SRV() { return finalSRV.Get(); }
 
 private:
-	void DrawNormalDepth(const Scene* scene, const Camera* camera);
+	void DrawNormalDepth(const Scene* scene, const XMMATRIX& vMat, const XMMATRIX& pMat);
 	void DrawAccess(const XMMATRIX& p, D3D11_VIEWPORT oriVP);
 	void BlurHorizon();
 	void BlurVertical();

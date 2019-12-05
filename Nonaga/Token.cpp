@@ -9,8 +9,12 @@
 #include "ShaderReg.h"
 #include "CameraMgr.h"
 #include "Game_info.h"
+#include "BlendState.h"
+#include "RasterizerState.h"
+#include "DepthStencilState.h"
 #include "Scene.h"
 #include "Debugging.h"
+#include "TaskMgr.h"
 
 Camera* Token::captureCam = nullptr;
 
@@ -19,10 +23,11 @@ Token::Token(std::shared_ptr<Shape> shape, std::shared_ptr<Shape> lodShape, Scen
 		shape, lodShape,
 		"StdDisplacementVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts),
 		"StdDisplacementHS.cso", "StdDisplacementDS.cso", "",
-		/*p1?"StandardPS.cso":"StdDCMPS.cso"*/"Std2PS.cso", Z_ORDER_STANDARD),
+		p1?"StandardPS.cso":"StdDCMPS.cso", Z_ORDER_STANDARD),
 		id(id), isP1(p1), environment(environemnt), isIndicator(false), fallingSpeed(fminf(Rand01() + 0.5f, 1) * 100)
 {
 	TextureMgr::Instance()->Load("token", "Data\\Model\\Token\\pawn.png");
+	TextureMgr::Instance()->Load("tokenLod", "Data\\Model\\Token\\token_lod.png");
 	TextureMgr::Instance()->Load("tokenTransp", "Data\\Texture\\blue_light.png");
 	TextureMgr::Instance()->Load("tokenTranspNormal", "Data\\Texture\\default_normal.png");
 	TextureMgr::Instance()->Load("tokenNormal", "Data\\Model\\Token\\pawn_normal.png");
@@ -53,14 +58,21 @@ Token::Token(std::shared_ptr<Shape> shape, std::shared_ptr<Shape> lodShape, Scen
 	samp_desc.MaxLOD = D3D11_FLOAT32_MAX;
 	ds->AddSamp(0, 1, &samp_desc);
 	ps->AddCB(SHADER_REG_CB_MATERIAL, 1, sizeof(SHADER_MATERIAL));
-	if(isP1)
-		ps->WriteCB(SHADER_REG_CB_MATERIAL, &SHADER_MATERIAL(XMFLOAT3(0.7, 0.7, 0.7), 0, XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(0.8, 0.8, 0.8), 16, 0.15f));
-	else
-		ps->WriteCB(SHADER_REG_CB_MATERIAL, &SHADER_MATERIAL(XMFLOAT3(0.7, 0.7, 0.7), 0.8, XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(0.8, 0.8, 0.8), 16, 0.3f));
+	SHADER_MATERIAL material(XMFLOAT3(0.7, 0.7, 0.7), isP1? 0:0.9, XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(0.8, 0.8, 0.8), 16, isP1?0.1f:0.3f);
+	
+	ps->WriteCB(SHADER_REG_CB_MATERIAL, &material);
 	ps->AddSRV(SHADER_REG_SRV_DIFFUSE, 1);
 	ps->AddSRV(SHADER_REG_SRV_NORMAL, 1);
 	ps->WriteSRV(SHADER_REG_SRV_DIFFUSE, TextureMgr::Instance()->Get(isP1? "token" : "tokenTransp"));
 	ps->WriteSRV(SHADER_REG_SRV_NORMAL, TextureMgr::Instance()->Get("tokenNormal"));
+
+	lodVs = new VShader("StandardVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
+	lodVs->AddCB(0, 1, sizeof(SHADER_STD_TRANSF));
+	lodPs = new PShader("Std2PS.cso");
+	lodPs->AddCB(SHADER_REG_CB_MATERIAL, 1, sizeof(SHADER_MATERIAL));
+	lodPs->WriteCB(SHADER_REG_CB_MATERIAL, &material);
+	lodPs->AddSRV(SHADER_REG_SRV_DIFFUSE, 1);
+	lodPs->WriteSRV(SHADER_REG_SRV_DIFFUSE, TextureMgr::Instance()->Get("tokenLod"));
 
 	D3D11_TEXTURE2D_DESC capture_desc;
 	capture_desc.Width = SCREEN_WIDTH;
@@ -122,6 +134,7 @@ Token::Token(std::shared_ptr<Shape> shape, std::shared_ptr<Shape> lodShape, Scen
 		DX_Device->CreateDepthStencilView(dsTex.Get(), &dsv_desc, captureDSV.GetAddressOf())
 	);
 
+
 	transform->SetScale(0.2, 0.2, 0.2);
 }
 
@@ -148,14 +161,22 @@ void Token::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) 
 
 	if (IsInsideFrustum(frustum))
 	{
-		const SHADER_STD_TRANSF STransformation(transform->WorldMatrix(), vp);
-
-		vs->WriteCB(0, &STransformation);
-
-		if (!isIndicator)
+		if (sceneDepth == 0)
 		{
-			if (sceneDepth == 0)
+			if (isIndicator)
 			{
+				const SHADER_STD_TRANSF STransformation(transform->WorldMatrix(), vp);
+
+				vs->WriteCB(0, &STransformation);
+
+				Object::Render();
+			}
+			else
+			{
+				const SHADER_STD_TRANSF STransformation(transform->WorldMatrix(), vp);
+
+				vs->WriteCB(0, &STransformation);
+
 				vs->WriteCB(1, &CameraMgr::Instance()->Main()->transform->GetPos());
 				ds->WriteCB(0, &(STransformation.vp));
 
@@ -165,19 +186,38 @@ void Token::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) 
 				}
 				else
 				{
+					if(!TaskMgr::Instance()->HasTaskFrom(this))
+						DrawDCM(sceneDepth + 1);
 
-					DrawDCM(sceneDepth + 1);
+					DX_DContext->PSSetShaderResources(SHADER_REG_SRV_DCM, 1, captureSRV.GetAddressOf());
 
 					Object::Render();
+
+					ID3D11ShaderResourceView* nullSRV = nullptr;
+					DX_DContext->PSSetShaderResources(SHADER_REG_SRV_DCM, 1, &nullSRV);
 				}
 			}
-			else
+		}
+		else
+		{
+			if (!isIndicator)
 			{
+				const SHADER_STD_TRANSF STransformation(transform->WorldMatrix(), vp);
 
+				lodVs->WriteCB(0, &STransformation);
+				lodVs->Apply();
+				DX_DContext->HSSetShader(nullptr, nullptr, NULL);
+				DX_DContext->DSSetShader(nullptr, nullptr, NULL);
+				DX_DContext->GSSetShader(nullptr, nullptr, NULL);
+				lodPs->Apply();
+
+				blendState->Apply();
+				dsState->Apply();
+				rsState->Apply();
+
+				lodShape->Apply();
 			}
 		}
-		else if (sceneDepth == 0)
-			Object::Render();
 	}
 }
 
@@ -188,14 +228,10 @@ void Token::Move(int toId)
 
 void Token::Capture(XMFLOAT3 forward, XMFLOAT3 up, ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsv, UINT sceneDepth)const
 {
-	DX_DContext->ClearDepthStencilView(dsv, D3D11_CLEAR_DEPTH, 1.0f, NULL);
-	DX_DContext->ClearRenderTargetView(rtv, Colors::Transparent);
-	DX_DContext->OMSetRenderTargets(1, &rtv ,dsv);
-
 	captureCam->transform->SetRot(forward, up);
 	captureCam->Update();
 
-	environment->Render(captureCam->VMat() * captureCam->StdProjMat(), captureCam->GetFrustum(), sceneDepth);
+	TaskMgr::Instance()->Add(this, rtv, dsv, environment, captureCam->VMat() * captureCam->StdProjMat(), captureCam->GetFrustum(), sceneDepth);
 }
 
 void Token::DrawDCM(UINT sceneDepth)const
@@ -205,23 +241,12 @@ void Token::DrawDCM(UINT sceneDepth)const
 
 	captureCam->transform->SetTranslation(transform->GetPos());
 
-	ID3D11RenderTargetView* oriRTV;
-	ID3D11DepthStencilView* oriDSV;
-	DX_DContext->OMGetRenderTargets(1, &oriRTV, &oriDSV);
-
-	ID3D11ShaderResourceView* nullSRV = nullptr;
-	DX_DContext->PSSetShaderResources(SHADER_REG_SRV_DCM, 1, &nullSRV);
-
 	Capture(RIGHT, UP, captureRTV[0].Get(), captureDSV.Get(), sceneDepth);
 	Capture(-RIGHT, UP, captureRTV[1].Get(), captureDSV.Get(), sceneDepth);
 	Capture(UP, -FORWARD, captureRTV[2].Get(), captureDSV.Get(), sceneDepth);
 	Capture(-UP, FORWARD, captureRTV[3].Get(), captureDSV.Get(), sceneDepth);
 	Capture(FORWARD, UP, captureRTV[4].Get(), captureDSV.Get(), sceneDepth);
 	Capture(-FORWARD, UP, captureRTV[5].Get(), captureDSV.Get(), sceneDepth);
-
-	DX_DContext->OMSetRenderTargets(1, &oriRTV, oriDSV);
-
-	DX_DContext->PSSetShaderResources(SHADER_REG_SRV_DCM, 1, captureSRV.GetAddressOf());
 }
 
 

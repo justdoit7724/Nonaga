@@ -1,7 +1,7 @@
 #include "ShaderVertex.cginc"
 
-#define TESS_FACTOR_DIST_MAX 80
-#define TESS_FACTOR_DIST_MIN 30
+#define TESS_FACTOR_DIST_MAX 90
+#define TESS_FACTOR_DIST_MIN 20
 #define TESS_FACTOR_MAX 8
 #define TESS_FACTOR_MIN 1
 

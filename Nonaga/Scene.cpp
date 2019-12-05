@@ -20,10 +20,13 @@ void Scene::Update(float elapsed, float spf)
 	}
 }
 
-void Scene::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) const
+void Scene::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth, void const* subject) const
 {
 	for (auto obj : objs)
 	{
+		if (subject == obj)
+			continue;
+
 		obj->Render(vp, frustum,sceneDepth);
 	}
 }

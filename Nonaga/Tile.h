@@ -19,4 +19,6 @@ private:
 	int id;
 
 	float fallingSpeed;
+
+	PShader* lodPs;
 };

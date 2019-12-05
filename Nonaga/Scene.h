@@ -13,7 +13,7 @@ public:
 	virtual ~Scene();
 
 	virtual void Update(float elapsed, float spf);
-	virtual void Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth)const;
+	virtual void Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth, void const* subject)const;
 	void AddObj(Object* obj);
 
 	virtual void Message(UINT msg) {};
