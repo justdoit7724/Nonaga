@@ -6,5 +6,6 @@
 -dynamic cube mapping  
 -displacement mapping  
 -frustum culling  
--shadow mapping  
--ambient occlusion  
+-multi shadow mapping  
+-screen space ambient occlusion  
+-chromatic aberration
