@@ -43,7 +43,7 @@ Token::Token(std::shared_ptr<Shape> shape, std::shared_ptr<Shape> lodShape, Scen
 	vs->AddCB(1, 1, sizeof(XMFLOAT4));
 	ds->AddCB(0, 1, sizeof(XMMATRIX));
 	ds->AddCB(1, 1, sizeof(float));
-	float dpScale = 0.5f;
+	float dpScale = 0.2f;
 	ds->WriteCB(1, &dpScale);
 	ds->AddSRV(0, 1);
 	ds->WriteSRV(0, TextureMgr::Instance()->Get("tokenDP"));

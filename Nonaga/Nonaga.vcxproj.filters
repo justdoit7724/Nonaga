@@ -417,15 +417,6 @@
     <FxCompile Include="PS.hlsl">
       <Filter>Tasks</Filter>
     </FxCompile>
-    <FxCompile Include="CMPS.hlsl">
-      <Filter>hlsl</Filter>
-    </FxCompile>
-    <FxCompile Include="CMVS.hlsl">
-      <Filter>hlsl</Filter>
-    </FxCompile>
-    <FxCompile Include="CMGS.hlsl">
-      <Filter>hlsl</Filter>
-    </FxCompile>
     <FxCompile Include="SkyboxVS.hlsl">
       <Filter>hlsl</Filter>
     </FxCompile>

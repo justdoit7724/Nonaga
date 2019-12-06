@@ -1,3 +1,5 @@
+#include "ShaderReg.cginc"
+
 struct DS_INPUT
 {
     float3 wPos : TEXCOORD0;
@@ -29,8 +31,8 @@ cbuffer CB_DISPLACEMENT_SCALE : register(b1)
     float dp_scale;
 }
 
-Texture2DArray bump_tex : register(t0);
-SamplerState samp : register(s0);
+Texture2D bump_tex : SHADER_REG_SRV_DISPLACE;
+SamplerState samp : SHADER_REG_SAMP_POINT;
 
 [domain("tri")]
 DS_OUTPUT main(Patch patch, float3 bary : SV_DomainLocation, const OutputPatch<DS_INPUT,3> tri)

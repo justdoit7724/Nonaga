@@ -24,11 +24,12 @@ GamePlayScene::GamePlayScene()
 {
 	curStage = GAMEPLAY_STAGE_LOBBY;
 
+	lightStartDir = Normalize(XMFLOAT3(cosf(XM_PIDIV2/3.0f)*2, -1, -sinf(XM_PIDIV2/3.0f)*2));
 	dLight = new DirectionalLight(
 		XMFLOAT3(0.5f, 0.5f, 0.5f),
 		XMFLOAT3(0.8f, 0.8f, 0.8f),
 		XMFLOAT3(0.8f, 0.8f, 0.8f),
-		Normalize(XMFLOAT3(2,-1,0)));
+		lightStartDir);
 
 	camera = new Camera("GamePlay", FRAME_KIND_ORTHOGONAL, SCREEN_WIDTH/10, SCREEN_HEIGHT/10, 0.1f, 300.0f, NULL, NULL,true);
 	camera->transform->SetTranslation(XMFLOAT3(0, curCamDist, 0));
@@ -116,6 +117,7 @@ GamePlayScene::GamePlayScene()
 	cm.push_back("Data\\Texture\\cm_nz.jpg");
 	TextureMgr::Instance()->LoadCM("cm", cm);
 	skybox = new Skybox(TextureMgr::Instance()->Get("cm"));
+	skybox->transform->SetTranslation(camera->transform->GetPos());
 	AddObj(skybox);
 
 	nonaga = new NonagaStage(this);
@@ -150,6 +152,7 @@ GamePlayScene::GamePlayScene()
 	slideEndUp = Normalize(XMFLOAT3(0, 4, 1));
 	moveAngleX = acos(Dot(FORWARD, slideEndForward));
 	moveAngleY = 0;
+
 
 	std::vector<Object const*> cOpaqueTokens(3);
 	cOpaqueTokens[0] = opaqueTokens[0];
@@ -211,8 +214,6 @@ void GamePlayScene::CameraMove(float spf)
 }
 void GamePlayScene::Update(float elapsed, float spf)
 {
-	dLight->SetDir(MultiplyDir(Normalize(XMFLOAT3(1.7, -1, 0)), XMMatrixRotationY(elapsed*0.01f)));
-
 	XMMATRIX curTempP = camera->StdProjMat();
 	switch (curStage)
 	{
@@ -227,9 +228,10 @@ void GamePlayScene::Update(float elapsed, float spf)
 
 		float t = curTime / camFrameLerpingTime;
 		CameraFrameLerping(t);
-		CameraSliding(Clamp(0,1,t-0.9));
-		LightRotating(t);
+		CameraSliding(Clamp(0,1,t-0.9f));
+		LightRotating(Clamp(0, 1, t - 0.9f));
 		curTempP = curP;
+		skybox->transform->SetTranslation(camera->transform->GetPos());
 
 		if (t>2)
 			curStage = GAMEPLAY_STAGE_PLAY;
@@ -242,6 +244,8 @@ void GamePlayScene::Update(float elapsed, float spf)
 		camera->Pick(&camRay);
 
 		nonaga->UpdateGame(camRay, spf);
+
+		skybox->transform->SetTranslation(camera->transform->GetPos());
 
 		break;
 	}
@@ -318,9 +322,15 @@ void GamePlayScene::CameraSliding(float t)
 
 	camera->transform->SetTranslation(-sForward* curCamDist);
 	camera->transform->SetRot(sForward, sUp);
+
+
 }
 
 void GamePlayScene::LightRotating(float t)
 {
+	float mt = (1 - cosf(t * 2 *XM_PI/3.0f)) / 2;
 
+	XMFLOAT3 startDir = MultiplyDir(lightStartDir, XMMatrixRotationY(mt * XM_PIDIV2));
+
+	dLight->SetDir(startDir);
 }

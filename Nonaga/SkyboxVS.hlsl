@@ -8,7 +8,7 @@ struct VS_OUTPUT
 
 cbuffer CB_VS_PROPERTY : register(b0)
 {
-    float4x4 w_mat;
+    float4x4 wvp_mat;
 };
 
 VS_OUTPUT main(STD_VS_INPUT input)
@@ -16,7 +16,7 @@ VS_OUTPUT main(STD_VS_INPUT input)
     VS_OUTPUT output;
     
     output.lPos = input.pos;
-    output.pos = mul(w_mat, float4(input.pos, 1));
+    output.pos = mul(wvp_mat, float4(input.pos, 1));
     
     return output;
 }

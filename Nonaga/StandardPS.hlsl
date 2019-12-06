@@ -81,6 +81,7 @@ float4 main(PS_INPUT input) : SV_Target
     ambient *= ComputeSSAO(input.pPos);
     
     float3 transp = ComputeTransparency(input.wPos, wNormal, look);
+    
     float3 tex = diffuseTex.Sample(anisotropicSamp, input.tex).xyz;
     float3 reflec = ComputeReflect(wNormal, look);
     

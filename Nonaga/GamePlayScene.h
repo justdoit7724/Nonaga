@@ -62,10 +62,11 @@ private:
 	XMFLOAT3 slideStartPt, slideEndPt;
 	XMFLOAT3 slideEndForward;
 	XMFLOAT3 slideEndUp;
+	XMFLOAT3 lightStartDir;
 
 	float moveAngleX = 0;
 	float moveAngleY = 0;
-	float curCamDist=60;
+	float curCamDist=40;
 	const float closeUpSpeed = 100;
 	const float angleSpeed = 3.141592f * 0.025f;
 
