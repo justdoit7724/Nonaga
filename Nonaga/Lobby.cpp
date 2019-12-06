@@ -7,7 +7,7 @@
 #include "CameraMgr.h"
 #include "Transform.h"
 #include "SceneMgr.h"
-
+#include "SoundMgr.h"
 #include "Debugging.h"
 
 #define OBS_DATA_AI 0
@@ -17,6 +17,9 @@
 
 Lobby::Lobby()
 {
+	SoundMgr::Instance()->Add("bgm", L"Data\\Sound\\bgm.wav");
+	SoundMgr::Instance()->Play("bgm");
+
 	curStage = LOBBY_STAGE_SELECT;
 
 	TextureMgr::Instance()->Load("title", "Data\\Texture\\title.png");
