@@ -1,8 +1,4 @@
 #pragma once
-#include <DirectXMath.h>
-#include <DirectXColors.h>
-#include <assert.h>
-#include <limits>
 
 #ifndef _GEOMETRICS
 #define _GEOMETRICS

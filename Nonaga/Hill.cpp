@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Hill.h"
 #include "Shader.h"
 #include "Texture2D.h"

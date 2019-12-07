@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Lobby.h"
 #include "UI.h"
 #include "Camera.h"

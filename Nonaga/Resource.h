@@ -1,4 +1,5 @@
 #pragma once
+
 #include "DX_info.h"
 
 class Resource

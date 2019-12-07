@@ -1,7 +1,7 @@
 ﻿#pragma once
+
 #include "Geometrics.h"
 #include "TileSpaceInfo.h"
-#include <vector>
 
 class Token;
 class Tile;

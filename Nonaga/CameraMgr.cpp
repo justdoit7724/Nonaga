@@ -1,5 +1,5 @@
+#include "stdafx.h"
 #include "CameraMgr.h"
-#include <assert.h>
 
 void CameraMgr::Add(std::string key, const Camera* camera)
 {

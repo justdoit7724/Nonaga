@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Camera.h"
 #include "Transform.h"
 #include "CameraMgr.h"

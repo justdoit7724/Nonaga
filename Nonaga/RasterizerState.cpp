@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "RasterizerState.h"
 
 RasterizerState::RasterizerState(D3D11_RASTERIZER_DESC* desc)

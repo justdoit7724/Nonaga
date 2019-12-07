@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "BlendState.h"
 
 BlendState::BlendState(D3D11_BLEND_DESC * desc)

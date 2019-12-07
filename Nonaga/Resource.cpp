@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Resource.h"
 
 void Resource::VSUnbindSRV(UINT startIdx, UINT numViews)

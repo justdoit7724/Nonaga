@@ -1,5 +1,5 @@
+#include "stdafx.h"
 #include "Debugging.h"
-#include <string>
 #include "Shader.h"
 #include "Graphic.h"
 #include "ShaderFormat.h"

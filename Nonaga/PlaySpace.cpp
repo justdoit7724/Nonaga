@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "PlaySpace.h"
 
 PlaySpace::PlaySpace(XMFLOAT3 p)

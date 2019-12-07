@@ -1,5 +1,6 @@
 #pragma once
 
+
 #define SHADER_REG_CB_DIRECTIONAL_LIGHT 0
 #define SHADER_REG_CB_POINT_LIGHT 1
 #define SHADER_REG_CB_SPOT_LIGHT 2

@@ -1,10 +1,7 @@
 #pragma once
+
 #include "Singleton.h"
-#include <vector>
-#include <unordered_map>
-#include <assert.h>
 #include <Windows.h>
-#include <string>
 
 #define MSG_SCENE_AI_NORMAL_INTRO_START 0
 #define MSG_SCENE_AI__HARD_INTRO_START 1

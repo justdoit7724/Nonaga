@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Cylinder.h"
 #include "ShaderFormat.h"
 

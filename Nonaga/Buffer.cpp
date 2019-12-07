@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Buffer.h"
 
 Buffer::Buffer(D3D11_BUFFER_DESC* desc, void * initValue)

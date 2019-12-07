@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "UI.h"
 #include "Shader.h"
 #include "Quad.h"

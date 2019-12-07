@@ -1,7 +1,5 @@
 #pragma once
-#include <string>
-#include <unordered_set>
-#include <vector>
+
 #include "DX_info.h"
 #include "ObserverDP.h"
 #include "Geometrics.h"

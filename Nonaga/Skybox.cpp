@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Skybox.h"
 #include "Shader.h"
 #include "Transform.h"

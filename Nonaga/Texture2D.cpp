@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Texture2D.h"
 
 Texture2D::Texture2D(D3D11_TEXTURE2D_DESC * desc)

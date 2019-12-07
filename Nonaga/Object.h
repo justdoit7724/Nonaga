@@ -1,9 +1,8 @@
 #pragma once
-#include <string>
+
 #include "DX_info.h"
 #include "Network.h"
 #include "Geometrics.h"
-#include <memory>
 
 struct Frustum;
 class Transform;

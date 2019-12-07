@@ -77,7 +77,7 @@ float4 main(PS_INPUT input) : SV_Target
     float3 diffuse = 0;
     float3 specular = 0;
     ComputeDirectionalLight(wNormal, -look, ambient, diffuse, specular);
-
+    
     ambient *= ComputeSSAO(input.pPos);
     
     float3 transp = ComputeTransparency(input.wPos, wNormal, look);
@@ -89,12 +89,12 @@ float4 main(PS_INPUT input) : SV_Target
     float2 tShadowFactor = DirectionalLightTranspShadowFactor(wNormal, d_Dir[0].xyz, input.wPos);
     float shadowFactor = max(oShadowFactor, tShadowFactor.x);
     
-    ambient *= tex;
+    specular = specular * saturate(1 - shadowFactor) + (0 + saturate(0.045f - tShadowFactor.x) * tShadowFactor.y);
     diffuse *= tex * saturate(1 - shadowFactor);
+    ambient *= tex;
     float3 surface = Lerp(ambient + diffuse, transp, mInfo.x);
     surface = Lerp(surface, reflec, mInfo.y);
     
-    specular += (0 + saturate(0.06f - tShadowFactor.x) * tShadowFactor.y);
     
     return float4(specular + surface, 1);
 }

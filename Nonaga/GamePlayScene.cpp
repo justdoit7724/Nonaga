@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "GamePlayScene.h"
 #include "Camera.h"
 #include "Game_info.h"

@@ -1,11 +1,11 @@
-﻿#include "Nonaga.h"
+﻿#include "stdafx.h"
+#include "Nonaga.h"
 #include "Debugging.h"
 #include "Mouse.h"
 #include "Token.h"
 #include "Tile.h"
 #include "PlaySpace.h"
 #include "Transform.h"
-#include <vector>
 #include "MeshLoader.h"
 #include "Cylinder.h"
 

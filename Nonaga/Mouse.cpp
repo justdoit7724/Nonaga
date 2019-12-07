@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Mouse.h"
 
 void Mouse::Update(float spf)

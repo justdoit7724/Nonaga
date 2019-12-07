@@ -1,6 +1,6 @@
 #pragma once
+
 #include "DX_info.h"
-#include <vector>
 
 class RasterizerState;
 class DepthStencilState;

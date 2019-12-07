@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Shape.h"
 #include "ShaderFormat.h"
 

@@ -1,6 +1,6 @@
 #pragma once
+
 #include "DX_info.h"
-#include <unordered_map>
 #include "Singleton.h"
 
 #define KEY_TEXTURE_NORMAL_DEFAULT "default_normal"

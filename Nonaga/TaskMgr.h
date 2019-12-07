@@ -1,8 +1,7 @@
 #pragma once
+
 #include "DX_info.h"
 #include "Singleton.h"
-#include <vector>
-#include <unordered_map>
 #include "Camera.h"
 
 class Scene;

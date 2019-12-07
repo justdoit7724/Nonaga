@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "MappingVisualization.h"
 #include "UI.h"
 #include "Game_info.h"

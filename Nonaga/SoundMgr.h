@@ -1,8 +1,8 @@
+
+
 #pragma once
 #include "DX_info.h"
 #include "Singleton.h"
-#include <unordered_map>
-#include <DirectXTK/inc/Audio.h>
 
 class SoundMgr : public Singleton<SoundMgr>
 {

@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "ShadowMap.h"
 #include "RasterizerState.h"
 #include "DepthStencilState.h"

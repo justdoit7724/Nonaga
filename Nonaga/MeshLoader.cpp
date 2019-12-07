@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "MeshLoader.h"
 #include "ShaderFormat.h"
 #include "Shape.h"
@@ -5,11 +6,7 @@
 #include "TextureMgr.h"
 #include "Shader.h"
 #include <mutex>
-#include <vector>
 
-#include <assimp/postprocess.h>
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
 
 // one time use for my naughty 3d model
 void ProcessTokenNode(Shape** storage, aiNode* node, const aiScene* scene)

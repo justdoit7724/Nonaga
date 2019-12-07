@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Graphic.h"
 #include "Game_info.h"
 

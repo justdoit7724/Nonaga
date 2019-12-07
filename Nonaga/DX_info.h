@@ -1,12 +1,5 @@
 #pragma once
 
-#include <wrl.h>
-#include <d3d11.h>
-#include <d3dcompiler.h>
-#include <string>
-#include <assert.h>
-#include <DirectXMath.h>
-#include <vector>
 
 using namespace DirectX;
 using namespace Microsoft::WRL;

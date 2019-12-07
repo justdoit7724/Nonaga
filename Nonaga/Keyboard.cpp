@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Keyboard.h"
 
 std::unordered_set<char> Keyboard::keys;

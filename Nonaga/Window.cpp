@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Window.h"
 #include "Game_info.h"
 #include "Mouse.h"

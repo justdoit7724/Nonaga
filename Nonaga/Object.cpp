@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Object.h"
 #include "ShaderFormat.h"
 #include "Camera.h"

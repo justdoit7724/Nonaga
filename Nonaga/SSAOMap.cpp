@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "SSAOMap.h"
 #include "Game_info.h"
 #include "Shader.h"
