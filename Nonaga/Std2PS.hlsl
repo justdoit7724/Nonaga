@@ -93,14 +93,14 @@ float4 main(PS_INPUT input) : SV_Target
     
     float oShadowFactor = DirectionalLightOpaqueShadowFactor(wNormal, d_Dir[0].xyz, input.wPos);
     float2 tShadowFactor = DirectionalLightTranspShadowFactor(wNormal, d_Dir[0].xyz, input.wPos);
-    float shadowFactor = max(oShadowFactor, tShadowFactor.x);
+    float shadowFactor = saturate(1 - max(oShadowFactor, tShadowFactor.x));
     
+    specular = specular * shadowFactor + (saturate(0.2f - tShadowFactor.x) * tShadowFactor.y);
     ambient *= tex;
-    diffuse *= tex * saturate(1 - shadowFactor);
+    diffuse *= tex * shadowFactor;
     float3 surface = Lerp(ambient + diffuse, transp, mInfo.x);
     surface = Lerp(surface, reflec, mInfo.y);
     
-    specular *= (1 + saturate(0.2f - tShadowFactor.x) * tShadowFactor.y);
     
     return float4(specular + surface, 1);
 }

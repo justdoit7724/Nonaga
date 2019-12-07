@@ -78,6 +78,8 @@ float4 main(PS_INPUT input) : SV_Target
     float3 specular = 0;
     ComputeDirectionalLight(wNormal, -look, ambient, diffuse, specular);
     
+    
+    
     ambient *= ComputeSSAO(input.pPos);
     
     float3 transp = ComputeTransparency(input.wPos, wNormal, look);
