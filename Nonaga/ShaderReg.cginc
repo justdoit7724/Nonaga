@@ -17,7 +17,7 @@
 #define SHADER_REG_SRV_SHADOW register(t5)
 #define SHADER_REG_SRV_SHADOW_TRANSP register(t6)
 #define SHADER_REG_SRV_DISPLACE register(t7)
-
+#define SHADER_REG_SRV_ROUGHNESS register(t8)
 
 #define SHADER_REG_SAMP_POINT register(s0)
 #define SHADER_REG_SAMP_LINEAR register(s1)

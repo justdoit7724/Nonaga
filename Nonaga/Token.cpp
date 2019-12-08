@@ -29,10 +29,13 @@ Token::Token(std::shared_ptr<Shape> shape, std::shared_ptr<Shape> lodShape, Scen
 {
 	TextureMgr::Instance()->Load("token", "Data\\Model\\Token\\pawn.png");
 	TextureMgr::Instance()->Load("tokenLod", "Data\\Model\\Token\\token_lod.png");
-	TextureMgr::Instance()->Load("tokenTransp", "Data\\Texture\\blue_light.png");
-	TextureMgr::Instance()->Load("tokenTranspNormal", "Data\\Texture\\default_normal.png");
+	TextureMgr::Instance()->Load("tokenTransp", "Data\\Texture\\white.png");
 	TextureMgr::Instance()->Load("tokenNormal", "Data\\Model\\Token\\pawn_normal.png");
 	TextureMgr::Instance()->Load("tokenDP", "Data\\Model\\Token\\pawn_displace.png");
+	TextureMgr::Instance()->Load("tokenRgh", "Data\\Model\\Token\\pawn_rgh.jpg");
+	TextureMgr::Instance()->Load("token2Rgh", "Data\\Model\\Token\\pawn2_rgh.jpg");
+	TextureMgr::Instance()->Load("tokenLodRgh", "Data\\Model\\Token\\pawn_lod_rgh.jpg");
+	TextureMgr::Instance()->Load("token2LodRgh", "Data\\Model\\Token\\pawn2_lod_rgh.jpg");
 	
 	if (captureCam == nullptr)
 	{
@@ -64,8 +67,10 @@ Token::Token(std::shared_ptr<Shape> shape, std::shared_ptr<Shape> lodShape, Scen
 	ps->WriteCB(SHADER_REG_CB_MATERIAL, &material);
 	ps->AddSRV(SHADER_REG_SRV_DIFFUSE, 1);
 	ps->AddSRV(SHADER_REG_SRV_NORMAL, 1);
+	ps->AddSRV(SHADER_REG_SRV_ROUGHNESS, 1);
 	ps->WriteSRV(SHADER_REG_SRV_DIFFUSE, TextureMgr::Instance()->Get(isP1? "token" : "tokenTransp"));
 	ps->WriteSRV(SHADER_REG_SRV_NORMAL, TextureMgr::Instance()->Get("tokenNormal"));
+	ps->WriteSRV(SHADER_REG_SRV_ROUGHNESS, TextureMgr::Instance()->Get(isP1?"tokenRgh":"token2Rgh"));
 
 	lodVs = new VShader("StandardVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
 	lodVs->AddCB(0, 1, sizeof(SHADER_STD_TRANSF));
@@ -73,7 +78,9 @@ Token::Token(std::shared_ptr<Shape> shape, std::shared_ptr<Shape> lodShape, Scen
 	lodPs->AddCB(SHADER_REG_CB_MATERIAL, 1, sizeof(SHADER_MATERIAL));
 	lodPs->WriteCB(SHADER_REG_CB_MATERIAL, &material);
 	lodPs->AddSRV(SHADER_REG_SRV_DIFFUSE, 1);
+	lodPs->AddSRV(SHADER_REG_SRV_ROUGHNESS, 1);
 	lodPs->WriteSRV(SHADER_REG_SRV_DIFFUSE, TextureMgr::Instance()->Get("tokenLod"));
+	lodPs->WriteSRV(SHADER_REG_SRV_ROUGHNESS, TextureMgr::Instance()->Get(isP1?"tokenLodRgh":"token2LodRgh"));
 
 	D3D11_TEXTURE2D_DESC capture_desc;
 	capture_desc.Width = SCREEN_WIDTH;
@@ -140,18 +147,20 @@ Token::Token(std::shared_ptr<Shape> shape, std::shared_ptr<Shape> lodShape, Scen
 }
 
 Token::Token(std::shared_ptr<Shape> shape, bool isRed)
-	:Object("Token", shape,nullptr,
-		nullptr,nullptr), isIndicator(true)
+	:Object("Token", shape, shape,
+		"IndicatorVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts),
+		"", "", "",
+		"IndicatorPS.cso",Z_ORDER_STANDARD), isIndicator(true)
 {
+	vs->AddCB(0, 1, sizeof(XMMATRIX));
+
 	TextureMgr::Instance()->Load("red", "Data\\Texture\\red_light.png");
 	TextureMgr::Instance()->Load("green", "Data\\Texture\\green_light.png");
+	ps->AddSRV(SHADER_REG_SRV_DIFFUSE, 1);
 	ps->WriteSRV(SHADER_REG_SRV_DIFFUSE, TextureMgr::Instance()->Get(isRed ? "red":"green"));
-	ps->WriteSRV(SHADER_REG_SRV_DIFFUSE, TextureMgr::Instance()->Get("tokenNormal"));
 
 	transform->SetScale(0.2, 0.2, 0.2);
 	enabled = false;
-	ps->WriteSRV(SHADER_REG_SRV_DIFFUSE, TextureMgr::Instance()->Get("token"));
-	ps->WriteSRV(SHADER_REG_SRV_NORMAL, TextureMgr::Instance()->Get("tokenNormal"));
 }
 
 
@@ -166,9 +175,8 @@ void Token::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) 
 		{
 			if (isIndicator)
 			{
-				const SHADER_STD_TRANSF STransformation(transform->WorldMatrix(), vp);
-
-				vs->WriteCB(0, &STransformation);
+				XMMATRIX wvp = transform->WorldMatrix() * vp;
+				vs->WriteCB(0, &wvp);
 
 				Object::Render();
 			}

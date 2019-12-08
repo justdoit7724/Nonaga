@@ -78,8 +78,9 @@ private:
 	XMMATRIX invTileSpaceMat;
 	Geometrics::PlaneInf detectPlane;
 	int pDetectID;
-	int holdingTokenID;
-	int holdingTileID;
+	int holdingObjID;
+	// for preventing change of current detect position between mouse pressing and up
+	int pressingDetectID;
 	
 	bool isMove;
 
@@ -88,7 +89,7 @@ private:
 	XMFLOAT3 moveDest;
 	float curTime;
 	const float moveTokenSpeed = 0.5;
-	const float moveTileSpeed = 2.0;
+	const float moveTileSpeed = 1.0;
 	const float jumpTokenHeight = 10;
 	const float jumpTileHeight = 5;
 

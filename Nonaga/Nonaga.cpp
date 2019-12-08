@@ -7,6 +7,7 @@
 #include "PlaySpace.h"
 #include "Transform.h"
 #include "MeshLoader.h"
+#include "SoundMgr.h"
 #include "Cylinder.h"
 
 /* 2d array tile.
@@ -27,7 +28,7 @@ Transformation needed after.
 
 XMFLOAT3 GetTokenPos(XMFLOAT3 pos)
 {
-	pos.y += 5;
+	pos.y += 4.8;
 	return pos;
 }
 
@@ -124,8 +125,9 @@ NonagaStage::NonagaStage(Scene* environment)
 	greenTile->SetEnabled(false);
 
 	isMove = false;
-	holdingTokenID = NONE;
-	holdingTileID = NONE;
+	holdingObjID = NONE;
+
+	SoundMgr::Instance()->Add("move", L"Data\\Sound\\pawnMove.wav");
 }
 
 NonagaStage::~NonagaStage()
@@ -155,24 +157,24 @@ bool NonagaStage::GetCurID2(const Geometrics::Ray& ray)
 	int evenOdd = (int)mTokenPt.x & 1;
 
 	XMINT2 pDetectID2 = XMINT2(mTokenPt.x, floor((mTokenPt.z - evenOdd + 0.5f) / 2.0f) * 2 + evenOdd);
-	pDetectID = mTokenPt.x + (floor((mTokenPt.z - evenOdd + 0.5f) / 2.0f) * 2 + evenOdd) * TILE_SPACE_COUNT_X;
+	pDetectID = pDetectID2.x + pDetectID2.y * TILE_SPACE_COUNT_X;
 
-	return (0 <= pDetectID2.x && pDetectID2.x < TILE_SPACE_COUNT_X && 0 < pDetectID2.y && pDetectID2.y < TILE_SPACE_COUNT_Z);
+	return (0 <= pDetectID2.x && pDetectID2.x < TILE_SPACE_COUNT_X && 0 < pDetectID2.y && pDetectID2.y < TILE_SPACE_COUNT_Z/* || ((pDetectID&1)==0)*/);
 
 }
 bool NonagaStage::IsWin()
 {
-	return false;
+	return (logic->GetScore(tokens)>=4);
 }
 void NonagaStage::TokenDragStart(const Geometrics::Ray ray)
 {
-	holdingTokenID = NONE;
+	holdingObjID = NONE;
 
 	for (auto t : tokens)
 	{
 		if (t->IsP1() == logic->IsP1Turn() && t->IsPicking(ray))
 		{
-			holdingTokenID = t->ID();
+			holdingObjID = t->ID();
 
 			return;
 		}
@@ -184,34 +186,36 @@ void NonagaStage::TokenDragging()
 	redToken->SetEnabled(false);
 	greenToken->SetEnabled(false);
 
-	if (holdingTokenID == NONE)
+	if (holdingObjID == NONE)
 		return;
 
 	XMINT2 pDetectID2 = XMINT2(
 		pDetectID % TILE_SPACE_COUNT_X,
 		pDetectID / TILE_SPACE_COUNT_X);
 
-	if (isMove = logic->CanMoveToken(holdingTokenID, pDetectID))
+	if (isMove = logic->CanMoveToken(holdingObjID, pDetectID))
 	{
+		pressingDetectID = pDetectID;
+
 		redToken->SetEnabled(false);
 		greenToken->SetEnabled(true);
-		greenToken->transform->SetTranslation(playSpace[pDetectID2.x + pDetectID2.y * TILE_SPACE_COUNT_X]->pos);
+		greenToken->transform->SetTranslation(GetTokenPos(playSpace[pDetectID]->pos));
 	}
-	else
+	else if(playSpace[pDetectID]->GetToken()==nullptr)
 	{
 		greenToken->SetEnabled(false);
 		redToken->SetEnabled(true);
-		redToken->transform->SetTranslation(playSpace[pDetectID2.x + pDetectID2.y * TILE_SPACE_COUNT_X]->pos);
+		redToken->transform->SetTranslation(GetTokenPos(playSpace[pDetectID]->pos));
 	}
 }
 void NonagaStage::TileDragStart(const Geometrics::Ray ray)
 {
-	holdingTileID = NONE;
+	holdingObjID = NONE;
 
 	Tile* checkTile = playSpace[pDetectID]->GetTile();
 	if (checkTile && logic->CanPickTile(checkTile->ID()))
 	{
-		holdingTileID = checkTile->ID();
+		holdingObjID = checkTile->ID();
 	}
 }
 void NonagaStage::TileDragging()
@@ -219,16 +223,18 @@ void NonagaStage::TileDragging()
 	redTile->SetEnabled(false);
 	greenTile->SetEnabled(false);
 
-	if (holdingTileID == NONE)
+	if (holdingObjID == NONE)
 		return;
 
-	if (isMove = logic->CanMoveTileTo(holdingTileID, pDetectID))
+	if (isMove = logic->CanMoveTileTo(holdingObjID, pDetectID))
 	{
+		pressingDetectID = pDetectID;
+
 		greenTile->SetEnabled(true);
 		greenTile->Move(NONE);
 		greenTile->transform->SetTranslation(playSpace[pDetectID]->pos);
 	}
-	else
+	else if(playSpace[pDetectID]->GetTile()==nullptr)
 	{
 		redTile->SetEnabled(true);
 		redTile->Move(NONE);
@@ -251,10 +257,12 @@ void NonagaStage::UpdateGame(const Geometrics::Ray ray, float spf)
 	case PLAY_STATE_P1_TOKEN:
 	{
 		if (!GetCurID2(ray))
+		{
+			redToken->SetEnabled(false);
+			redTile->SetEnabled(false);
 			return;
+		}
 
-		if (playSpace[pDetectID]->GetTile()!=nullptr)
-			Debugging::Instance()->Draw("Cur tile's id = ", playSpace[pDetectID]->GetTile()->ID(), 10, 10);
 
 		switch (Mouse::Instance()->LeftState())
 		{
@@ -269,14 +277,14 @@ void NonagaStage::UpdateGame(const Geometrics::Ray ray, float spf)
 			redToken->SetEnabled(false);
 			greenToken->SetEnabled(false);
 
-			if (holdingTokenID == NONE || !isMove)
+			if (holdingObjID == NONE || !isMove)
 				return;
 
-			moveStart = playSpace[holdingTokenID]->pos;
-			moveDest = playSpace[pDetectID]->pos;
+			moveStart = playSpace[holdingObjID]->pos;
+			moveDest = playSpace[pressingDetectID]->pos;
 			curTime = 0;
-			moveObj = playSpace[holdingTokenID]->GetToken();
-			logic->TokenMove(holdingTokenID, pDetectID);
+			moveObj = playSpace[holdingObjID]->GetToken();
+			logic->TokenMove(holdingObjID, pressingDetectID);
 
 			curPlayState = PLAY_STATE_P1_TOKEN_MOVING;
 
@@ -294,6 +302,7 @@ void NonagaStage::UpdateGame(const Geometrics::Ray ray, float spf)
 		moveObj->transform->SetTranslation(GetTokenPos(lPos));
 		if (curTime >= 1)
 		{
+			holdingObjID = NONE;
 			curTime = 0;
 			lPos.y = 0;
 			moveObj->transform->SetTranslation(GetTokenPos(lPos));
@@ -301,15 +310,19 @@ void NonagaStage::UpdateGame(const Geometrics::Ray ray, float spf)
 				curPlayState = PLAY_STATE_FINISH;
 			else
 				curPlayState = PLAY_STATE_P1_TILE;
-		}
 
-		Debugging::Instance()->Draw("P1's t = ", moveT, 10, 10);
+			SoundMgr::Instance()->Play("move");
+		}
 	}
 		break;
 	case PLAY_STATE_P1_TILE:
 	{
 		if (!GetCurID2(ray))
+		{
+			redToken->SetEnabled(false);
+			redTile->SetEnabled(false);
 			return;
+		}
 
 		switch (Mouse::Instance()->LeftState())
 		{
@@ -324,14 +337,14 @@ void NonagaStage::UpdateGame(const Geometrics::Ray ray, float spf)
 			redTile->SetEnabled(false);
 			greenTile->SetEnabled(false);
 
-			if (holdingTileID == NONE || !isMove)
+			if (holdingObjID == NONE || !isMove)
 				break;
 
-			moveStart = playSpace[holdingTileID]->pos;
-			moveDest = playSpace[pDetectID]->pos;
+			moveStart = playSpace[holdingObjID]->pos;
+			moveDest = playSpace[pressingDetectID]->pos;
 			curTime = 0;
-			moveObj = playSpace[holdingTileID]->GetTile();
-			logic->TileMove(holdingTileID, pDetectID);
+			moveObj = playSpace[holdingObjID]->GetTile();
+			logic->TileMove(holdingObjID, pressingDetectID);
 
 			curPlayState = PLAY_STATE_P1_TILE_MOVING;
 		}
@@ -345,10 +358,11 @@ void NonagaStage::UpdateGame(const Geometrics::Ray ray, float spf)
 		float moveT = (1 - cosf(curTime * XM_PI)) / 2;
 		float jumpT = sqrtf(sinf(curTime * XM_PI));
 		XMFLOAT3 lPos = Lerp(moveStart, moveDest, moveT);
-		lPos.y = jumpT * jumpTileHeight;
+		lPos.y = -jumpT * jumpTileHeight;
 		moveObj->transform->SetTranslation(lPos);
 		if (curTime >= 1)
 		{
+			holdingObjID = NONE;
 			lPos.y = 0;
 			moveObj->transform->SetTranslation(lPos);
 			curPlayState = PLAY_STATE_P2_TOKEN;
@@ -358,7 +372,11 @@ void NonagaStage::UpdateGame(const Geometrics::Ray ray, float spf)
 	case PLAY_STATE_P2_TOKEN:
 	{
 		if (!GetCurID2(ray))
+		{
+			redToken->SetEnabled(false);
+			redTile->SetEnabled(false);
 			return;
+		}
 
 		switch (Mouse::Instance()->LeftState())
 		{
@@ -373,14 +391,14 @@ void NonagaStage::UpdateGame(const Geometrics::Ray ray, float spf)
 			redToken->SetEnabled(false);
 			greenToken->SetEnabled(false);
 
-			if (holdingTokenID == NONE || !isMove)
+			if (holdingObjID == NONE || !isMove)
 				return;
 
-			moveStart = playSpace[holdingTokenID]->pos;
-			moveDest = playSpace[pDetectID]->pos;
+			moveStart = playSpace[holdingObjID]->pos;
+			moveDest = playSpace[pressingDetectID]->pos;
 			curTime = 0;
-			moveObj = playSpace[holdingTokenID]->GetToken();
-			logic->TokenMove(holdingTokenID, pDetectID);
+			moveObj = playSpace[holdingObjID]->GetToken();
+			logic->TokenMove(holdingObjID, pressingDetectID);
 
 			curPlayState = PLAY_STATE_P2_TOKEN_MOVING;
 
@@ -398,6 +416,7 @@ void NonagaStage::UpdateGame(const Geometrics::Ray ray, float spf)
 		moveObj->transform->SetTranslation(GetTokenPos(lPos));
 		if (curTime >= 1)
 		{
+			holdingObjID = NONE;
 			curTime = 0;
 			lPos.y = 0;
 			moveObj->transform->SetTranslation(GetTokenPos(lPos));
@@ -405,15 +424,19 @@ void NonagaStage::UpdateGame(const Geometrics::Ray ray, float spf)
 				curPlayState = PLAY_STATE_FINISH;
 			else
 				curPlayState = PLAY_STATE_P2_TILE;
-		}
 
-		Debugging::Instance()->Draw("P2's t = ", moveT, 10, 10);
+			SoundMgr::Instance()->Play("move");
+		}
 	}
 		break;
 	case PLAY_STATE_P2_TILE:
 	{
 		if (!GetCurID2(ray))
+		{
+			redToken->SetEnabled(false);
+			redTile->SetEnabled(false);
 			return;
+		}
 
 		switch (Mouse::Instance()->LeftState())
 		{
@@ -428,14 +451,14 @@ void NonagaStage::UpdateGame(const Geometrics::Ray ray, float spf)
 			redTile->SetEnabled(false);
 			greenTile->SetEnabled(false);
 
-			if (holdingTileID == NONE || !isMove)
+			if (holdingObjID == NONE || !isMove)
 				break;
 
-			moveStart = playSpace[holdingTileID]->pos;
-			moveDest = playSpace[pDetectID]->pos;
+			moveStart = playSpace[holdingObjID]->pos;
+			moveDest = playSpace[pressingDetectID]->pos;
 			curTime = 0;
-			moveObj = playSpace[holdingTileID]->GetTile();
-			logic->TileMove(holdingTileID, pDetectID);
+			moveObj = playSpace[holdingObjID]->GetTile();
+			logic->TileMove(holdingObjID, pressingDetectID);
 
 			curPlayState = PLAY_STATE_P2_TILE_MOVING;
 		}
@@ -449,10 +472,11 @@ void NonagaStage::UpdateGame(const Geometrics::Ray ray, float spf)
 		float moveT = (1 - cosf(curTime * XM_PI)) / 2;
 		float jumpT = sqrtf(sinf(curTime * XM_PI));
 		XMFLOAT3 lPos = Lerp(moveStart, moveDest, moveT);
-		lPos.y = jumpT * jumpTileHeight;
+		lPos.y = -jumpT * jumpTileHeight;
 		moveObj->transform->SetTranslation(lPos);
 		if (curTime >= 1)
 		{
+			holdingObjID = NONE;
 			lPos.y = 0;
 			moveObj->transform->SetTranslation(lPos);
 			curPlayState = PLAY_STATE_P1_TOKEN;
@@ -460,17 +484,30 @@ void NonagaStage::UpdateGame(const Geometrics::Ray ray, float spf)
 	}
 		break;
 	case PLAY_STATE_FINISH:
+	{
 		curTime += spf;
 		float fallT = curTime * curTime;
 
-		if (logic->IsP1Turn())
+		for (auto tk : tokens)
 		{
+			if (tk->IsP1() != logic->IsP1Turn())
+				continue;
 
+			XMFLOAT3 curPos = tk->transform->GetPos();
+			XMFLOAT3 fallPos = XMFLOAT3(curPos.x, tk->FallingSpeed() * fallT, curPos.z);
+			tk->transform->SetTranslation(fallPos);
 		}
-		else
+
+		for (auto t : tiles)
 		{
-
+			if (playSpace[t->ID()]->GetToken()==false || playSpace[t->ID()]->GetToken()->IsP1() != logic->IsP1Turn())
+			{
+				XMFLOAT3 curPos = t->transform->GetPos();
+				XMFLOAT3 fallPos = XMFLOAT3(curPos.x, t->FallingSpeed() * fallT, curPos.z);
+				t->transform->SetTranslation(fallPos);
+			}
 		}
+	}
 		break;
 	}
 }

@@ -25,7 +25,7 @@ GamePlayScene::GamePlayScene()
 {
 	curStage = GAMEPLAY_STAGE_LOBBY;
 
-	lightStartDir = Normalize(XMFLOAT3(cosf(XM_PIDIV2/3.0f)*2, -1, -sinf(XM_PIDIV2/3.0f)*2));
+	lightStartDir = Normalize(XMFLOAT3(-cosf(XM_PIDIV2/1.2f)*2, -1, sinf(XM_PIDIV2/1.2f)*2));
 	dLight = new DirectionalLight(
 		XMFLOAT3(0.5f, 0.5f, 0.5f),
 		XMFLOAT3(0.8f, 0.8f, 0.8f),
@@ -119,7 +119,7 @@ GamePlayScene::GamePlayScene()
 	TextureMgr::Instance()->LoadCM("cm", cm);
 	skybox = new Skybox(TextureMgr::Instance()->Get("cm"));
 	skybox->transform->SetTranslation(camera->transform->GetPos());
-	AddObj(skybox);
+	//AddObj(skybox);
 
 	nonaga = new NonagaStage(this);
 	std::vector<Object*> opaqueTokens;

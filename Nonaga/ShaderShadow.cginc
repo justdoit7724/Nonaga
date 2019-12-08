@@ -85,7 +85,7 @@ float2 DirectionalLightTranspShadowFactor(float3 wDir, float3 lightDir, float3 w
         }
     }
     
-    float area = saturate(ceil(lightPerspective.z - centerPDist));
+    float area = saturate(ceil(lightPerspective.z - centerPDist) * dot(-wDir, lightDir));
     return float2(power * (overlap * totalWeight) * totalIntensity / totalWeight, area);
 }
 

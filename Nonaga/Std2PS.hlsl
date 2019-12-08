@@ -4,6 +4,7 @@
 #include "ShaderReg.cginc"
 
 #define REFRACTION_INDEX_GLASS 1.2
+#define ROUGHNESS_MAX 16
 
 cbuffer EYE : SHADER_REG_CB_EYE
 {
@@ -18,6 +19,7 @@ TextureCube cmTex : SHADER_REG_SRV_CM;
 Texture2D diffuseTex : SHADER_REG_SRV_DIFFUSE;
 Texture2D shadowTex : SHADER_REG_SRV_SHADOW;
 Texture2D shadowTranspTex : SHADER_REG_SRV_SHADOW_TRANSP;
+Texture2D roughnessTex : SHADER_REG_SRV_ROUGHNESS;
 //...
 
 SamplerComparisonState shadowSamp : SHADER_REG_SAMP_CMP_POINT;
@@ -84,8 +86,14 @@ float4 main(PS_INPUT input) : SV_Target
     
     float3 ambient = 0;
     float3 diffuse = 0;
+    
     float3 specular = 0;
-    ComputeDirectionalLight(wNormal, -look, ambient, diffuse, specular);
+    
+    float roughness = roughnessTex.Sample(pointSamp, input.tex).r;
+    ComputeDirectionalLight(wNormal, -look, max(1, (1 - roughness) * ROUGHNESS_MAX), ambient, diffuse, specular);
+    specular *= (1 - roughness);
+    float transpT = mInfo.x * (1 - roughness);
+    float refractT = mInfo.y * (1 - roughness);
 
     float3 transp = ComputeTransparency(input.wPos, wNormal, look);
     float3 tex = diffuseTex.Sample(pointSamp, input.tex).xyz;
@@ -94,13 +102,12 @@ float4 main(PS_INPUT input) : SV_Target
     float oShadowFactor = DirectionalLightOpaqueShadowFactor(wNormal, d_Dir[0].xyz, input.wPos);
     float2 tShadowFactor = DirectionalLightTranspShadowFactor(wNormal, d_Dir[0].xyz, input.wPos);
     float shadowFactor = saturate(1 - max(oShadowFactor, tShadowFactor.x));
-    
-    specular = specular * shadowFactor + (saturate(0.2f - tShadowFactor.x) * tShadowFactor.y);
+    specular = specular * shadowFactor + (saturate(0.05f - tShadowFactor.x) * tShadowFactor.y);
     ambient *= tex;
     diffuse *= tex * shadowFactor;
-    float3 surface = Lerp(ambient + diffuse, transp, mInfo.x);
-    surface = Lerp(surface, reflec, mInfo.y);
     
+    float3 surface = Lerp(ambient + diffuse, transp, transpT);
+    surface = Lerp(surface, reflec, refractT);
     
     return float4(specular + surface, 1);
 }

@@ -41,7 +41,7 @@ cbuffer MATERIAL : register(b4)
     float4 mSpecular;
     float4 mInfo; // (transp, reflect, p, p)
 };
-void ComputeDirectionalLight(float3 normal, float3 toEye, out float3 ambient, out float3 diffuse, out float3 spec)
+void ComputeDirectionalLight(float3 normal, float3 toEye, float specPower, out float3 ambient, out float3 diffuse, out float3 spec)
 {
     ambient = float3(0.0f, 0.0f, 0.0f);
     diffuse = float3(0.0f, 0.0f, 0.0f);
@@ -56,7 +56,7 @@ void ComputeDirectionalLight(float3 normal, float3 toEye, out float3 ambient, ou
         float diffuseFactor = max(0.0f, dot(-d_Dir[i].xyz, normal));
     
         float3 v = reflect(d_Dir[i].xyz, normal);
-        float specFactor = pow(saturate(dot(v, toEye)), mSpecular.w);
+        float specFactor = pow(saturate(dot(v, toEye)), specPower);
         diffuse += diffuseFactor * mDiffuse.xyz * d_Diffuse[i].xyz;
         spec += specFactor * mSpecular.xyz * d_Specular[i].xyz;
     }

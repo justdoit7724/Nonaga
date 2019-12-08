@@ -19,22 +19,29 @@ Tile::Tile(unsigned int id, std::shared_ptr<Shape> shape, std::shared_ptr<Shape>
 {
 	vs->AddCB(0, 1, sizeof(SHADER_STD_TRANSF));
 	ps->AddCB(SHADER_REG_CB_MATERIAL, 1, sizeof(SHADER_MATERIAL));
-	SHADER_MATERIAL material(XMFLOAT3(0.7, 0.7, 0.7), 0, XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(0.8, 0.8, 0.8), 16, 0.06f);
+	SHADER_MATERIAL material(XMFLOAT3(0.7, 0.7, 0.7), 0, XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(0.8, 0.8, 0.8), 16, 0.01f);
 	ps->WriteCB(SHADER_REG_CB_MATERIAL, &material);
 
 	TextureMgr::Instance()->Load("tileNormal", "Data\\Texture\\wood_normal.jpg");
 	TextureMgr::Instance()->Load("tile", "Data\\Texture\\wood.jpg");
 	TextureMgr::Instance()->Load("tileLod", "Data\\Texture\\wood_lod.jpg");
+	TextureMgr::Instance()->Load("tileRgh", "Data\\Texture\\wood_rgh.jpg");
+	TextureMgr::Instance()->Load("tileLodRgh", "Data\\Texture\\wood_lod_rgh.jpg");
+
 	ps->AddSRV(SHADER_REG_SRV_DIFFUSE, 1);
 	ps->AddSRV(SHADER_REG_SRV_NORMAL, 1);
+	ps->AddSRV(SHADER_REG_SRV_ROUGHNESS, 1);
 	ps->WriteSRV(SHADER_REG_SRV_DIFFUSE, TextureMgr::Instance()->Get("tile")); 
 	ps->WriteSRV(SHADER_REG_SRV_NORMAL, TextureMgr::Instance()->Get("tileNormal"));
+	ps->WriteSRV(SHADER_REG_SRV_ROUGHNESS, TextureMgr::Instance()->Get("tileRgh"));
 
 	lodPs = new PShader("Std2PS.cso");
 	lodPs->AddCB(SHADER_REG_CB_MATERIAL, 1, sizeof(SHADER_MATERIAL));
 	lodPs->WriteCB(SHADER_REG_CB_MATERIAL, &material);
 	lodPs->AddSRV(SHADER_REG_SRV_DIFFUSE, 1);
+	lodPs->AddSRV(SHADER_REG_SRV_ROUGHNESS, 1);
 	lodPs->WriteSRV(SHADER_REG_SRV_DIFFUSE, TextureMgr::Instance()->Get("tileLod"));
+	lodPs->WriteSRV(SHADER_REG_SRV_ROUGHNESS, TextureMgr::Instance()->Get("tileLodRgh"));
 	
 	transform->SetScale(10, 1, 10);
 }

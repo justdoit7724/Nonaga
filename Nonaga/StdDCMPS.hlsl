@@ -5,6 +5,7 @@
 #include "ShaderReg.cginc"
 
 #define REFRACTION_INDEX_GLASS 1.2
+#define ROUGHNESS_MAX 16
 
 cbuffer EYE : SHADER_REG_CB_EYE
 {
@@ -17,6 +18,7 @@ TextureCube dcmTex : SHADER_REG_SRV_DCM;
 Texture2D diffuseTex : SHADER_REG_SRV_DIFFUSE;
 Texture2D normalTex : SHADER_REG_SRV_NORMAL;
 Texture2D ssaoTex : SHADER_REG_SRV_SSAO;
+Texture2D roughnessTex : SHADER_REG_SRV_ROUGHNESS;
 //...
 
 SamplerState anisotropicSamp : SHADER_REG_SAMP_ANISOTROPIC;
@@ -87,11 +89,16 @@ float4 main(PS_INPUT input) : SV_Target
 
     float3 look = normalize(input.wPos - eyePos.xyz);
     
-    
+    //debug 
+    // 2.brighten p2_rgh texture bit more
     float3 ambient = 0;
     float3 diffuse = 0;
     float3 specular = 0;
-    ComputeDirectionalLight(wNormal, -look, ambient, diffuse, specular);
+    float roughness = roughnessTex.Sample(pointSamp, input.tex).r;
+    ComputeDirectionalLight(wNormal, -look, max(1, (1 - roughness) * ROUGHNESS_MAX), ambient, diffuse, specular);
+    specular *= (1 - roughness);
+    float transpT = mInfo.x * (1 - roughness);
+    float refractT = mInfo.y * (1 - roughness);
 
     ambient *= ComputeSSAO(input.pPos);
     
@@ -101,14 +108,13 @@ float4 main(PS_INPUT input) : SV_Target
     
     float oShadowFactor = DirectionalLightOpaqueShadowFactor(wNormal, d_Dir[0].xyz, input.wPos);
     float2 tShadowFactor = DirectionalLightTranspShadowFactor(wNormal, d_Dir[0].xyz, input.wPos);
-    float shadowFactor = max(oShadowFactor, tShadowFactor.x);
-    
+    float shadowFactor = saturate(1 - max(oShadowFactor, tShadowFactor.x));
+    specular = specular * shadowFactor + (saturate(0.05f - tShadowFactor.x) * tShadowFactor.y);
     ambient *= tex;
-    diffuse *= tex * saturate(1 - shadowFactor);
-    float3 surface = Lerp(ambient + diffuse, transp, mInfo.x);
-    surface = Lerp(surface, reflec, mInfo.y);
+    diffuse *= tex * shadowFactor;
     
-    specular *= (1 + saturate(0.2f - tShadowFactor.x) * tShadowFactor.y);
+    float3 surface = Lerp(ambient + diffuse, transp, transpT);
+    surface = Lerp(surface, reflec, refractT);
     
     return float4(surface + specular, 1);
 

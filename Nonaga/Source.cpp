@@ -32,9 +32,9 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	SceneMgr::Instance()->Add("Lobby", lobbyScene);
 	SceneMgr::Instance()->SetEnabled("Lobby", true);
 
-	Scene* debugScene = new DebuggingScene();
+	/*Scene* debugScene = new DebuggingScene();
 	SceneMgr::Instance()->Add("Debugging", debugScene);
-	SceneMgr::Instance()->SetEnabled("Debugging", true);
+	SceneMgr::Instance()->SetEnabled("Debugging", true);*/
 
 	Timer* worldTimer = new Timer();
 

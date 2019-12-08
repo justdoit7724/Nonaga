@@ -17,6 +17,7 @@ public:
 	void Move(int toID);
 	unsigned int ID() { return id; }
 	bool IsP1()const { return isP1; }
+	float FallingSpeed() { return fallingSpeed; }
 	const bool isIndicator;
 private:
 

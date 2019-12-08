@@ -26,7 +26,7 @@ void SoundMgr::Add(std::string key, std::wstring path)
 		return;
 
 	const wchar_t* wc = path.c_str();
-	auto curSE = new SoundEffect(audEngine.get(), L"Data\\Sound\\bgm.wav");
+	auto curSE = new SoundEffect(audEngine.get(), path.c_str());
 	audios.insert(std::pair<std::string, std::unique_ptr<SoundEffect>>(key, std::move(curSE)));
 }
 
