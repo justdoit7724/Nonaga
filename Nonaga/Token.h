@@ -26,7 +26,7 @@ private:
 
 	const Scene* environment;
 	unsigned int id;
-	bool isP1;
+	const bool isP1;
 
 	static Camera* captureCam;
 

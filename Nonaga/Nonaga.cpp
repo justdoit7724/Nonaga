@@ -147,10 +147,10 @@ NonagaStage::~NonagaStage()
 }
 
 
-bool NonagaStage::GetCurID2(const Geometrics::Ray& ray)
+bool NonagaStage::GetCurID2(const Geometrics::Ray* ray)
 {
 	XMFLOAT3 curTokenPickPt;
-	Geometrics::IntersectRayPlaneInf(ray, detectPlane, &curTokenPickPt);
+	Geometrics::IntersectRayPlaneInf(*ray, detectPlane, &curTokenPickPt);
 
 	XMFLOAT3 mTokenPt = Multiply(curTokenPickPt, invTileSpaceMat);
 	mTokenPt += XMFLOAT3(0.5f, 0, 0.5f);
@@ -166,13 +166,13 @@ bool NonagaStage::IsWin()
 {
 	return (logic->GetScore(tokens)>=4);
 }
-void NonagaStage::TokenDragStart(const Geometrics::Ray ray)
+void NonagaStage::TokenDragStart(const Geometrics::Ray* ray)
 {
 	holdingObjID = NONE;
 
 	for (auto t : tokens)
 	{
-		if (t->IsP1() == logic->IsP1Turn() && t->IsPicking(ray))
+		if (t->IsP1() == logic->IsP1Turn() && t->IsPicking(*ray))
 		{
 			holdingObjID = t->ID();
 
@@ -208,7 +208,7 @@ void NonagaStage::TokenDragging()
 		redToken->transform->SetTranslation(GetTokenPos(playSpace[pDetectID]->pos));
 	}
 }
-void NonagaStage::TileDragStart(const Geometrics::Ray ray)
+void NonagaStage::TileDragStart(const Geometrics::Ray* ray)
 {
 	holdingObjID = NONE;
 
@@ -243,14 +243,10 @@ void NonagaStage::TileDragging()
 }
 
 
-void NonagaStage::UpdateObj()
+void NonagaStage::UpdateGame(const Geometrics::Ray* ray, float spf)
 {
-	for (auto t : tiles)
-		t->Update();
-}
-
-void NonagaStage::UpdateGame(const Geometrics::Ray ray, float spf)
-{
+	//debug remove
+	curPlayState = PLAY_STATE_FINISH;
 
 	switch (curPlayState)
 	{
@@ -486,11 +482,11 @@ void NonagaStage::UpdateGame(const Geometrics::Ray ray, float spf)
 	case PLAY_STATE_FINISH:
 	{
 		curTime += spf;
-		float fallT = curTime * curTime;
+		float fallT = -pow(curTime,2);
 
 		for (auto tk : tokens)
 		{
-			if (tk->IsP1() != logic->IsP1Turn())
+			if (tk->IsP1() == logic->IsP1Turn())
 				continue;
 
 			XMFLOAT3 curPos = tk->transform->GetPos();

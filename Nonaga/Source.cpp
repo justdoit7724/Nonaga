@@ -58,7 +58,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 			graphic->Present();
 
-			window.SetTitle(std::to_string(worldTimer->FPS()));
+			//window.SetTitle(std::to_string(worldTimer->FPS()));
 			worldTimer->Update();
 		}
 

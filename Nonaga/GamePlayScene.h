@@ -11,6 +11,7 @@ class Camera;
 class SSAOMap;
 class Skybox;
 class UICanvas;
+class UI;
 
 class GamePlayScene : public Scene
 {
@@ -48,7 +49,8 @@ private:
 	{
 		GAMEPLAY_STAGE_LOBBY=0,
 		GAMEPLAY_STAGE_CAM_MODIFY=1,
-		GAMEPLAY_STAGE_PLAY=2
+		GAMEPLAY_STAGE_PLAY=2,
+		GAMEPLAY_STAGE_END=3
 	};
 	GAMEPLAY_STAGE curStage;
 
@@ -76,6 +78,7 @@ private:
 	TranspShadowMap* tShadowMapping;
 	SSAOMap* ssao;
 
+	UI* endUI;
 	UICanvas* canvas;
 };
 

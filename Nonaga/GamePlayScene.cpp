@@ -168,6 +168,10 @@ GamePlayScene::GamePlayScene()
 	ssao = new SSAOMap();
 
 	canvas = new UICanvas(SCREEN_WIDTH, SCREEN_HEIGHT);
+	TextureMgr::Instance()->Load("thankyou", "Data\\Texture\\thankyou.png");
+	endUI = new UI(canvas, XMFLOAT2(0, 50), XMFLOAT2(760, 190), 0, TextureMgr::Instance()->Get("thankyou"));
+	endUI->SetEnabled(false);
+	endUI->Fade(-1);
 }
 
 GamePlayScene::~GamePlayScene()
@@ -238,22 +242,39 @@ void GamePlayScene::Update(float elapsed, float spf)
 			curStage = GAMEPLAY_STAGE_PLAY;
 	}
 		break;
+
 	case GAMEPLAY_STAGE_PLAY:
+	{
 		CameraMove(spf);
 
 		Geometrics::Ray camRay;
 		camera->Pick(&camRay);
 
-		nonaga->UpdateGame(camRay, spf);
+		nonaga->UpdateGame(&camRay, spf);
 
 		skybox->transform->SetTranslation(camera->transform->GetPos());
 
+		if (nonaga->IsEnd())
+		{
+			endUI->SetEnabled(true);
+			curStage = GAMEPLAY_STAGE_END;
+		}
+	}
+		break;
+		
+	case GAMEPLAY_STAGE_END:
+
+		endUI->Fade(pow(spf+0.05f, 2));
+
+		nonaga->UpdateGame(nullptr, spf);
+
+		CameraMove(spf);
+		skybox->transform->SetTranslation(camera->transform->GetPos());
 		break;
 	}
 
 	camera->Update();
 
-	nonaga->UpdateObj();
 	Scene::Update(elapsed, spf);
 
 	//binding
@@ -285,6 +306,7 @@ void GamePlayScene::Render(const XMMATRIX& vp, const Frustum& frustum, UINT scen
 
 	nonaga->Render(curTempVP, frustum, sceneDepth);
 	Scene::Render(curTempVP, frustum, sceneDepth, subject);
+	canvas->Render(sceneDepth);
 }
 
 void GamePlayScene::Message(UINT msg)

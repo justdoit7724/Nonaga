@@ -40,21 +40,22 @@ public:
 	NonagaStage(Scene* environment);
 	~NonagaStage();
 
-	void UpdateObj();
-	void UpdateGame(const Geometrics::Ray ray, float spf);
+	void UpdateGame(const Geometrics::Ray* ray, float spf);
 	void GetOpaqueTokens(std::vector<Object*>& objOutput);
 	void GetTranspTokens(std::vector<Object*>& objOutput);
 	void GetTiles(std::vector<Object*>& objOutput);
 
 	void Render(const XMMATRIX& vp, const Frustum& frustum, unsigned int sceneDepth)const;
+
+	bool IsEnd() { return (curPlayState == PLAY_STATE_FINISH); }
 	
 private:
 	bool IsWin();
-	void TokenDragStart(const Geometrics::Ray ray);
+	void TokenDragStart(const Geometrics::Ray* ray);
 	void TokenDragging();
-	void TileDragStart(const Geometrics::Ray ray);
+	void TileDragStart(const Geometrics::Ray* ray);
 	void TileDragging();
-	bool GetCurID2(const Geometrics::Ray& ray);
+	bool GetCurID2(const Geometrics::Ray* ray);
 
 	
 	PlaySpace* playSpace[TILE_SPACE_COUNT_Z * TILE_SPACE_COUNT_X]{ nullptr };

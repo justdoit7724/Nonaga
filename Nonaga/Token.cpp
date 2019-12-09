@@ -25,7 +25,7 @@ Token::Token(std::shared_ptr<Shape> shape, std::shared_ptr<Shape> lodShape, Scen
 		"StdDisplacementVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts),
 		"StdDisplacementHS.cso", "StdDisplacementDS.cso", "",
 		p1?"StandardPS.cso":"StdDCMPS.cso", Z_ORDER_STANDARD),
-		id(id), isP1(p1), environment(environemnt), isIndicator(false), fallingSpeed(fminf(Rand01() + 0.5f, 1) * 100)
+		id(id), isP1(p1), environment(environemnt), isIndicator(false), fallingSpeed(fminf(Rand01() + 0.5f, 1) * 15)
 {
 	TextureMgr::Instance()->Load("token", "Data\\Model\\Token\\pawn.png");
 	TextureMgr::Instance()->Load("tokenLod", "Data\\Model\\Token\\token_lod.png");
@@ -150,7 +150,7 @@ Token::Token(std::shared_ptr<Shape> shape, bool isRed)
 	:Object("Token", shape, shape,
 		"IndicatorVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts),
 		"", "", "",
-		"IndicatorPS.cso",Z_ORDER_STANDARD), isIndicator(true)
+		"IndicatorPS.cso",Z_ORDER_STANDARD), isIndicator(true), isP1(NULL)
 {
 	vs->AddCB(0, 1, sizeof(XMMATRIX));
 
