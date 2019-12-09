@@ -4,7 +4,6 @@
 #include "Game_info.h"
 #include "Transform.h"
 #include "CameraMgr.h"
-#include "Debugging.h"
 #include "SceneMgr.h"
 #include "Mouse.h"
 #include "Buffer.h"
@@ -14,9 +13,7 @@
 #include "ShadowMap.h"
 #include "SSAOMap.h"
 #include "Skybox.h"
-#include "Debugging.h"
 #include "TextureMgr.h"
-#include "Cube.h"
 #include "BlendState.h"
 #include "UI.h"
 #include "TaskMgr.h"
@@ -142,8 +139,6 @@ GamePlayScene::GamePlayScene()
 	}
 
 	cbEye = new Buffer(sizeof(XMFLOAT4));
-
-	Debugging::Instance()->EnableGrid(10);
 
 	curP = XMMatrixIdentity();
 

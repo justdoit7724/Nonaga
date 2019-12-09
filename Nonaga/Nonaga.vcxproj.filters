@@ -42,9 +42,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Debugging.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Graphic.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -84,9 +81,6 @@
     <ClCompile Include="Shader.cpp">
       <Filter>Components</Filter>
     </ClCompile>
-    <ClCompile Include="Texture2D.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Buffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -96,13 +90,7 @@
     <ClCompile Include="Object.cpp">
       <Filter>Object</Filter>
     </ClCompile>
-    <ClCompile Include="Cube.cpp">
-      <Filter>Components\Shape</Filter>
-    </ClCompile>
     <ClCompile Include="Cylinder.cpp">
-      <Filter>Components\Shape</Filter>
-    </ClCompile>
-    <ClCompile Include="Hill.cpp">
       <Filter>Components\Shape</Filter>
     </ClCompile>
     <ClCompile Include="Quad.cpp">
@@ -117,9 +105,6 @@
     <ClCompile Include="DepthComplexity.cpp">
       <Filter>Tasks</Filter>
     </ClCompile>
-    <ClCompile Include="RasterizerState.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Scene.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
@@ -131,9 +116,6 @@
     </ClCompile>
     <ClCompile Include="SceneMgr.cpp">
       <Filter>Manager</Filter>
-    </ClCompile>
-    <ClCompile Include="DebuggingScene.cpp">
-      <Filter>Scene</Filter>
     </ClCompile>
     <ClCompile Include="Transform.cpp">
       <Filter>Components</Filter>
@@ -168,12 +150,6 @@
     <ClCompile Include="Nonaga.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SmoothNormalizing.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MappingVisualization.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="TaskMgr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -183,11 +159,11 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="RasterizerState.cpp">
+      <Filter>Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Debugging.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="DX_info.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -210,9 +186,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Geometrics.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Network.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Camera.h">
@@ -239,9 +212,6 @@
     <ClInclude Include="Shader.h">
       <Filter>Components</Filter>
     </ClInclude>
-    <ClInclude Include="Texture2D.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Buffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -257,12 +227,6 @@
     <ClInclude Include="Sphere.h">
       <Filter>Components\Shape</Filter>
     </ClInclude>
-    <ClInclude Include="Hill.h">
-      <Filter>Components\Shape</Filter>
-    </ClInclude>
-    <ClInclude Include="Cube.h">
-      <Filter>Components\Shape</Filter>
-    </ClInclude>
     <ClInclude Include="Cylinder.h">
       <Filter>Components\Shape</Filter>
     </ClInclude>
@@ -271,9 +235,6 @@
     </ClInclude>
     <ClInclude Include="DepthComplexity.h">
       <Filter>Tasks</Filter>
-    </ClInclude>
-    <ClInclude Include="RasterizerState.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Scene.h">
       <Filter>Scene</Filter>
@@ -286,9 +247,6 @@
     </ClInclude>
     <ClInclude Include="SceneMgr.h">
       <Filter>Manager</Filter>
-    </ClInclude>
-    <ClInclude Include="DebuggingScene.h">
-      <Filter>Scene</Filter>
     </ClInclude>
     <ClInclude Include="Transform.h">
       <Filter>Components</Filter>
@@ -338,12 +296,6 @@
     <ClInclude Include="classTask.h">
       <Filter>Tasks</Filter>
     </ClInclude>
-    <ClInclude Include="SmoothNormalizing.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MappingVisualization.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="TaskMgr.h">
       <Filter>Manager</Filter>
     </ClInclude>
@@ -352,6 +304,9 @@
     </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RasterizerState.h">
+      <Filter>Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

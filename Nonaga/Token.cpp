@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "Token.h"
 #include "Transform.h"
-#include "Cube.h"
 #include "TextureMgr.h"
 #include "ShaderFormat.h"
 #include "Shader.h"
@@ -14,7 +13,6 @@
 #include "RasterizerState.h"
 #include "DepthStencilState.h"
 #include "Scene.h"
-#include "Debugging.h"
 #include "TaskMgr.h"
 
 Camera* Token::captureCam = nullptr;

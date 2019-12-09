@@ -12,7 +12,7 @@
 #include "ShaderReg.h"
 
 Skybox::Skybox()
-	:Object("Skybox", std::make_shared<Sphere>(2), nullptr,
+	:Object("Skybox", std::make_shared<Sphere>(0), nullptr,
 		"SkyboxVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts),
 		"", "", "",
 		"SkyboxPS.cso", Z_ORDER_STANDARD)

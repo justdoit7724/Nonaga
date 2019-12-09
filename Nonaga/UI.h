@@ -3,7 +3,6 @@
 #include "DX_info.h"
 #include "ObserverDP.h"
 #include "Geometrics.h"
-#include "Network.h"
 
 class Transform;
 class Camera;
@@ -53,11 +52,11 @@ private:
 	float transp;
 };
 
-class UIButton : public UI, public Subject, public IDebug
+class UIButton : public UI, public Subject
 {
 public:
 	UIButton(UICanvas* canvas, UINT trigID, const void* trigData, XMFLOAT2 pivot, XMFLOAT2 size, ID3D11ShaderResourceView* idleSRV, ID3D11ShaderResourceView* hoverSRV, ID3D11ShaderResourceView* pressSRV);
-	void Visualize()override;
+
 private:
 	friend class UICanvas;
 
@@ -77,7 +76,7 @@ private:
 };
 
 
-class UICanvas : public IDebug
+class UICanvas
 {
 public:
 	UICanvas(float width, float height);
@@ -88,8 +87,6 @@ public:
 
 	void Add(UI* ui);
 	const float totalWidth, totalHeight;
-
-	void Visualize() override;
 
 private:
 	std::unordered_set<UI*> UIs;

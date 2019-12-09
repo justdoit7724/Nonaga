@@ -8,10 +8,8 @@
 #include "Timer.h"
 #include "TextureMgr.h"
 #include "Mouse.h"
-#include "Debugging.h"
 
 #include "Lobby.h"
-#include "DebuggingScene.h"
 #include "GamePlayScene.h"
 #include "CameraMgr.h"
 #include "Keyboard.h"

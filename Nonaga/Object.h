@@ -1,7 +1,6 @@
 #pragma once
 
 #include "DX_info.h"
-#include "Network.h"
 #include "Geometrics.h"
 
 struct Frustum;
@@ -17,7 +16,7 @@ class DepthStencilState;
 class RasterizerState;
 
 
-class Object : public IDebug
+class Object
 {
 public:
 	Object(std::string name, std::shared_ptr<Shape> shape, std::shared_ptr<Shape> lodShape, std::string sVS, const D3D11_INPUT_ELEMENT_DESC* iLayouts, UINT layoutCount, std::string sHS, std::string sDS, std::string sGS, std::string sPS, int zOrder);
@@ -31,7 +30,6 @@ public:
 	virtual bool IsPicking(const Geometrics::Ray ray)const;
 	virtual void UpdateBound();
 
-	void Visualize() override;
 	void SetEnabled(bool e) { enabled = e; }
 	void SetShow(bool s) { show = s; }
 

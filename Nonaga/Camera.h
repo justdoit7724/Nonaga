@@ -1,6 +1,5 @@
 #pragma once
 #include "DX_info.h"
-#include "Network.h"
 #include "Geometrics.h"
 
 
@@ -32,7 +31,7 @@ struct Frustum
 	Frustum() {}
 };
 
-class Camera : public IDebug
+class Camera
 {
 public:
 	Camera(std::string key, FRAME_KIND frameKind, float screenWidth, float screenHeight, float nearPlane, float farPlane, float verticalViewRad, float aspectRatio, bool skipFrustum);
@@ -41,7 +40,6 @@ public:
 	void SetFrame(const FRAME_KIND fKind, XMFLOAT2 orthoSize, const float nearPlane, const float farPlane, const float verticalViewAngle, const float aspectRatio);
 	void Update();
 	void SetView();
-	void Visualize() override;
 
 	XMMATRIX VMat()const { return viewMat; }
 	XMMATRIX ProjMat(int zOrder)const {return projMats[zOrder];}

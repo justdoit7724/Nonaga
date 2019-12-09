@@ -158,18 +158,13 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="CameraMgr.cpp" />
     <ClCompile Include="Component.cpp" />
-    <ClCompile Include="Cube.cpp" />
     <ClCompile Include="Cylinder.cpp" />
-    <ClCompile Include="Debugging.cpp" />
-    <ClCompile Include="DebuggingScene.cpp" />
     <ClCompile Include="DepthComplexity.cpp" />
     <ClCompile Include="DepthStencilState.cpp" />
     <ClCompile Include="Graphic.cpp" />
-    <ClCompile Include="Hill.cpp" />
     <ClCompile Include="Keyboard.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="Lobby.cpp" />
-    <ClCompile Include="MappingVisualization.cpp" />
     <ClCompile Include="MeshLoader.cpp" />
     <ClCompile Include="Mouse.cpp" />
     <ClCompile Include="Nonaga.cpp" />
@@ -184,7 +179,6 @@
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Skybox.cpp" />
-    <ClCompile Include="SmoothNormalizing.cpp" />
     <ClCompile Include="SoundMgr.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="Sphere.cpp" />
@@ -196,7 +190,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="TaskMgr.cpp" />
-    <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="TextureMgr.cpp" />
     <ClCompile Include="Tile.cpp" />
     <ClCompile Include="Timer.cpp" />
@@ -213,31 +206,25 @@
     <ClInclude Include="CameraMgr.h" />
     <ClInclude Include="classTask.h" />
     <ClInclude Include="Component.h" />
-    <ClInclude Include="Cube.h" />
     <ClInclude Include="SoundMgr.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="TaskMgr.h" />
     <ClInclude Include="Lobby.h" />
-    <ClInclude Include="MappingVisualization.h" />
     <ClInclude Include="MeshLoader.h" />
     <ClInclude Include="Nonaga.h" />
     <ClInclude Include="ObserverDP.h" />
     <ClInclude Include="PlaySpace.h" />
     <ClInclude Include="ShaderFormat.h" />
     <ClInclude Include="Cylinder.h" />
-    <ClInclude Include="Debugging.h" />
-    <ClInclude Include="DebuggingScene.h" />
     <ClInclude Include="DepthComplexity.h" />
     <ClInclude Include="DepthStencilState.h" />
     <ClInclude Include="DX_info.h" />
     <ClInclude Include="Game_info.h" />
     <ClInclude Include="Graphic.h" />
-    <ClInclude Include="Hill.h" />
     <ClInclude Include="Keyboard.h" />
     <ClInclude Include="Geometrics.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="Mouse.h" />
-    <ClInclude Include="Network.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="RasterizerState.h" />
     <ClInclude Include="SceneMgr.h" />
@@ -250,10 +237,8 @@
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="Skybox.h" />
-    <ClInclude Include="SmoothNormalizing.h" />
     <ClInclude Include="Sphere.h" />
     <ClInclude Include="SSAOMap.h" />
-    <ClInclude Include="Texture2D.h" />
     <ClInclude Include="TextureMgr.h" />
     <ClInclude Include="Tile.h" />
     <ClInclude Include="TileSpaceInfo.h" />

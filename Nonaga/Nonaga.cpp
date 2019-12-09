@@ -1,6 +1,5 @@
 ﻿#include "stdafx.h"
 #include "Nonaga.h"
-#include "Debugging.h"
 #include "Mouse.h"
 #include "Token.h"
 #include "Tile.h"
@@ -245,9 +244,6 @@ void NonagaStage::TileDragging()
 
 void NonagaStage::UpdateGame(const Geometrics::Ray* ray, float spf)
 {
-	//debug remove
-	curPlayState = PLAY_STATE_FINISH;
-
 	switch (curPlayState)
 	{
 	case PLAY_STATE_P1_TOKEN:

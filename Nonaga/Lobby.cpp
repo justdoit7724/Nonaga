@@ -9,7 +9,7 @@
 #include "Transform.h"
 #include "SceneMgr.h"
 #include "SoundMgr.h"
-#include "Debugging.h"
+#include "Game_info.h"
 
 #define OBS_DATA_AI 0
 #define OBS_DATA_PVP 1

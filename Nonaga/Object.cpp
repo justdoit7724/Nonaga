@@ -12,7 +12,6 @@
 #include "Shape.h"
 #include "CameraMgr.h"
 
-#include "Debugging.h"
 
 //fundamental elements
 Object::Object(std::string name, std::shared_ptr < Shape> shape, std::shared_ptr < Shape> lodShape, std::string sVS, const D3D11_INPUT_ELEMENT_DESC* iLayouts, UINT layoutCount, std::string sHS, std::string sDS, std::string sGS, std::string sPS,int zOrder)
@@ -149,10 +148,3 @@ bool Object::IsPicking(const Geometrics::Ray ray) const
 {
 	return Geometrics::IntersectRaySphere(ray, bound);
 }
-
-void Object::Visualize()
-{
-	//if(IsInsideFrustum(CameraMgr::Instance()->Main()->GetFrustum()))
-		Debugging::Instance()->Mark(bound.p, bound.rad, Colors::LightGreen);
-}
-

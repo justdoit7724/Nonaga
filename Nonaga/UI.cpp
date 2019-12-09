@@ -12,7 +12,6 @@
 #include "RasterizerState.h"
 #include "BlendState.h"
 #include "Mouse.h"
-#include "Debugging.h"
 
 UI::UI(UICanvas* canvas, XMFLOAT2 pivot, XMFLOAT2 size, float zDepth, ID3D11ShaderResourceView * srv)
 	:size(size), srv(srv)
@@ -114,21 +113,6 @@ UIButton::UIButton(UICanvas* canvas, UINT trigID, const void* trigData, XMFLOAT2
 
 }
 
-void UIButton::Visualize()
-{
-	XMFLOAT3 c = transform->GetPos();
-	XMFLOAT3 right = transform->GetRight();
-	XMFLOAT3 up = transform->GetUp();
-
-	XMFLOAT3 bl = c - right * size.x*0.5f - up * size.y*0.5f;
-	XMFLOAT3 br = c + right * size.x*0.5f - up * size.y*0.5f;
-	XMFLOAT3 tl = c - right * size.x*0.5f + up * size.y*0.5f;
-	XMFLOAT3 tr = c + right * size.x*0.5f + up * size.y*0.5f;
-	Debugging::Instance()->PtLine(bl, br, Colors::LightGreen);
-	Debugging::Instance()->PtLine(bl, tl, Colors::LightGreen);
-	Debugging::Instance()->PtLine(tl, tr, Colors::LightGreen);
-	Debugging::Instance()->PtLine(tr, br, Colors::LightGreen);
-}
 void UIButton::Update(const Camera* camera)
 {
 	srv = idleSRV;
@@ -207,21 +191,4 @@ void UICanvas::Render(UINT sceneDepth)
 		if (ui->Enabled())
 			ui->Render(camera);
 	}
-}
-
-void UICanvas::Visualize()
-{
-	XMFLOAT3 c = camera->transform->GetPos();
-	c.z = 0;
-	XMFLOAT3 right = camera->transform->GetRight();
-	XMFLOAT3 up = camera->transform->GetUp();
-
-	XMFLOAT3 bl = c - right * totalWidth * 0.5f - up * totalHeight * 0.5f;
-	XMFLOAT3 br = c + right * totalWidth * 0.5f - up * totalHeight * 0.5f;
-	XMFLOAT3 tl = c - right * totalWidth * 0.5f + up * totalHeight * 0.5f;
-	XMFLOAT3 tr = c + right * totalWidth * 0.5f + up * totalHeight * 0.5f;
-	Debugging::Instance()->PtLine(bl, br, Colors::LightGreen);
-	Debugging::Instance()->PtLine(bl, tl, Colors::LightGreen);
-	Debugging::Instance()->PtLine(tl, tr, Colors::LightGreen);
-	Debugging::Instance()->PtLine(tr, br, Colors::LightGreen);
 }

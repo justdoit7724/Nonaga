@@ -12,7 +12,6 @@
 #include "Light.h"
 #include "Shape.h"
 #include "Camera.h"
-#include "Debugging.h"
 #include "Buffer.h"
 #include "TextureMgr.h"
 
