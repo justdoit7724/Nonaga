@@ -94,7 +94,7 @@ struct VS_Simple_Property
 
 #define LIGHT_ENABLED 1
 #define LIGHT_DISABLED 0
-#define LIGHT_MAX_EACH 5
+#define LIGHT_MAX_EACH 1
 struct SHADER_DIRECTIONAL_LIGHT {
 
 	SHADER_DIRECTIONAL_LIGHT() {

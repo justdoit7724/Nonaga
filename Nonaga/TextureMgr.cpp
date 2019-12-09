@@ -222,12 +222,13 @@ void TextureMgr::LoadCM(std::string key, const std::vector<std::string>& fileNam
 	D3D11_TEXTURE2D_DESC cm_desc;
 	cm_desc.Format = ori_desc.Format;
 	cm_desc.ArraySize = 6;
-	cm_desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	cm_desc.BindFlags = D3D11_BIND_SHADER_RESOURCE|D3D11_BIND_RENDER_TARGET;
 	cm_desc.CPUAccessFlags = 0;
 	cm_desc.Width = ori_desc.Width;
 	cm_desc.Height = ori_desc.Height;
-	cm_desc.MipLevels = 1;
-	cm_desc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE;
+	//debug need to modify
+	cm_desc.MipLevels = 8;
+	cm_desc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE|D3D11_RESOURCE_MISC_GENERATE_MIPS;
 	cm_desc.SampleDesc.Count = 1;
 	cm_desc.SampleDesc.Quality = 0;
 	cm_desc.Usage = D3D11_USAGE_DEFAULT;
@@ -241,7 +242,7 @@ void TextureMgr::LoadCM(std::string key, const std::vector<std::string>& fileNam
 	for (int i = 0; i < 6; ++i)
 	{
 		DX_DContext->CopySubresourceRegion(
-			cmTex.Get(), i,
+			cmTex.Get(), D3D11CalcSubresource(0,i,8),
 			0,0,0,
 			ori_resources[i].Get(), 0,
 			nullptr);
@@ -250,10 +251,13 @@ void TextureMgr::LoadCM(std::string key, const std::vector<std::string>& fileNam
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
 	srvDesc.Format = ori_desc.Format;
 	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURECUBE;
-	srvDesc.TextureCube.MipLevels = 1;
+	srvDesc.TextureCube.MipLevels = -1;
 	srvDesc.TextureCube.MostDetailedMip = 0;
 	ID3D11ShaderResourceView* integratedSRV = nullptr;
 	r_assert(DX_Device->CreateShaderResourceView(cmTex.Get(), &srvDesc, &integratedSRV));
+	
+	//debug remove
+	DX_DContext->GenerateMips(integratedSRV);
 
 	SRVs.insert(std::pair<std::string, ID3D11ShaderResourceView*>(key, integratedSRV));
 }
@@ -264,16 +268,16 @@ ID3D11ShaderResourceView* TextureMgr::Get(std::string key)
 
 	return SRVs[key];
 }
-//
-//ID3D11Texture2D* TextureMgr::GetTexture(std::string fileName)
-//{
-//	assert(SRVs.find(fileName) != SRVs.end());
-//
-//	ID3D11Resource* resource=nullptr;
-//	SRVs[fileName].srv->GetResource(&resource);
-//	ID3D11Texture2D* tex=nullptr;
-//	r_assert( resource->QueryInterface(__uuidof(ID3D11Texture2D), (void**)&tex) );
-//	return tex;
-//}
+
+ID3D11Texture2D* TextureMgr::GetTexture(std::string key)
+{
+	assert(SRVs.find(key) != SRVs.end());
+
+	ID3D11Resource* resource=nullptr;
+	SRVs[key]->GetResource(&resource);
+	ID3D11Texture2D* tex=nullptr;
+	r_assert( resource->QueryInterface(__uuidof(ID3D11Texture2D), (void**)&tex) );
+	return tex;
+}
 
 

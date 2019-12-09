@@ -495,7 +495,7 @@ void NonagaStage::UpdateGame(const Geometrics::Ray ray, float spf)
 
 			XMFLOAT3 curPos = tk->transform->GetPos();
 			XMFLOAT3 fallPos = XMFLOAT3(curPos.x, tk->FallingSpeed() * fallT, curPos.z);
-			tk->transform->SetTranslation(fallPos);
+			tk->transform->SetTranslation(GetTokenPos(fallPos));
 		}
 
 		for (auto t : tiles)
@@ -701,14 +701,14 @@ int NonagaLogic::GetScore(const std::vector<Token*>& tokens)
 {
 	int score = 0;
 
-	for (int i = 0; i < TOKEN_OBJ_COUNT_PER; ++i)
+	for (auto tk : tokens)
 	{
-		int tIdx = i + (p1Turn ? 0 : 3);
-		Token* curToken = tokens[tIdx];
+		if (tk->IsP1() != p1Turn)
+			continue;
 
 		XMUINT2 curTokenID2 = XMUINT2(
-			curToken->ID() % TILE_SPACE_COUNT_X,
-			curToken->ID() / TILE_SPACE_COUNT_X);
+			tk->ID() % TILE_SPACE_COUNT_X,
+			tk->ID() / TILE_SPACE_COUNT_X);
 
 		for (int z = curTokenID2.y - 2; z <= curTokenID2.y + 2; ++z)
 		{
@@ -719,8 +719,8 @@ int NonagaLogic::GetScore(const std::vector<Token*>& tokens)
 				if (z < 0 || z >= TILE_SPACE_COUNT_Z || x < 0 || x >= TILE_SPACE_COUNT_X)continue;
 				if (space[checkIdx] == nullptr) continue;
 				if ((z == curTokenID2.y && x == curTokenID2.x)) continue;
-				if (space[curToken->ID()]->GetToken() == nullptr || space[checkIdx]->GetToken() == nullptr)continue;
-				if (space[curToken->ID()]->GetToken()->IsP1() != space[checkIdx]->GetToken()->IsP1())continue;
+				if (space[checkIdx]->GetToken() == nullptr)continue;
+				if (space[tk->ID()]->GetToken()->IsP1() != space[checkIdx]->GetToken()->IsP1())continue;
 
 				score++;
 			}

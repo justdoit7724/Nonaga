@@ -109,17 +109,17 @@ GamePlayScene::GamePlayScene()
 	DX_DContext->PSSetSamplers(SHADER_REG_SAMP_CMP_POINT, 1, cmpPointSamp.GetAddressOf());
 	DX_DContext->PSSetSamplers(SHADER_REG_SAMP_LINEAR, 1, linearSamp.GetAddressOf());
 
-	std::vector<std::string> cm;
-	cm.push_back("Data\\Texture\\cm_px.jpg");
-	cm.push_back("Data\\Texture\\cm_nx.jpg");
-	cm.push_back("Data\\Texture\\cm_py.jpg");
-	cm.push_back("Data\\Texture\\cm_ny.jpg");
-	cm.push_back("Data\\Texture\\cm_pz.jpg");
-	cm.push_back("Data\\Texture\\cm_nz.jpg");
-	TextureMgr::Instance()->LoadCM("cm", cm);
-	skybox = new Skybox(TextureMgr::Instance()->Get("cm"));
+	std::vector<std::string> cmTex;
+	cmTex.push_back("Data\\Texture\\cm_px.jpg");
+	cmTex.push_back("Data\\Texture\\cm_nx.jpg");
+	cmTex.push_back("Data\\Texture\\cm_py.jpg");
+	cmTex.push_back("Data\\Texture\\cm_ny.jpg");
+	cmTex.push_back("Data\\Texture\\cm_pz.jpg");
+	cmTex.push_back("Data\\Texture\\cm_nz.jpg");
+	TextureMgr::Instance()->LoadCM("cm", cmTex);
+	skybox = new Skybox();
 	skybox->transform->SetTranslation(camera->transform->GetPos());
-	//AddObj(skybox);
+	AddObj(skybox);
 
 	nonaga = new NonagaStage(this);
 	std::vector<Object*> opaqueTokens;

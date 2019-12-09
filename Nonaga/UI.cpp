@@ -51,8 +51,13 @@ UI::UI(UICanvas* canvas, XMFLOAT2 pivot, XMFLOAT2 size, float zDepth, ID3D11Shad
 	blend_desc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 	blend_desc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 	blendState = new BlendState(&blend_desc);
+	D3D11_DEPTH_STENCIL_DESC ds_desc;
+	ZeroMemory(&ds_desc, sizeof(D3D11_DEPTH_STENCIL_DESC));
+	ds_desc.DepthEnable = true;
+	ds_desc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+	ds_desc.StencilEnable = false;
+	dsState = new DepthStencilState(&ds_desc);
 	rsState = new RasterizerState(nullptr);
-	dsState = new DepthStencilState(nullptr);
 }
 
 UI::~UI()
@@ -165,7 +170,7 @@ UICanvas::UICanvas(float width, float height)
 	: totalWidth(width), totalHeight(height)
 {
 	camera = new Camera("UI", FRAME_KIND_ORTHOGONAL, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1f, 10, NULL, NULL, true);
-	camera->transform->SetTranslation(XMFLOAT3(width * 0.5f, height * 0.5f, -5));
+	camera->transform->SetTranslation(XMFLOAT3(width * 0.5f, height * 0.5f, 0));
 	camera->transform->SetRot(FORWARD, UP);
 	camera->Update();
 }
