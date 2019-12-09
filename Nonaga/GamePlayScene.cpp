@@ -85,16 +85,7 @@ GamePlayScene::GamePlayScene()
 	linearSamp_desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
 	linearSamp_desc.MinLOD = 0;
 	linearSamp_desc.MaxLOD = D3D11_FLOAT32_MAX;
-	/*
-	D3D11_SAMPLER_DESC ssaoSamp_desc;
-	ZeroMemory(&ssaoSamp_desc, sizeof(D3D11_SAMPLER_DESC));
-	ssaoSamp_desc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-	ssaoSamp_desc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
-	ssaoSamp_desc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
-	ssaoSamp_desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	ssaoSamp_desc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
-	ssaoSamp_desc.MinLOD = 0;
-	ssaoSamp_desc.MaxLOD = 1;*/
+
 	r_assert(DX_Device->CreateSamplerState(&pointSamp_desc, pointSamp.GetAddressOf()));
 	r_assert(DX_Device->CreateSamplerState(&linearPointSamp_desc, linearPointSamp.GetAddressOf()));
 	r_assert(DX_Device->CreateSamplerState(&anisotropicSamp_desc, anisotropicSamp.GetAddressOf()));
@@ -227,7 +218,7 @@ void GamePlayScene::Update(float elapsed, float spf)
 
 
 		float t = curTime / camFrameLerpingTime;
-		CameraFrameLerping(t);
+		CameraFrameLerping(fminf(1,t));
 		CameraSliding(Clamp(0,1,t-0.9f));
 		LightRotating(Clamp(0, 1, t - 0.9f));
 		curTempP = curP;
@@ -323,11 +314,13 @@ void GamePlayScene::Message(UINT msg)
 
 void GamePlayScene::CameraFrameLerping(float t)
 {
+	float mt = pow(t, 5);
+
 	curP = XMMATRIX(
-		Lerp(orthogonalP._11, perspectiveP._11, t), 0, 0, 0,
-		0, Lerp(orthogonalP._22, perspectiveP._22, t), 0, 0,
-		0, 0, Lerp(orthogonalP._33, perspectiveP._33, t), Lerp(0, 1, t),
-		0, 0, Lerp(orthogonalP._43, perspectiveP._43, t), Lerp(1, 0, t)
+		Lerp(orthogonalP._11, perspectiveP._11, mt), 0, 0, 0,
+		0, Lerp(orthogonalP._22, perspectiveP._22, mt), 0, 0,
+		0, 0, Lerp(orthogonalP._33, perspectiveP._33, mt), Lerp(0, 1, mt),
+		0, 0, Lerp(orthogonalP._43, perspectiveP._43, mt), Lerp(1, 0, mt)
 	);
 }
 
@@ -346,7 +339,7 @@ void GamePlayScene::CameraSliding(float t)
 
 void GamePlayScene::LightRotating(float t)
 {
-	float mt = (1 - cosf(t * 2 *XM_PI/3.0f)) / 2;
+	float mt = (1 - cosf(t * 2 *XM_PI/3)) / 2;
 
 	XMFLOAT3 startDir = MultiplyDir(lightStartDir, XMMatrixRotationY(mt * XM_PIDIV2));
 

@@ -19,9 +19,6 @@
     <Filter Include="Components">
       <UniqueIdentifier>{a6b25dea-0e53-4097-b39b-b810bcef00a7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="PBR">
-      <UniqueIdentifier>{02737186-4e35-44bd-9a8f-c933fdba25fd}</UniqueIdentifier>
-    </Filter>
     <Filter Include="DesignPattern">
       <UniqueIdentifier>{d8d73e40-602b-4fee-9329-fcf5bb469cb5}</UniqueIdentifier>
     </Filter>
@@ -31,14 +28,14 @@
     <Filter Include="Components\Shape">
       <UniqueIdentifier>{aa4a1df1-a7c5-479f-bd82-bb00d71d8704}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Tasks">
-      <UniqueIdentifier>{77fc1271-0aff-4c42-9baf-3758555cab9c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Scene">
       <UniqueIdentifier>{e94ffcb7-f5d5-48ad-80da-b7ba08ffccb8}</UniqueIdentifier>
     </Filter>
     <Filter Include="Manager">
       <UniqueIdentifier>{8e1b4faf-b0f0-4c5d-a5ea-b6cfe5a31dc5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TextureMapping">
+      <UniqueIdentifier>{02737186-4e35-44bd-9a8f-c933fdba25fd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -102,9 +99,6 @@
     <ClCompile Include="Shape.cpp">
       <Filter>Components\Shape</Filter>
     </ClCompile>
-    <ClCompile Include="DepthComplexity.cpp">
-      <Filter>Tasks</Filter>
-    </ClCompile>
     <ClCompile Include="Scene.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
@@ -142,15 +136,12 @@
       <Filter>Object</Filter>
     </ClCompile>
     <ClCompile Include="ShadowMap.cpp">
-      <Filter>PBR</Filter>
+      <Filter>TextureMapping</Filter>
     </ClCompile>
     <ClCompile Include="SSAOMap.cpp">
-      <Filter>PBR</Filter>
+      <Filter>TextureMapping</Filter>
     </ClCompile>
     <ClCompile Include="Nonaga.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="TaskMgr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SoundMgr.cpp">
@@ -161,6 +152,9 @@
     </ClCompile>
     <ClCompile Include="RasterizerState.cpp">
       <Filter>Components</Filter>
+    </ClCompile>
+    <ClCompile Include="TaskMgr.cpp">
+      <Filter>Manager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -233,9 +227,6 @@
     <ClInclude Include="Quad.h">
       <Filter>Components\Shape</Filter>
     </ClInclude>
-    <ClInclude Include="DepthComplexity.h">
-      <Filter>Tasks</Filter>
-    </ClInclude>
     <ClInclude Include="Scene.h">
       <Filter>Scene</Filter>
     </ClInclude>
@@ -282,19 +273,16 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ShadowMap.h">
-      <Filter>PBR</Filter>
+      <Filter>TextureMapping</Filter>
     </ClInclude>
     <ClInclude Include="ShaderReg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SSAOMap.h">
-      <Filter>PBR</Filter>
+      <Filter>TextureMapping</Filter>
     </ClInclude>
     <ClInclude Include="Nonaga.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="classTask.h">
-      <Filter>Tasks</Filter>
     </ClInclude>
     <ClInclude Include="TaskMgr.h">
       <Filter>Manager</Filter>
@@ -331,19 +319,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="MarkPS.hlsl">
-      <Filter>hlsl</Filter>
-    </FxCompile>
-    <FxCompile Include="MarkVS.hlsl">
-      <Filter>hlsl</Filter>
-    </FxCompile>
     <FxCompile Include="StandardVS.hlsl">
       <Filter>hlsl</Filter>
     </FxCompile>
     <FxCompile Include="StandardPS.hlsl">
-      <Filter>hlsl</Filter>
-    </FxCompile>
-    <FxCompile Include="HillCS.hlsl">
       <Filter>hlsl</Filter>
     </FxCompile>
     <FxCompile Include="UIVS.hlsl">
@@ -354,24 +333,6 @@
     </FxCompile>
     <FxCompile Include="ShadowVS.hlsl">
       <Filter>hlsl</Filter>
-    </FxCompile>
-    <FxCompile Include="GS.hlsl">
-      <Filter>hlsl</Filter>
-    </FxCompile>
-    <FxCompile Include="DepthComplexUIPS.hlsl">
-      <Filter>Tasks</Filter>
-    </FxCompile>
-    <FxCompile Include="HS.hlsl">
-      <Filter>Tasks</Filter>
-    </FxCompile>
-    <FxCompile Include="DS.hlsl">
-      <Filter>Tasks</Filter>
-    </FxCompile>
-    <FxCompile Include="VS.hlsl">
-      <Filter>Tasks</Filter>
-    </FxCompile>
-    <FxCompile Include="PS.hlsl">
-      <Filter>Tasks</Filter>
     </FxCompile>
     <FxCompile Include="SkyboxVS.hlsl">
       <Filter>hlsl</Filter>

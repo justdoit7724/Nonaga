@@ -31,7 +31,7 @@ private:
 	void CameraSliding(float t);
 	void LightRotating(float t);
 	float curTime = 0;
-	const float camFrameLerpingTime = 2;
+	const float camFrameLerpingTime = 4;
 
 	XMFLOAT4X4 orthogonalP;
 	XMFLOAT4X4 perspectiveP;
@@ -70,7 +70,7 @@ private:
 	float moveAngleX = 0;
 	float moveAngleY = 0;
 	float curCamDist=40;
-	const float closeUpSpeed = 100;
+	const float closeUpSpeed = 90;
 	const float angleSpeed = 3.141592f * 0.025f;
 
 	Skybox* skybox;

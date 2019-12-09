@@ -57,13 +57,15 @@ Lobby::Lobby()
 	title = new UI(canvas,XMFLOAT2(380 - titleSize.x * 0.5f, 170-titleSize.y*0.5f), titleSize, 0, titleSRV);
 	singleButton = new UIButton(canvas, OBS_DATA_AI, nullptr,XMFLOAT2(380 - selectButtonSize.x * 0.5f, 370 - selectButtonSize.y * 0.5f), selectButtonSize,
 		aiSRV, aiHoverSRV, aiPressSRV);
-	pvpButton = new UIButton(canvas, OBS_DATA_PVP, nullptr, XMFLOAT2(380 - selectButtonSize.x * 0.5f, 520 - selectButtonSize.y * 0.5f), selectButtonSize,
+	//need to edit size when adding AI button later
+	pvpButton = new UIButton(canvas, OBS_DATA_PVP, nullptr, XMFLOAT2(380 - selectButtonSize.x * 0.5f, /*520 - selectButtonSize.y * 0.5f*/360 - selectButtonSize.y * 0.5f), /*selectButtonSize*/XMFLOAT2(200,170),
 		pvpSRV, pvpHoverSRV, pvpPressSRV);
 	aiNormalButton = new UIButton(canvas, OBS_DATA_AI_NORMAL, nullptr, XMFLOAT2(380 - diffButtonSize.x * 0.5f, 370 - diffButtonSize.y * 0.5f), diffButtonSize,
 		diffNormalSRV, diffNormalHoverSRV, diffNormalPressSRV);
 	aiHardButton = new UIButton(canvas, OBS_DATA_AI_HARD, nullptr, XMFLOAT2(380 - diffButtonSize.x * 0.5f, 520 - diffButtonSize.y * 0.5f), diffButtonSize,
 		diffHardSRV, diffHardHoverSRV, diffHardPressSRV);
 	singleButton->AddObserver(this);
+	singleButton->SetEnabled(false); // disable for now
 	pvpButton->AddObserver(this);
 	aiNormalButton->SetEnabled(false);
 	aiHardButton->SetEnabled(false);
@@ -79,7 +81,7 @@ Lobby::~Lobby()
 }
 void Lobby::Update(float elapsed, float spf)
 {
-	const float fadeDuration = 2;
+	const float fadeDuration = 3;
 	float fadeT = -spf / fadeDuration;
 
 	switch (curStage)
