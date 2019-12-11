@@ -2,7 +2,6 @@
 
 #ifndef _PlaySpace
 #define _PlaySpace
-#include "Geometrics.h"
 #include "Token.h"
 #include "Tile.h"
 

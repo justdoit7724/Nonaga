@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Geometrics.h"
 
 class Transform
 {
