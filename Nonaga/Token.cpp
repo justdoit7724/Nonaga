@@ -25,8 +25,8 @@ Token::Token(std::shared_ptr<Shape> shape, std::shared_ptr<Shape> lodShape, Scen
 		p1?"StandardPS.cso":"StdDCMPS.cso", Z_ORDER_STANDARD),
 		id(id), isP1(p1), environment(environemnt), isIndicator(false), fallingSpeed(fminf(Rand01() + 0.5f, 1) * 15)
 {
-	TextureMgr::Instance()->Load("token", "Data\\Model\\Token\\pawn.png");
-	TextureMgr::Instance()->Load("tokenLod", "Data\\Model\\Token\\token_lod.png");
+	TextureMgr::Instance()->Load("token", "Data\\Model\\Token\\pawnDark.png");
+	TextureMgr::Instance()->Load("tokenLod", "Data\\Model\\Token\\pawnDark_lod.png");
 	TextureMgr::Instance()->Load("tokenTransp", "Data\\Texture\\white.png");
 	TextureMgr::Instance()->Load("tokenNormal", "Data\\Model\\Token\\pawn_normal.png");
 	TextureMgr::Instance()->Load("tokenDP", "Data\\Model\\Token\\pawn_displace.png");
