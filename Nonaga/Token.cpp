@@ -60,7 +60,7 @@ Token::Token(std::shared_ptr<Shape> shape, std::shared_ptr<Shape> lodShape, Scen
 	samp_desc.MaxLOD = D3D11_FLOAT32_MAX;
 	ds->AddSamp(0, 1, &samp_desc);
 	ps->AddCB(SHADER_REG_CB_MATERIAL, 1, sizeof(SHADER_MATERIAL));
-	SHADER_MATERIAL material(XMFLOAT3(0.7, 0.7, 0.7), isP1? 0:0.9, XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(0.8, 0.8, 0.8), 16, isP1?0.1f:0.3f);
+	SHADER_MATERIAL material(XMFLOAT3(0.7, 0.7, 0.7), isP1? 0:0.9, XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(0.8, 0.8, 0.8));
 	
 	ps->WriteCB(SHADER_REG_CB_MATERIAL, &material);
 	ps->AddSRV(SHADER_REG_SRV_DIFFUSE, 1);

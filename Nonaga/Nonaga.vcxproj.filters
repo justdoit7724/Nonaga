@@ -37,6 +37,9 @@
     <Filter Include="TextureMapping">
       <UniqueIdentifier>{02737186-4e35-44bd-9a8f-c933fdba25fd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="hlsl\cginc">
+      <UniqueIdentifier>{9b554362-78c9-44a9-81c3-950dba4904b3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Graphic.cpp">
@@ -298,25 +301,55 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="LightInfo.cginc">
-      <Filter>hlsl</Filter>
+    <None Include="packages.config" />
+    <None Include="ShaderInfo.cginc">
+      <Filter>hlsl\cginc</Filter>
     </None>
     <None Include="ShaderLight.cginc">
-      <Filter>hlsl</Filter>
-    </None>
-    <None Include="ShaderShadow.cginc">
-      <Filter>hlsl</Filter>
-    </None>
-    <None Include="ShaderVertex.cginc">
-      <Filter>hlsl</Filter>
-    </None>
-    <None Include="ShaderInfo.cginc">
-      <Filter>hlsl</Filter>
+      <Filter>hlsl\cginc</Filter>
     </None>
     <None Include="ShaderReg.cginc">
-      <Filter>hlsl</Filter>
+      <Filter>hlsl\cginc</Filter>
     </None>
-    <None Include="packages.config" />
+    <None Include="ShaderShadow.cginc">
+      <Filter>hlsl\cginc</Filter>
+    </None>
+    <None Include="ShaderVertex.cginc">
+      <Filter>hlsl\cginc</Filter>
+    </None>
+    <None Include="ShaderSampPoint.cginc">
+      <Filter>hlsl\cginc</Filter>
+    </None>
+    <None Include="ShaderSampAniso.cginc">
+      <Filter>hlsl\cginc</Filter>
+    </None>
+    <None Include="ShaderSampCmpLinearPoint.cginc">
+      <Filter>hlsl\cginc</Filter>
+    </None>
+    <None Include="ShaderSampCmpPoint.cginc">
+      <Filter>hlsl\cginc</Filter>
+    </None>
+    <None Include="ShaderSampLinearPoint.cginc">
+      <Filter>hlsl\cginc</Filter>
+    </None>
+    <None Include="ShaderCM.cginc">
+      <Filter>hlsl\cginc</Filter>
+    </None>
+    <None Include="ShaderDCM.cginc">
+      <Filter>hlsl\cginc</Filter>
+    </None>
+    <None Include="ShaderSampLinear.cginc">
+      <Filter>hlsl\cginc</Filter>
+    </None>
+    <None Include="ShaderNormal.cginc">
+      <Filter>hlsl\cginc</Filter>
+    </None>
+    <None Include="ShaderSSAO.cginc">
+      <Filter>hlsl\cginc</Filter>
+    </None>
+    <None Include="ShaderRghMetal.cginc">
+      <Filter>hlsl\cginc</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="StandardVS.hlsl">

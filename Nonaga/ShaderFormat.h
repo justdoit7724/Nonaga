@@ -154,15 +154,13 @@ private:
 	XMFLOAT4 diffuse;
 	XMFLOAT4 ambient;
 	XMFLOAT4 specular;
-	XMFLOAT4 info; // transp, reflection
 
 public:
-	SHADER_MATERIAL(XMFLOAT3 d, float transparency, XMFLOAT3 a, XMFLOAT3 s, float sp, float reflect)
+	SHADER_MATERIAL(XMFLOAT3 d, float transparency, XMFLOAT3 a, XMFLOAT3 s)
 		:
-		diffuse(XMFLOAT4(d.x, d.y, d.z,0)),
+		diffuse(XMFLOAT4(d.x, d.y, d.z,transparency)),
 		ambient(XMFLOAT4(a.x, a.y, a.z, 0)),
-		specular(XMFLOAT4(s.x, s.y, s.z, sp)), 
-		info(XMFLOAT4(transparency, reflect,0,0))
+		specular(XMFLOAT4(s.x, s.y, s.z, 0))
 	{}
 	void SetTransparency(float t)
 	{

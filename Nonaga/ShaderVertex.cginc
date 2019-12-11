@@ -1,4 +1,7 @@
 
+#ifndef _SHADER_VERTEX
+#define _SHADER_VERTEX
+
 struct STD_VS_INPUT
 {
     float3 pos : POSITION;
@@ -6,3 +9,5 @@ struct STD_VS_INPUT
     float2 tex : TEXCOORD;
     float3 tangent : TANGENT;
 };
+
+#endif

@@ -19,7 +19,7 @@ Tile::Tile(unsigned int id, std::shared_ptr<Shape> shape, std::shared_ptr<Shape>
 {
 	vs->AddCB(0, 1, sizeof(SHADER_STD_TRANSF));
 	ps->AddCB(SHADER_REG_CB_MATERIAL, 1, sizeof(SHADER_MATERIAL));
-	SHADER_MATERIAL material(XMFLOAT3(0.7, 0.7, 0.7), 0, XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(0.8, 0.8, 0.8), 16, 0.01f);
+	SHADER_MATERIAL material(XMFLOAT3(0.7, 0.7, 0.7), 0, XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(0.8, 0.8, 0.8));
 	ps->WriteCB(SHADER_REG_CB_MATERIAL, &material);
 
 	TextureMgr::Instance()->Load("tileNormal", "Data\\Texture\\wood_normal.jpg");

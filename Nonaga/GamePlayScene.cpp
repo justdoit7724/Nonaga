@@ -39,64 +39,6 @@ GamePlayScene::GamePlayScene()
 
 	CameraMgr::Instance()->SetMain("GamePlay");
 
-	D3D11_SAMPLER_DESC pointSamp_desc;
-	ZeroMemory(&pointSamp_desc, sizeof(D3D11_SAMPLER_DESC));
-	pointSamp_desc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
-	pointSamp_desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	pointSamp_desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	pointSamp_desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	pointSamp_desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	pointSamp_desc.MinLOD = 0;
-	pointSamp_desc.MaxLOD = D3D11_FLOAT32_MAX;
-	D3D11_SAMPLER_DESC anisotropicSamp_desc;
-	ZeroMemory(&anisotropicSamp_desc, sizeof(D3D11_SAMPLER_DESC));
-	anisotropicSamp_desc.Filter = D3D11_FILTER_ANISOTROPIC;
-	anisotropicSamp_desc.MaxAnisotropy = 4;
-	anisotropicSamp_desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	anisotropicSamp_desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	anisotropicSamp_desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	anisotropicSamp_desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	anisotropicSamp_desc.MinLOD = 0;
-	anisotropicSamp_desc.MaxLOD = D3D11_FLOAT32_MAX;
-	D3D11_SAMPLER_DESC cmpPointSamp_desc;
-	ZeroMemory(&cmpPointSamp_desc, sizeof(D3D11_SAMPLER_DESC));
-	cmpPointSamp_desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	cmpPointSamp_desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	cmpPointSamp_desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	cmpPointSamp_desc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
-	cmpPointSamp_desc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
-	cmpPointSamp_desc.MinLOD = 0;
-	cmpPointSamp_desc.MaxLOD = D3D11_FLOAT32_MAX;
-	D3D11_SAMPLER_DESC linearPointSamp_desc;
-	ZeroMemory(&linearPointSamp_desc, sizeof(D3D11_SAMPLER_DESC));
-	linearPointSamp_desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	linearPointSamp_desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	linearPointSamp_desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	linearPointSamp_desc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
-	linearPointSamp_desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	linearPointSamp_desc.MinLOD = 0;
-	linearPointSamp_desc.MaxLOD = D3D11_FLOAT32_MAX;
-	D3D11_SAMPLER_DESC linearSamp_desc;
-	ZeroMemory(&linearSamp_desc, sizeof(D3D11_SAMPLER_DESC));
-	linearSamp_desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	linearSamp_desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	linearSamp_desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	linearSamp_desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	linearSamp_desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	linearSamp_desc.MinLOD = 0;
-	linearSamp_desc.MaxLOD = D3D11_FLOAT32_MAX;
-
-	r_assert(DX_Device->CreateSamplerState(&pointSamp_desc, pointSamp.GetAddressOf()));
-	r_assert(DX_Device->CreateSamplerState(&linearPointSamp_desc, linearPointSamp.GetAddressOf()));
-	r_assert(DX_Device->CreateSamplerState(&anisotropicSamp_desc, anisotropicSamp.GetAddressOf()));
-	r_assert(DX_Device->CreateSamplerState(&cmpPointSamp_desc, cmpPointSamp.GetAddressOf()));
-	r_assert(DX_Device->CreateSamplerState(&linearSamp_desc, linearSamp.GetAddressOf()));
-	DX_DContext->PSSetSamplers(SHADER_REG_SAMP_POINT, 1, pointSamp.GetAddressOf());
-	DX_DContext->PSSetSamplers(SHADER_REG_SAMP_LINEAR_POINT, 1, linearPointSamp.GetAddressOf());
-	DX_DContext->PSSetSamplers(SHADER_REG_SAMP_ANISOTROPIC, 1, anisotropicSamp.GetAddressOf());
-	DX_DContext->PSSetSamplers(SHADER_REG_SAMP_CMP_POINT, 1, cmpPointSamp.GetAddressOf());
-	DX_DContext->PSSetSamplers(SHADER_REG_SAMP_LINEAR, 1, linearSamp.GetAddressOf());
-
 	std::vector<std::string> cmTex;
 	cmTex.push_back("Data\\Texture\\cm_px.jpg");
 	cmTex.push_back("Data\\Texture\\cm_nx.jpg");
@@ -158,6 +100,8 @@ GamePlayScene::GamePlayScene()
 	endUI = new UI(canvas, XMFLOAT2(0, 50), XMFLOAT2(760, 190), 0, TextureMgr::Instance()->Get("thankyou"));
 	endUI->SetEnabled(false);
 	endUI->Fade(-1);
+
+	BindSamp();
 }
 
 GamePlayScene::~GamePlayScene()
@@ -166,6 +110,78 @@ GamePlayScene::~GamePlayScene()
 	delete dLight;
 	delete camera;
 	delete nonaga;
+}
+
+void GamePlayScene::BindSamp()
+{
+	D3D11_SAMPLER_DESC pointSamp_desc;
+	ZeroMemory(&pointSamp_desc, sizeof(D3D11_SAMPLER_DESC));
+	pointSamp_desc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+	pointSamp_desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	pointSamp_desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	pointSamp_desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	pointSamp_desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	pointSamp_desc.MinLOD = 0;
+	pointSamp_desc.MaxLOD = D3D11_FLOAT32_MAX;
+	D3D11_SAMPLER_DESC anisotropicSamp_desc;
+	ZeroMemory(&anisotropicSamp_desc, sizeof(D3D11_SAMPLER_DESC));
+	anisotropicSamp_desc.Filter = D3D11_FILTER_ANISOTROPIC;
+	anisotropicSamp_desc.MaxAnisotropy = 4;
+	anisotropicSamp_desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	anisotropicSamp_desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	anisotropicSamp_desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	anisotropicSamp_desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	anisotropicSamp_desc.MinLOD = 0;
+	anisotropicSamp_desc.MaxLOD = D3D11_FLOAT32_MAX;
+	D3D11_SAMPLER_DESC cmpLinearPointSamp_desc;
+	ZeroMemory(&cmpLinearPointSamp_desc, sizeof(D3D11_SAMPLER_DESC));
+	cmpLinearPointSamp_desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	cmpLinearPointSamp_desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	cmpLinearPointSamp_desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	cmpLinearPointSamp_desc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+	cmpLinearPointSamp_desc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
+	cmpLinearPointSamp_desc.MinLOD = 0;
+	cmpLinearPointSamp_desc.MaxLOD = D3D11_FLOAT32_MAX;
+	D3D11_SAMPLER_DESC cmpPointSamp_desc;
+	ZeroMemory(&cmpPointSamp_desc, sizeof(D3D11_SAMPLER_DESC));
+	cmpPointSamp_desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	cmpPointSamp_desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	cmpPointSamp_desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	cmpPointSamp_desc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
+	cmpPointSamp_desc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
+	cmpPointSamp_desc.MinLOD = 0;
+	cmpPointSamp_desc.MaxLOD = D3D11_FLOAT32_MAX;
+	D3D11_SAMPLER_DESC linearPointSamp_desc;
+	ZeroMemory(&linearPointSamp_desc, sizeof(D3D11_SAMPLER_DESC));
+	linearPointSamp_desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	linearPointSamp_desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	linearPointSamp_desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	linearPointSamp_desc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
+	linearPointSamp_desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	linearPointSamp_desc.MinLOD = 0;
+	linearPointSamp_desc.MaxLOD = D3D11_FLOAT32_MAX;
+	D3D11_SAMPLER_DESC linearSamp_desc;
+	ZeroMemory(&linearSamp_desc, sizeof(D3D11_SAMPLER_DESC));
+	linearSamp_desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	linearSamp_desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	linearSamp_desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	linearSamp_desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	linearSamp_desc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	linearSamp_desc.MinLOD = 0;
+	linearSamp_desc.MaxLOD = D3D11_FLOAT32_MAX;
+
+	r_assert(DX_Device->CreateSamplerState(&pointSamp_desc, pointSamp.GetAddressOf()));
+	r_assert(DX_Device->CreateSamplerState(&linearPointSamp_desc, linearPointSamp.GetAddressOf()));
+	r_assert(DX_Device->CreateSamplerState(&anisotropicSamp_desc, anisotropicSamp.GetAddressOf()));
+	r_assert(DX_Device->CreateSamplerState(&cmpPointSamp_desc, cmpPointSamp.GetAddressOf()));
+	r_assert(DX_Device->CreateSamplerState(&cmpLinearPointSamp_desc, cmpLinearPointSamp.GetAddressOf()));
+	r_assert(DX_Device->CreateSamplerState(&linearSamp_desc, linearSamp.GetAddressOf()));
+	DX_DContext->PSSetSamplers(SHADER_REG_SAMP_POINT, 1, pointSamp.GetAddressOf());
+	DX_DContext->PSSetSamplers(SHADER_REG_SAMP_LINEAR_POINT, 1, linearPointSamp.GetAddressOf());
+	DX_DContext->PSSetSamplers(SHADER_REG_SAMP_ANISOTROPIC, 1, anisotropicSamp.GetAddressOf());
+	DX_DContext->PSSetSamplers(SHADER_REG_SAMP_CMP_POINT, 1, cmpPointSamp.GetAddressOf());
+	DX_DContext->PSSetSamplers(SHADER_REG_SAMP_CMP_LINEAR_POINT, 1, cmpLinearPointSamp.GetAddressOf());
+	DX_DContext->PSSetSamplers(SHADER_REG_SAMP_LINEAR, 1, linearSamp.GetAddressOf());
 }
 
 void GamePlayScene::BindEye()

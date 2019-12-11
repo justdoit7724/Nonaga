@@ -1,16 +1,16 @@
 
 #include "ShaderReg.cginc"
+#include "ShaderSampCmpLinearPoint.cginc"
+#include "ShaderSampPoint.cginc"
 
 cbuffer LIGHT_PERSPECTIVE : SHADER_REG_CB_LIGHTVP
 {
     float4x4 lightVPT;
 };
 
+
 Texture2D shadowTex : SHADER_REG_SRV_SHADOW;
 Texture2D shadowTranspTex : SHADER_REG_SRV_SHADOW_TRANSP;
-
-SamplerComparisonState shadowSamp : SHADER_REG_SAMP_CMP_POINT;
-SamplerState pointSamp : SHADER_REG_SAMP_POINT;
 
 float DirectionalLightOpaqueShadowFactor(float3 wNormal, float3 lightDir, float3 wPos)
 {
@@ -36,7 +36,7 @@ float DirectionalLightOpaqueShadowFactor(float3 wNormal, float3 lightDir, float3
     [unroll]
     for (int i = 0; i < 9; ++i)
     {
-        totalFactor += shadowTex.SampleCmpLevelZero(shadowSamp, lightPos.xy + offsets[i].xy, lightPos.z).r * offsets[i].z;
+        totalFactor += shadowTex.SampleCmpLevelZero(linearPointCmpSamp, lightPos.xy + offsets[i].xy, lightPos.z).r * offsets[i].z;
     }
     
     totalFactor = 1 - totalFactor;
@@ -89,6 +89,7 @@ float2 DirectionalLightTranspShadowFactor(float3 wDir, float3 lightDir, float3 w
     return float2(power * (overlap * totalWeight) * totalIntensity / totalWeight, area);
 }
 
+// 6 side cube shadow mapping (not used in this project though)
 float PointLightShadowFactor(float3 wNormal, float3 wPos, float3 lightPos, TextureCube map, SamplerState samp, float2 shadowPMatElem)
 {
     float3 lPos = wPos - lightPos;

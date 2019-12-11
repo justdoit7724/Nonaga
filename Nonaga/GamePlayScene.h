@@ -25,6 +25,7 @@ public:
 	void Message(UINT msg)override;
 
 private:
+	void BindSamp();
 	void BindEye();
 	void CameraMove(float spf);
 	void CameraFrameLerping(float t);
@@ -44,6 +45,7 @@ private:
 	ComPtr<ID3D11SamplerState> oShadowSamp;
 	ComPtr<ID3D11SamplerState> tShadowSamp;
 	ComPtr<ID3D11SamplerState> cmpPointSamp;
+	ComPtr<ID3D11SamplerState> cmpLinearPointSamp;
 
 	enum GAMEPLAY_STAGE
 	{

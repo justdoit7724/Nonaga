@@ -1,9 +1,13 @@
 
+#ifndef _SHADER_LIGHT
+#define _SHADER_LIGHT
+
 #include "ShaderReg.cginc"
 
 #define LIGHT_ENABLED 1
 #define LIGHT_DISABLED 0
-#define LIGHT_MAX_EACH 1
+#define LIGHT_MAX_EACH 1 // multiple lights can be applied
+#define LIGHT_SPEC_POWER_MAX 16
 
 cbuffer DIRECTIONAL_LIGHT : SHADER_REG_CB_DIRLIGHT
 {
@@ -39,9 +43,8 @@ cbuffer MATERIAL : register(b4)
     float4 mDiffuse;
     float4 mAmbient;
     float4 mSpecular;
-    float4 mInfo; // (transp, reflect, p, p)
 };
-void ComputeDirectionalLight(float3 normal, float3 toEye, float specPower, out float3 ambient, out float3 diffuse, out float3 spec)
+void ComputeDirectionalLight(float3 normal, float3 toEye, float roughness, out float3 ambient, out float3 diffuse, out float3 spec)
 {
     ambient = float3(0.0f, 0.0f, 0.0f);
     diffuse = float3(0.0f, 0.0f, 0.0f);
@@ -56,11 +59,13 @@ void ComputeDirectionalLight(float3 normal, float3 toEye, float specPower, out f
         float diffuseFactor = max(0.0f, dot(-d_Dir[i].xyz, normal));
     
         float3 v = reflect(d_Dir[i].xyz, normal);
-        float specFactor = pow(saturate(dot(v, toEye)), specPower);
+        float specFactor = pow(saturate(dot(v, toEye)), (1 - roughness) * LIGHT_SPEC_POWER_MAX);
         diffuse += diffuseFactor * mDiffuse.xyz * d_Diffuse[i].xyz;
         spec += specFactor * mSpecular.xyz * d_Specular[i].xyz;
     }
 }
+
+// not used in the project
 void ComputePointLight(float3 pos, float3 normal, float3 toEye, out float3 ambient, out float3 diffuse, out float3 spec)
 {
     ambient = float3(0.0f, 0.0f, 0.0f);
@@ -130,3 +135,5 @@ void ComputeSpotLight(float3 pos, float3 normal, float3 toEye, out float3 ambien
         spec += tmpS;
     }
 }
+
+#endif

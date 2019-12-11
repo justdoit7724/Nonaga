@@ -2,9 +2,11 @@
 #include "ShaderInfo.cginc"
 #include "ShaderLight.cginc"
 #include "ShaderReg.cginc"
+#include "ShaderSampPoint.cginc"
+#include "ShaderSampCmpPoint.cginc"
+#include "ShaderRghMetal.cginc"
 
 #define REFRACTION_INDEX_GLASS 1.2
-#define ROUGHNESS_MAX 16
 
 cbuffer EYE : SHADER_REG_CB_EYE
 {
@@ -19,11 +21,7 @@ TextureCube cmTex : SHADER_REG_SRV_CM;
 Texture2D diffuseTex : SHADER_REG_SRV_DIFFUSE;
 Texture2D shadowTex : SHADER_REG_SRV_SHADOW;
 Texture2D shadowTranspTex : SHADER_REG_SRV_SHADOW_TRANSP;
-Texture2D roughnessTex : SHADER_REG_SRV_ROUGHNESS;
 //...
-
-SamplerComparisonState shadowSamp : SHADER_REG_SAMP_CMP_POINT;
-SamplerState pointSamp : SHADER_REG_SAMP_POINT;
 
 float3 ComputeTransparency(float3 wPos, float3 normal, float3 look)
 {
@@ -48,7 +46,7 @@ float DirectionalLightOpaqueShadowFactor(float3 wNormal, float3 lightDir, float3
     float dx = 1.0f / mapWidth;
     float dy = 1.0f / mapHeight;
     
-    return saturate(1-shadowTex.SampleCmpLevelZero(shadowSamp, lightPos.xy, lightPos.z).r);
+    return saturate(1-shadowTex.SampleCmpLevelZero(pointCmpSamp, lightPos.xy, lightPos.z).r);
 }
 float2 DirectionalLightTranspShadowFactor(float3 wDir, float3 lightDir, float3 wPos)
 {
@@ -89,11 +87,12 @@ float4 main(PS_INPUT input) : SV_Target
     
     float3 specular = 0;
     
-    float roughness = roughnessTex.Sample(pointSamp, input.tex).r;
-    ComputeDirectionalLight(wNormal, -look, max(1, (1 - roughness) * ROUGHNESS_MAX), ambient, diffuse, specular);
+    float roughness = ComputeRoughness(pointSamp, input.tex);
+    float metallic = ComputeMetallic(pointSamp, input.tex);
+    ComputeDirectionalLight(wNormal, -look, roughness, ambient, diffuse, specular);
     specular *= (1 - roughness);
-    float transpT = mInfo.x * (1 - roughness);
-    float refractT = mInfo.y * (1 - roughness);
+    float transpT = mDiffuse.a * (1 - roughness);
+    float refractT = metallic * (1 - roughness);
 
     float3 transp = ComputeTransparency(input.wPos, wNormal, look);
     float3 tex = diffuseTex.Sample(pointSamp, input.tex).xyz;

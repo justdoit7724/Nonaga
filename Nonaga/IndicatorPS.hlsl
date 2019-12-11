@@ -1,9 +1,9 @@
 
 #include "ShaderInfo.cginc"
 #include "ShaderReg.cginc"
+#include "ShaderSampPoint.cginc"
 
 Texture2D diffuseTex : SHADER_REG_SRV_DIFFUSE;
-SamplerState pointSamp : SHADER_REG_SAMP_POINT;
 
 struct PS_INPUT
 {
