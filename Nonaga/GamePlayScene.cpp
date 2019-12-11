@@ -20,6 +20,7 @@
 
 GamePlayScene::GamePlayScene()
 {
+
 	curStage = GAMEPLAY_STAGE_LOBBY;
 
 	lightStartDir = Normalize(XMFLOAT3(-cosf(XM_PIDIV2/1.2f)*2, -1, sinf(XM_PIDIV2/1.2f)*2));
@@ -110,6 +111,11 @@ GamePlayScene::~GamePlayScene()
 	delete dLight;
 	delete camera;
 	delete nonaga;
+	delete canvas;
+	delete endUI;
+	delete ssao;
+	delete oShadowMapping;
+	delete tShadowMapping;
 }
 
 void GamePlayScene::BindSamp()
@@ -151,15 +157,6 @@ void GamePlayScene::BindSamp()
 	cmpPointSamp_desc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
 	cmpPointSamp_desc.MinLOD = 0;
 	cmpPointSamp_desc.MaxLOD = D3D11_FLOAT32_MAX;
-	D3D11_SAMPLER_DESC linearPointSamp_desc;
-	ZeroMemory(&linearPointSamp_desc, sizeof(D3D11_SAMPLER_DESC));
-	linearPointSamp_desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	linearPointSamp_desc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	linearPointSamp_desc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	linearPointSamp_desc.Filter = D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT;
-	linearPointSamp_desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	linearPointSamp_desc.MinLOD = 0;
-	linearPointSamp_desc.MaxLOD = D3D11_FLOAT32_MAX;
 	D3D11_SAMPLER_DESC linearSamp_desc;
 	ZeroMemory(&linearSamp_desc, sizeof(D3D11_SAMPLER_DESC));
 	linearSamp_desc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -171,13 +168,11 @@ void GamePlayScene::BindSamp()
 	linearSamp_desc.MaxLOD = D3D11_FLOAT32_MAX;
 
 	r_assert(DX_Device->CreateSamplerState(&pointSamp_desc, pointSamp.GetAddressOf()));
-	r_assert(DX_Device->CreateSamplerState(&linearPointSamp_desc, linearPointSamp.GetAddressOf()));
 	r_assert(DX_Device->CreateSamplerState(&anisotropicSamp_desc, anisotropicSamp.GetAddressOf()));
 	r_assert(DX_Device->CreateSamplerState(&cmpPointSamp_desc, cmpPointSamp.GetAddressOf()));
 	r_assert(DX_Device->CreateSamplerState(&cmpLinearPointSamp_desc, cmpLinearPointSamp.GetAddressOf()));
 	r_assert(DX_Device->CreateSamplerState(&linearSamp_desc, linearSamp.GetAddressOf()));
 	DX_DContext->PSSetSamplers(SHADER_REG_SAMP_POINT, 1, pointSamp.GetAddressOf());
-	DX_DContext->PSSetSamplers(SHADER_REG_SAMP_LINEAR_POINT, 1, linearPointSamp.GetAddressOf());
 	DX_DContext->PSSetSamplers(SHADER_REG_SAMP_ANISOTROPIC, 1, anisotropicSamp.GetAddressOf());
 	DX_DContext->PSSetSamplers(SHADER_REG_SAMP_CMP_POINT, 1, cmpPointSamp.GetAddressOf());
 	DX_DContext->PSSetSamplers(SHADER_REG_SAMP_CMP_LINEAR_POINT, 1, cmpLinearPointSamp.GetAddressOf());

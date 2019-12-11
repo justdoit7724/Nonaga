@@ -34,6 +34,8 @@ Token::Token(std::shared_ptr<Shape> shape, std::shared_ptr<Shape> lodShape, Scen
 	TextureMgr::Instance()->Load("token2Rgh", "Data\\Model\\Token\\pawn2_rgh.jpg");
 	TextureMgr::Instance()->Load("tokenLodRgh", "Data\\Model\\Token\\pawn_lod_rgh.jpg");
 	TextureMgr::Instance()->Load("token2LodRgh", "Data\\Model\\Token\\pawn2_lod_rgh.jpg");
+	TextureMgr::Instance()->Load("token1Metal", "Data\\Model\\Token\\pawn_metal.png");
+	TextureMgr::Instance()->Load("token2Metal", "Data\\Model\\Token\\pawn2_metal.png");
 	
 	if (captureCam == nullptr)
 	{
@@ -66,9 +68,11 @@ Token::Token(std::shared_ptr<Shape> shape, std::shared_ptr<Shape> lodShape, Scen
 	ps->AddSRV(SHADER_REG_SRV_DIFFUSE, 1);
 	ps->AddSRV(SHADER_REG_SRV_NORMAL, 1);
 	ps->AddSRV(SHADER_REG_SRV_ROUGHNESS, 1);
+	ps->AddSRV(SHADER_REG_SRV_METALLIC, 1);
 	ps->WriteSRV(SHADER_REG_SRV_DIFFUSE, TextureMgr::Instance()->Get(isP1? "token" : "tokenTransp"));
 	ps->WriteSRV(SHADER_REG_SRV_NORMAL, TextureMgr::Instance()->Get("tokenNormal"));
 	ps->WriteSRV(SHADER_REG_SRV_ROUGHNESS, TextureMgr::Instance()->Get(isP1?"tokenRgh":"token2Rgh"));
+	ps->WriteSRV(SHADER_REG_SRV_METALLIC, TextureMgr::Instance()->Get(isP1?"token1Metal":"token2Metal"));
 
 	lodVs = new VShader("StandardVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
 	lodVs->AddCB(0, 1, sizeof(SHADER_STD_TRANSF));
@@ -77,8 +81,10 @@ Token::Token(std::shared_ptr<Shape> shape, std::shared_ptr<Shape> lodShape, Scen
 	lodPs->WriteCB(SHADER_REG_CB_MATERIAL, &material);
 	lodPs->AddSRV(SHADER_REG_SRV_DIFFUSE, 1);
 	lodPs->AddSRV(SHADER_REG_SRV_ROUGHNESS, 1);
+	lodPs->AddSRV(SHADER_REG_SRV_METALLIC, 1);
 	lodPs->WriteSRV(SHADER_REG_SRV_DIFFUSE, TextureMgr::Instance()->Get("tokenLod"));
 	lodPs->WriteSRV(SHADER_REG_SRV_ROUGHNESS, TextureMgr::Instance()->Get(isP1?"tokenLodRgh":"token2LodRgh"));
+	lodPs->WriteSRV(SHADER_REG_SRV_METALLIC, TextureMgr::Instance()->Get(isP1 ? "token1Metal" : "token2Metal"));
 
 	D3D11_TEXTURE2D_DESC capture_desc;
 	capture_desc.Width = SCREEN_WIDTH;
@@ -159,6 +165,18 @@ Token::Token(std::shared_ptr<Shape> shape, bool isRed)
 
 	transform->SetScale(0.2, 0.2, 0.2);
 	enabled = false;
+}
+
+Token::~Token()
+{
+	if (captureCam)
+	{
+		delete captureCam;
+		captureCam = nullptr;
+	}
+
+	delete lodVs;
+	delete lodPs;
 }
 
 

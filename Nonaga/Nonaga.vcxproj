@@ -258,7 +258,6 @@
     <None Include="ShaderSampCmpLinearPoint.cginc" />
     <None Include="ShaderSampCmpPoint.cginc" />
     <None Include="ShaderSampLinear.cginc" />
-    <None Include="ShaderSampLinearPoint.cginc" />
     <None Include="ShaderSampPoint.cginc" />
     <None Include="ShaderSSAO.cginc" />
     <None Include="ShaderVertex.cginc" />

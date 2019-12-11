@@ -1,14 +1,6 @@
 #include "stdafx.h"
 #include "TextureMgr.h"
 
-TextureMgr::~TextureMgr()
-{
-	for (auto e : SRVs) {
-
-		e.second->Release();
-	}
-}
-
 int CalculateMaxMiplevel(int width, int height)
 {
 	return fmaxf(log2(fmaxf(width, height)),1);
@@ -278,6 +270,14 @@ ID3D11Texture2D* TextureMgr::GetTexture(std::string key)
 	ID3D11Texture2D* tex=nullptr;
 	r_assert( resource->QueryInterface(__uuidof(ID3D11Texture2D), (void**)&tex) );
 	return tex;
+}
+
+void TextureMgr::Release()
+{
+	for (auto e : SRVs) {
+
+		e.second->Release();
+	}
 }
 
 

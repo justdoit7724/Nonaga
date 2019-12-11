@@ -11,14 +11,6 @@ void SceneMgr::Add(std::string key, Scene* scene)
 	list.insert(std::pair<std::string, Scene*>(key, scene));
 }
 
-SceneMgr::~SceneMgr()
-{
-	for (auto s : list)
-	{
-		delete s.second;
-	}
-}
-
 void SceneMgr::BroadcastMessage(UINT msg)
 {
 	for (auto s : list)
@@ -41,6 +33,14 @@ void SceneMgr::SafeDeleteScene(std::string key)
 void SceneMgr::SetEnabled(std::string key, bool e)
 {
 	list[key]->SetEnabled(e);
+}
+
+void SceneMgr::Release()
+{
+	for (auto s : list)
+	{
+		delete s.second;
+	}
 }
 
 void SceneMgr::Process(float wElapsed, float wSpf)

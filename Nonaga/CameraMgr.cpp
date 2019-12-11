@@ -11,13 +11,18 @@ void CameraMgr::Add(std::string key, const Camera* camera)
 
 void CameraMgr::Remove(std::string key)
 {
-	assert(list.find(key) != list.end());
+	assert(list.count(key));
 	list.erase(key);
 }
 
 void CameraMgr::SetMain(std::string key)
 {
 	mainKey = key;
+}
+
+void CameraMgr::Release()
+{
+	assert(list.empty());
 }
 
 const Camera* CameraMgr::Main()

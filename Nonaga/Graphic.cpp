@@ -52,11 +52,11 @@ Graphic::Graphic(HWND _hwnd)
 		swapchain->GetBuffer(
 			0, 
 			__uuidof(ID3D11Texture2D), 
-			reinterpret_cast<void**>(&backBuffer))
+			reinterpret_cast<void**>(backBuffer.GetAddressOf()))
 	); 
 	r_assert(
 		DX_Device->CreateRenderTargetView(
-			backBuffer, 
+			backBuffer.Get(), 
 			nullptr, 
 			rtv.GetAddressOf())
 	);
@@ -92,7 +92,7 @@ Graphic::Graphic(HWND _hwnd)
 	dsv_desc.Texture2D.MipSlice = 0;
 	r_assert(
 		DX_Device->CreateDepthStencilView(
-			depthStencilBuffer,
+			depthStencilBuffer.Get(),
 			&dsv_desc,
 			dsView.GetAddressOf())
 	);
@@ -128,8 +128,7 @@ Graphic::Graphic(HWND _hwnd)
 
 Graphic::~Graphic()
 {
-	backBuffer->Release();
-	depthStencilBuffer->Release();
+	DX_DContext->ClearState();
 	DX_DContext->Release();
 	DX_Device->Release();
 }

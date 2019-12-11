@@ -20,6 +20,7 @@ public:
 	void UpdateLeft(const bool press);
 	void UpdateRight(const bool press);
 	void StartWheel(bool isUp);
+	void Release()override {}
 
 	DirectX::XMFLOAT2 Pos() { return pt; }
 	DirectX::XMFLOAT2 LeftDragStartPt() { return leftDragStartPt;}

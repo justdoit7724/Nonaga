@@ -13,10 +13,10 @@ class SceneMgr :
 	public Singleton<SceneMgr>
 {
 public:
-	~SceneMgr();
 	void BroadcastMessage(UINT msg);
 	void SafeDeleteScene(std::string key);
 	void SetEnabled(std::string key, bool e);
+	void Release()override;
 	const Scene* Get(std::string key){return list[key];}
 	
 private:

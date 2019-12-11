@@ -21,7 +21,7 @@ Camera::Camera(std::string key, FRAME_KIND frameKind, float orthoScnWidth, float
 	frustum.skip = skipFrustum;
 }
 Camera::Camera(FRAME_KIND frameKind, float orthoScnWidth, float orthoScnHeight, float n, float f, float verticalViewRad, float aspectRatio, bool skipFrustum)
-	:key(key)
+	:key("")
 {
 	transform = new Transform();
 
@@ -33,7 +33,8 @@ Camera::Camera(FRAME_KIND frameKind, float orthoScnWidth, float orthoScnHeight, 
 
 Camera::~Camera()
 {
-	CameraMgr::Instance()->Remove(key);
+	if(key!="")
+		CameraMgr::Instance()->Remove(key);
 
 	delete transform;
 	delete[] projMats;

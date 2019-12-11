@@ -153,7 +153,7 @@ void UIButton::Render(const Camera* camera) const
 UICanvas::UICanvas(float width, float height)
 	: totalWidth(width), totalHeight(height)
 {
-	camera = new Camera("UI", FRAME_KIND_ORTHOGONAL, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1f, 10, NULL, NULL, true);
+	camera = new Camera(FRAME_KIND_ORTHOGONAL, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1f, 10, NULL, NULL, true);
 	camera->transform->SetTranslation(XMFLOAT3(width * 0.5f, height * 0.5f, 0));
 	camera->transform->SetRot(FORWARD, UP);
 	camera->Update();

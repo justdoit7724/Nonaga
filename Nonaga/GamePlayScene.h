@@ -41,7 +41,6 @@ private:
 	ComPtr<ID3D11SamplerState> pointSamp;
 	ComPtr<ID3D11SamplerState> linearSamp;
 	ComPtr<ID3D11SamplerState> anisotropicSamp;
-	ComPtr<ID3D11SamplerState> linearPointSamp;
 	ComPtr<ID3D11SamplerState> oShadowSamp;
 	ComPtr<ID3D11SamplerState> tShadowSamp;
 	ComPtr<ID3D11SamplerState> cmpPointSamp;

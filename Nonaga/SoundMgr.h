@@ -12,6 +12,7 @@ public:
 	void Update();
 	void Add(std::string key, std::wstring path);
 	void Play(std::string key);
+	void Release()override {};
 
 private:
 	std::unique_ptr<AudioEngine> audEngine;

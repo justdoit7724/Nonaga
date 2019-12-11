@@ -7,6 +7,7 @@ class Tile : public Object
 public: 
 	Tile(unsigned int id, std::shared_ptr<Shape> shape, std::shared_ptr<Shape> lodShape);
 	Tile(bool isRed, std::shared_ptr<Shape> shape);
+	~Tile();
 
 	void Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth)const override;
 	void UpdateBound()override;

@@ -14,15 +14,10 @@ public:
 		return instance;
 	}
 
-	void Release()
-	{
-		delete instance;
-		instance = nullptr;
-	}
+	virtual void Release() = 0;
 
 protected:
 	Singleton() {}
-	~Singleton() {}
 
 
 private:

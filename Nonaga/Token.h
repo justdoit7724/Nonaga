@@ -11,6 +11,7 @@ class Token : public Object
 public:
 	Token(std::shared_ptr<Shape> shape, std::shared_ptr<Shape> lodShape, Scene* environemnt, unsigned int id, bool p1);
 	Token(std::shared_ptr<Shape> shape, bool isRed);
+	~Token();
 
 	void Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) const override;
 

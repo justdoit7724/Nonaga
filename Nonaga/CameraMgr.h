@@ -11,6 +11,7 @@ public:
 	void Add(std::string key, const Camera* camera);
 	void Remove(std::string key);
 	void SetMain(std::string key);
+	void Release()override;
 	const Camera* Main();
 	std::string GetMainKey() { return mainKey; }
 

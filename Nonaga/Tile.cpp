@@ -27,21 +27,26 @@ Tile::Tile(unsigned int id, std::shared_ptr<Shape> shape, std::shared_ptr<Shape>
 	TextureMgr::Instance()->Load("tileLod", "Data\\Texture\\wood_lod.jpg");
 	TextureMgr::Instance()->Load("tileRgh", "Data\\Texture\\wood_rgh.jpg");
 	TextureMgr::Instance()->Load("tileLodRgh", "Data\\Texture\\wood_lod_rgh.jpg");
+	TextureMgr::Instance()->Load("tileMetal", "Data\\Texture\\wood_metal.png");
 
 	ps->AddSRV(SHADER_REG_SRV_DIFFUSE, 1);
 	ps->AddSRV(SHADER_REG_SRV_NORMAL, 1);
 	ps->AddSRV(SHADER_REG_SRV_ROUGHNESS, 1);
+	ps->AddSRV(SHADER_REG_SRV_METALLIC, 1);
 	ps->WriteSRV(SHADER_REG_SRV_DIFFUSE, TextureMgr::Instance()->Get("tile")); 
 	ps->WriteSRV(SHADER_REG_SRV_NORMAL, TextureMgr::Instance()->Get("tileNormal"));
 	ps->WriteSRV(SHADER_REG_SRV_ROUGHNESS, TextureMgr::Instance()->Get("tileRgh"));
+	ps->WriteSRV(SHADER_REG_SRV_METALLIC, TextureMgr::Instance()->Get("tileMetal"));
 
 	lodPs = new PShader("Std2PS.cso");
 	lodPs->AddCB(SHADER_REG_CB_MATERIAL, 1, sizeof(SHADER_MATERIAL));
 	lodPs->WriteCB(SHADER_REG_CB_MATERIAL, &material);
 	lodPs->AddSRV(SHADER_REG_SRV_DIFFUSE, 1);
 	lodPs->AddSRV(SHADER_REG_SRV_ROUGHNESS, 1);
+	lodPs->AddSRV(SHADER_REG_SRV_METALLIC, 1);
 	lodPs->WriteSRV(SHADER_REG_SRV_DIFFUSE, TextureMgr::Instance()->Get("tileLod"));
 	lodPs->WriteSRV(SHADER_REG_SRV_ROUGHNESS, TextureMgr::Instance()->Get("tileLodRgh"));
+	lodPs->WriteSRV(SHADER_REG_SRV_METALLIC, TextureMgr::Instance()->Get("tileMetal"));
 	
 	transform->SetScale(10, 1, 10);
 }
@@ -64,6 +69,11 @@ Tile::Tile(bool isRed, std::shared_ptr<Shape> shape)
 	ps->WriteSRV(SHADER_REG_SRV_NORMAL, TextureMgr::Instance()->Get("normal"));
 
 	transform->SetScale(10, 1, 10);
+}
+
+Tile::~Tile()
+{
+	delete lodPs;
 }
 
 void Tile::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) const

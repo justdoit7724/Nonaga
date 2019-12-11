@@ -16,6 +16,7 @@ public:
 	void Add(void const* subject,ID3D11RenderTargetView* rtv, ID3D11DepthStencilView* dsv, Scene const* scene, XMMATRIX const& vp, const Frustum& frustum, UINT sceneDepth);
 	void Work();
 	bool HasTaskFrom(void const* subject);
+	void Release()override {}
 
 private:
 

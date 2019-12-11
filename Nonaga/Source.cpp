@@ -63,16 +63,13 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 
 	}
 
-	DestroyWindow(window.Hwnd());
-
-
-
 	delete worldTimer;
-	delete graphic;
 
 	TextureMgr::Instance()->Release();
 	SceneMgr::Instance()->Release();
+	CameraMgr::Instance()->Release();
 
+	delete graphic;
 
 	return 0;
 }

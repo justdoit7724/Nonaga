@@ -143,6 +143,7 @@ NonagaStage::~NonagaStage()
 	delete greenToken;
 	delete redTile;
 	delete greenTile;
+	delete logic;
 }
 
 

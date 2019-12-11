@@ -4,7 +4,7 @@
 #include "ShaderInfo.cginc"
 #include "ShaderReg.cginc"
 #include "ShaderSampPoint.cginc"
-#include "ShaderSampLinearPoint.cginc"
+#include "ShaderSampLinear.cginc"
 
 #define REFRACTION_INDEX_GLASS 1.2
 
@@ -19,13 +19,13 @@ float3 ComputeTransparency(float3 wPos, float3 normal, float3 look)
     float3 btex3d = Lerp(look, normalize(look - normal), saturate(REFRACTION_INDEX_GLASS - 0.99));
     
     float3 cm = float3(
-    cmTex.SampleLevel(linearPointSamp, rtex3d, 0).r,
-    cmTex.SampleLevel(linearPointSamp, gtex3d, 0).g,
-    cmTex.SampleLevel(linearPointSamp, btex3d, 0).b);
+    cmTex.Sample(linearSamp, rtex3d).r,
+    cmTex.Sample(linearSamp, gtex3d).g,
+    cmTex.Sample(linearSamp, btex3d).b);
     
-    float4 dcmr = dcmTex.SampleLevel(linearPointSamp, rtex3d, 0);
-    float4 dcmg = dcmTex.SampleLevel(linearPointSamp, gtex3d, 0);
-    float4 dcmb = dcmTex.SampleLevel(linearPointSamp, btex3d, 0);
+    float4 dcmr = dcmTex.Sample(linearSamp, rtex3d);
+    float4 dcmg = dcmTex.Sample(linearSamp, gtex3d);
+    float4 dcmb = dcmTex.Sample(linearSamp, btex3d);
     
     return float3(
     lerp(cm.r, dcmr.r, dcmr.w),
@@ -36,8 +36,8 @@ float3 ComputeReflect(float3 wNormal, float3 look)
 {
     float3 reflDir = reflect(look, wNormal);
     
-    float3 cm = cmTex.SampleLevel(linearPointSamp, reflDir, 0).xyz;
-    float4 dcm = dcmTex.SampleLevel(linearPointSamp, reflDir, 0);
+    float3 cm = cmTex.Sample(linearSamp, reflDir).xyz;
+    float4 dcm = dcmTex.Sample(linearSamp, reflDir);
     return Lerp(cm, dcm.xyz, dcm.w);
 }
 
