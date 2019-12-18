@@ -242,6 +242,8 @@ void Token::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) 
 
 				lodShape->Apply();
 			}
+
+			// skip for deeper rendering
 		}
 	}
 }

@@ -31,31 +31,36 @@ float4 main(PS_INPUT input) : SV_Target
     float3 wNormal = GetBodyNormal(anisotropicSamp, input.tex, input.normal, input.tangent);
     float3 look = normalize(input.wPos - eyePos.xyz);
     
+    //surface property
+    float roughness = ComputeRoughness(anisotropicSamp, input.tex);
+    float metallic = ComputeMetallic(anisotropicSamp, input.tex);
+    
+    //lights
     float3 ambient = 0;
     float3 diffuse = 0;
     float3 specular = 0;
-    float roughness = ComputeRoughness(anisotropicSamp, input.tex);
-    float metallic = ComputeMetallic(anisotropicSamp, input.tex);
     ComputeDirectionalLight(wNormal, -look, roughness, ambient, diffuse, specular);
-    specular *= (1 - roughness);
-    float transpT = mDiffuse.a * (1 - roughness);
-    float refractT = metallic * (1 - roughness);
 
-    ambient *= ComputeSSAO(pointSamp, input.pPos);
-    
-    float3 transp = ComputeTransparency(input.wPos, wNormal, look);
+    //surface colors
     float3 tex = diffuseTex.Sample(anisotropicSamp, input.tex).xyz;
+    float3 transp = ComputeTransparency(input.wPos, wNormal, look);
     float3 reflec = ComputeReflect(wNormal, look);
     
+    //shadow
     float oShadowFactor = DirectionalLightOpaqueShadowFactor(wNormal, d_Dir[0].xyz, input.wPos);
     float2 tShadowFactor = DirectionalLightTranspShadowFactor(wNormal, d_Dir[0].xyz, input.wPos);
     float shadowFactor = saturate(1 - max(oShadowFactor, tShadowFactor.x));
-    specular = specular * shadowFactor + (saturate(0.05f - tShadowFactor.x) * tShadowFactor.y);
-    ambient *= tex;
+ 
+    // let's combine all variables 
+    specular = specular * (1 - roughness) * shadowFactor + (saturate(0.05f - tShadowFactor.x) * tShadowFactor.y);
+    ambient *= tex * ComputeSSAO(pointSamp, input.pPos);
     diffuse *= tex * shadowFactor;
     
-    float3 surface = Lerp(ambient + diffuse, transp, transpT);
-    surface = Lerp(surface, reflec, refractT);
+    // first lerp between tex light - transparent color
+    float3 surface = Lerp(ambient + diffuse, transp, mDiffuse.a * (1 - roughness));
+    // second lerp with reflect color
+    surface = Lerp(surface, reflec, metallic * (1 - roughness));
+    
     
     return float4(surface + specular, 1);
 

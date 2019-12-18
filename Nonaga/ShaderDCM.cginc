@@ -8,6 +8,8 @@
 
 #define REFRACTION_INDEX_GLASS 1.2
 
+//for optimizing reason, 
+//separate static cm/ dynamic cm, so i don't have to draw skybox everytime when mapping dcm
 TextureCube cmTex : SHADER_REG_SRV_CM;
 TextureCube dcmTex : SHADER_REG_SRV_DCM;
 
@@ -17,6 +19,7 @@ float3 ComputeTransparency(float3 wPos, float3 normal, float3 look)
     float3 rtex3d = Lerp(look, normalize(look - normal), saturate(REFRACTION_INDEX_GLASS - 1.01f));
     float3 gtex3d = Lerp(look, normalize(look - normal), saturate(REFRACTION_INDEX_GLASS - 1));
     float3 btex3d = Lerp(look, normalize(look - normal), saturate(REFRACTION_INDEX_GLASS - 0.99));
+    
     
     float3 cm = float3(
     cmTex.Sample(linearSamp, rtex3d).r,
