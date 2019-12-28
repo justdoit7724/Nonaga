@@ -22,7 +22,7 @@ Token::Token(std::shared_ptr<Shape> shape, std::shared_ptr<Shape> lodShape, Scen
 		shape, lodShape,
 		"StdDisplacementVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts),
 		"StdDisplacementHS.cso", "StdDisplacementDS.cso", "",
-		p1?"StandardPS.cso":"StdDCMPS.cso", Z_ORDER_STANDARD),
+		"StandardPS.cso", Z_ORDER_STANDARD),
 		id(id), isP1(p1), environment(environemnt), isIndicator(false), fallingSpeed(fminf(Rand01() + 0.5f, 1) * 15)
 {
 	TextureMgr::Instance()->Load("token", "Data\\Model\\Token\\pawnDark.png");
@@ -36,14 +36,14 @@ Token::Token(std::shared_ptr<Shape> shape, std::shared_ptr<Shape> lodShape, Scen
 	TextureMgr::Instance()->Load("token2LodRgh", "Data\\Model\\Token\\pawn2_lod_rgh.jpg");
 	TextureMgr::Instance()->Load("token1Metal", "Data\\Model\\Token\\pawn_metal.png");
 	TextureMgr::Instance()->Load("token2Metal", "Data\\Model\\Token\\pawn2_metal.png");
-	/*std::vector<std::string> defaultCMs;
+	std::vector<std::string> defaultCMs;
 	defaultCMs.push_back("Data\\Texture\\default.png");
 	defaultCMs.push_back("Data\\Texture\\default.png");
 	defaultCMs.push_back("Data\\Texture\\default.png");
 	defaultCMs.push_back("Data\\Texture\\default.png");
 	defaultCMs.push_back("Data\\Texture\\default.png");
 	defaultCMs.push_back("Data\\Texture\\default.png");
-	TextureMgr::Instance()->LoadCM("defaultCM", defaultCMs);*/
+	TextureMgr::Instance()->LoadCM("defaultCM", defaultCMs);
 
 	if (captureCam == nullptr)
 	{
@@ -74,8 +74,8 @@ Token::Token(std::shared_ptr<Shape> shape, std::shared_ptr<Shape> lodShape, Scen
 	
 
 	ps->WriteCB(SHADER_REG_CB_MATERIAL, &material);
-	/*ps->AddSRV(SHADER_REG_SRV_DCM, 1);
-	ps->WriteSRV(SHADER_REG_SRV_DCM, TextureMgr::Instance()->Get("defaultCM"));*/
+	ps->AddSRV(SHADER_REG_SRV_DCM, 1);
+	ps->WriteSRV(SHADER_REG_SRV_DCM, TextureMgr::Instance()->Get("defaultCM"));
 	ps->AddSRV(SHADER_REG_SRV_DIFFUSE, 1);
 	ps->AddSRV(SHADER_REG_SRV_NORMAL, 1);
 	ps->AddSRV(SHADER_REG_SRV_ROUGHNESS, 1);
@@ -225,7 +225,7 @@ void Token::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) 
 					if(!TaskMgr::Instance()->HasTaskFrom(this))
 						DrawDCM(sceneDepth + 1);
 
-					//ps->WriteSRV(SHADER_REG_SRV_DCM, captureSRV.Get());
+					ps->WriteSRV(SHADER_REG_SRV_DCM, captureSRV.Get());
 
 					Object::Render();
 

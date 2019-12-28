@@ -332,9 +332,6 @@
     <None Include="ShaderCM.cginc">
       <Filter>hlsl\cginc</Filter>
     </None>
-    <None Include="ShaderDCM.cginc">
-      <Filter>hlsl\cginc</Filter>
-    </None>
     <None Include="ShaderSampLinear.cginc">
       <Filter>hlsl\cginc</Filter>
     </None>
@@ -401,9 +398,6 @@
       <Filter>hlsl</Filter>
     </FxCompile>
     <FxCompile Include="ShadowTranspPS.hlsl">
-      <Filter>hlsl</Filter>
-    </FxCompile>
-    <FxCompile Include="StdDCMPS.hlsl">
       <Filter>hlsl</Filter>
     </FxCompile>
     <FxCompile Include="IndicatorVS.hlsl">

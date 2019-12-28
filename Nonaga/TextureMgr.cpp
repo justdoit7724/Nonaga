@@ -211,6 +211,8 @@ void TextureMgr::LoadCM(std::string key, const std::vector<std::string>& fileNam
 		prev_desc = ori_desc;
 	}
 
+	UINT maxMinMap = log2f(fminf(ori_desc.Width, ori_desc.Height))+1;
+
 	D3D11_TEXTURE2D_DESC cm_desc;
 	cm_desc.Format = ori_desc.Format;
 	cm_desc.ArraySize = 6;
@@ -219,7 +221,7 @@ void TextureMgr::LoadCM(std::string key, const std::vector<std::string>& fileNam
 	cm_desc.Width = ori_desc.Width;
 	cm_desc.Height = ori_desc.Height;
 	//debug using const value
-	cm_desc.MipLevels = 6;
+	cm_desc.MipLevels = maxMinMap;
 	cm_desc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE|D3D11_RESOURCE_MISC_GENERATE_MIPS;
 	cm_desc.SampleDesc.Count = 1;
 	cm_desc.SampleDesc.Quality = 0;
@@ -234,7 +236,7 @@ void TextureMgr::LoadCM(std::string key, const std::vector<std::string>& fileNam
 	for (int i = 0; i < 6; ++i)
 	{
 		DX_DContext->CopySubresourceRegion(
-			cmTex.Get(), D3D11CalcSubresource(0,i,8),
+			cmTex.Get(), D3D11CalcSubresource(0,i, maxMinMap),
 			0,0,0,
 			ori_resources[i].Get(), 0,
 			nullptr);
