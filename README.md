@@ -1,6 +1,8 @@
 # Nonaga
 3D board game
 
+![alt text](https://github.com/justdoit7724/Nonaga/blob/master/Image.png)
+
 -deferred lighting  
 -normal mapping  
 -dynamic cube mapping  
