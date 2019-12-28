@@ -36,15 +36,7 @@ Token::Token(std::shared_ptr<Shape> shape, std::shared_ptr<Shape> lodShape, Scen
 	TextureMgr::Instance()->Load("token2LodRgh", "Data\\Model\\Token\\pawn2_lod_rgh.jpg");
 	TextureMgr::Instance()->Load("token1Metal", "Data\\Model\\Token\\pawn_metal.png");
 	TextureMgr::Instance()->Load("token2Metal", "Data\\Model\\Token\\pawn2_metal.png");
-	/*std::vector<std::string> defaultCMs;
-	defaultCMs.push_back("Data\\Texture\\default.png");
-	defaultCMs.push_back("Data\\Texture\\default.png");
-	defaultCMs.push_back("Data\\Texture\\default.png");
-	defaultCMs.push_back("Data\\Texture\\default.png");
-	defaultCMs.push_back("Data\\Texture\\default.png");
-	defaultCMs.push_back("Data\\Texture\\default.png");
-	TextureMgr::Instance()->LoadCM("defaultCM", defaultCMs);*/
-
+	
 	if (captureCam == nullptr)
 	{
 		captureCam = new Camera(FRAME_KIND_PERSPECTIVE, SCREEN_WIDTH, SCREEN_HEIGHT, 0.1f, 100, XM_PIDIV2, 1,false);
@@ -72,10 +64,7 @@ Token::Token(std::shared_ptr<Shape> shape, std::shared_ptr<Shape> lodShape, Scen
 	ps->AddCB(SHADER_REG_CB_MATERIAL, 1, sizeof(SHADER_MATERIAL));
 	SHADER_MATERIAL material(XMFLOAT3(0.7, 0.7, 0.7), isP1? 0:0.9, XMFLOAT3(0.5, 0.5, 0.5), XMFLOAT3(0.8, 0.8, 0.8));
 	
-
 	ps->WriteCB(SHADER_REG_CB_MATERIAL, &material);
-	/*ps->AddSRV(SHADER_REG_SRV_DCM, 1);
-	ps->WriteSRV(SHADER_REG_SRV_DCM, TextureMgr::Instance()->Get("defaultCM"));*/
 	ps->AddSRV(SHADER_REG_SRV_DIFFUSE, 1);
 	ps->AddSRV(SHADER_REG_SRV_NORMAL, 1);
 	ps->AddSRV(SHADER_REG_SRV_ROUGHNESS, 1);
@@ -225,7 +214,7 @@ void Token::Render(const XMMATRIX& vp, const Frustum& frustum, UINT sceneDepth) 
 					if(!TaskMgr::Instance()->HasTaskFrom(this))
 						DrawDCM(sceneDepth + 1);
 
-					//ps->WriteSRV(SHADER_REG_SRV_DCM, captureSRV.Get());
+					DX_DContext->PSSetShaderResources(SHADER_REG_SRV_DCM, 1, captureSRV.GetAddressOf());
 
 					Object::Render();
 

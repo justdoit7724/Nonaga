@@ -11,10 +11,5 @@ struct PS_INPUT
 
 float4 main(PS_INPUT input) : SV_Target
 {
-    uint noUse1, noUse2;
-    uint mipmapLevel;
-    cubeMap.GetDimensions(0, noUse1, noUse2, mipmapLevel);
-    //if(mipmapLevel==)
-    
-    return cubeMap.SampleLevel(samp, normalize(input.lPos), 4);
+    return cubeMap.SampleLevel(samp, normalize(input.lPos), 7);
 }

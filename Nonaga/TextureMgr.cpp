@@ -218,8 +218,8 @@ void TextureMgr::LoadCM(std::string key, const std::vector<std::string>& fileNam
 	cm_desc.CPUAccessFlags = 0;
 	cm_desc.Width = ori_desc.Width;
 	cm_desc.Height = ori_desc.Height;
-	//debug using const value
-	cm_desc.MipLevels = 6;
+	//debug need to modify
+	cm_desc.MipLevels = 8;
 	cm_desc.MiscFlags = D3D11_RESOURCE_MISC_TEXTURECUBE|D3D11_RESOURCE_MISC_GENERATE_MIPS;
 	cm_desc.SampleDesc.Count = 1;
 	cm_desc.SampleDesc.Quality = 0;

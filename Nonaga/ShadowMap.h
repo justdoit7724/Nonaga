@@ -12,7 +12,6 @@ class DirectionalLight;
 class Camera;
 class Buffer;
 
-//shadow for 3 wood tokens
 class OpaqueShadowMap
 {
 public:
@@ -24,6 +23,7 @@ public:
 
 private:
 	OpaqueShadowMap(const OpaqueShadowMap& rhs);
+	//ShadowMap& operator=(const ShadowMap& rhs);
 
 	Camera* view;
 
@@ -39,7 +39,6 @@ private:
 	Object const* drawObjs[3];
 };
 
-//shadow for 3 glass tokens
 class TranspShadowMap
 {
 public:
