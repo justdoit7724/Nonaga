@@ -6,7 +6,7 @@
 
 #define LIGHT_ENABLED 1
 #define LIGHT_DISABLED 0
-#define LIGHT_MAX_EACH 1 // multiple lights can be applied
+#define LIGHT_MAX_EACH 1 // for optimizing, use only one light
 #define LIGHT_SPEC_POWER_MAX 16
 
 cbuffer DIRECTIONAL_LIGHT : SHADER_REG_CB_DIRLIGHT
@@ -23,8 +23,7 @@ cbuffer POINT_LIGHT : SHADER_REG_CB_POINTLIGHT
     float4 p_Diffuse[LIGHT_MAX_EACH];
     float4 p_Specular[LIGHT_MAX_EACH];
     float4 p_Pos[LIGHT_MAX_EACH];
-    // enabled,range
-    float4 p_Info[LIGHT_MAX_EACH]; 
+    float4 p_Info[LIGHT_MAX_EACH];// (x,y,z,w) = (enabled,range,,)
     float4 p_Att[LIGHT_MAX_EACH];
 };
 cbuffer SPOT_LIGHT : SHADER_REG_CB_SPOTLIGHT
@@ -34,7 +33,7 @@ cbuffer SPOT_LIGHT : SHADER_REG_CB_SPOTLIGHT
     float4 s_Specular[LIGHT_MAX_EACH];
     float4 s_Pos[LIGHT_MAX_EACH];
    
-    float4 s_info[LIGHT_MAX_EACH]; // enabled, range, rad, spot
+    float4 s_info[LIGHT_MAX_EACH]; // (x,y,z,w) = (enabled, range, rad, spot)
     float4 s_Dir[LIGHT_MAX_EACH];
     float4 s_Att[LIGHT_MAX_EACH];
 };
@@ -98,6 +97,7 @@ void ComputePointLight(float3 pos, float3 normal, float3 toEye, out float3 ambie
         spec += tmpS;
     }
 }
+// not used in the project
 void ComputeSpotLight(float3 pos, float3 normal, float3 toEye, out float3 ambient, out float3 diffuse, out float3 spec)
 {
     ambient = float3(0.0f, 0.0f, 0.0f);
