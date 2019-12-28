@@ -6,7 +6,6 @@
 #include "ShaderSampPoint.cginc"
 #include "ShaderSampLinear.cginc"
 
-#define REFRACTION_INDEX_GLASS 1.2
 
 //for optimizing reason, 
 //separate static cm/ dynamic cm, so i don't have to draw skybox everytime when mapping dcm
@@ -15,20 +14,32 @@ TextureCube dcmTex : SHADER_REG_SRV_DCM;
 
 
 float3 ComputeTransparency(float3 wPos, float3 normal, float3 look)
-{
-    float3 rtex3d = Lerp(look, normalize(look - normal), saturate(REFRACTION_INDEX_GLASS - 1.01f));
-    float3 gtex3d = Lerp(look, normalize(look - normal), saturate(REFRACTION_INDEX_GLASS - 1));
-    float3 btex3d = Lerp(look, normalize(look - normal), saturate(REFRACTION_INDEX_GLASS - 0.99));
+{ 
+    /*
+    exp_transparency
+    get color info from dynamic cube map using look dir.
+    give a tweak depends on world normal of current pixel, so that more reality.
+    */
+    float3 mLook = Lerp(look, normalize(look - normal), 0.20f);
     
+    /*
+    exp_chromatic_aberration
+    divide look dir into 3(Red,Green,Blue) and give slight constant sweak.
+    */
+    float3 tex3d_red = Lerp(look, normalize(look - normal), 0.19f);
+    float3 tex3d_green = mLook;
+    float3 tex3d_blue = Lerp(look, normalize(look - normal), 0.21f);
     
+    // static cube map
     float3 cm = float3(
-    cmTex.Sample(linearSamp, rtex3d).r,
-    cmTex.Sample(linearSamp, gtex3d).g,
-    cmTex.Sample(linearSamp, btex3d).b);
+    cmTex.Sample(linearSamp, tex3d_red).r,
+    cmTex.Sample(linearSamp, tex3d_green).g,
+    cmTex.Sample(linearSamp, tex3d_blue).b);
     
-    float4 dcmr = dcmTex.Sample(linearSamp, rtex3d);
-    float4 dcmg = dcmTex.Sample(linearSamp, gtex3d);
-    float4 dcmb = dcmTex.Sample(linearSamp, btex3d);
+    // dynamic cube map - w(1 if drawn)
+    float4 dcmr = dcmTex.Sample(linearSamp, tex3d_red);
+    float4 dcmg = dcmTex.Sample(linearSamp, tex3d_green);
+    float4 dcmb = dcmTex.Sample(linearSamp, tex3d_blue);
     
     return float3(
     lerp(cm.r, dcmr.r, dcmr.w),
