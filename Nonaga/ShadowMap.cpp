@@ -92,6 +92,7 @@ ID3D11ShaderResourceView* OpaqueShadowMap::Depth()
 
 void OpaqueShadowMap::Mapping(const DirectionalLight* light)
 {
+	// store original render info (rtv, dsv, vp)
 	UINT noUs=1;
 	D3D11_VIEWPORT oriVP;
 	DX_DContext->RSGetViewports(&noUs, &oriVP);
@@ -103,17 +104,21 @@ void OpaqueShadowMap::Mapping(const DirectionalLight* light)
 
 	DX_DContext->RSSetViewports(1, &vp);
 
+	// unbinding to prevent multi binding
 	ID3D11ShaderResourceView* nullSRV=nullptr;
 	DX_DContext->PSSetShaderResources(SHADER_REG_SRV_SHADOW, 1, &nullSRV);
+	// bind dsv
 	ID3D11RenderTargetView* nullRTV = nullptr;
 	DX_DContext->OMSetRenderTargets(1, &nullRTV, depthDSV.Get());
 	DX_DContext->ClearDepthStencilView(depthDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, NULL);
 
+	// only vert shader is used for shadow mapping
 	DX_DContext->HSSetShader(nullptr, nullptr, 0);
 	DX_DContext->DSSetShader(nullptr, nullptr, 0);
 	DX_DContext->GSSetShader(nullptr, nullptr, 0);
 	DX_DContext->PSSetShader(nullptr, nullptr, 0);
 
+	// get projective viewProj matrix from light perspective
 	XMFLOAT3 lightDir = light->GetDir();
 	view->transform->SetRot(lightDir);
 	view->transform->SetTranslation(-lightDir * 200);
@@ -132,10 +137,13 @@ void OpaqueShadowMap::Mapping(const DirectionalLight* light)
 		t->RenderGeom();
 	}
 
+	// reset original rendering info
 	DX_DContext->RSSetViewports(1, &oriVP);
 	DX_DContext->OMSetRenderTargets(1, &oriRTV, oriDSV);
 	DX_DContext->RSSetState(oriRS);
 
+	// proj space to uv space
+	// and bind result
 	const XMMATRIX uvMat = XMMATRIX(
 		0.5f, 0, 0, 0,
 		0, -0.5f, 0, 0,
@@ -239,6 +247,10 @@ TranspShadowMap::~TranspShadowMap()
 
 void TranspShadowMap::Mapping(const DirectionalLight* dLight)
 {
+	//pretty same with OpaqueShadowMapping, except
+	//mapping world normal too -> (wN.x, wN.y, wN.z, depth)
+	//using same mapping concept as SSAO
+
 	ID3D11RenderTargetView* oriRTV;
 	ID3D11DepthStencilView* oriDSV;
 	DX_DContext->OMGetRenderTargets(1, &oriRTV, &oriDSV);

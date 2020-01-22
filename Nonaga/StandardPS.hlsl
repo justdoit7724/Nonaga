@@ -1,4 +1,8 @@
 
+/*
+main rendering pixel shader
+*/
+
 #include "ShaderInfo.cginc"
 #include "ShaderLight.cginc"
 #include "ShaderShadow.cginc"

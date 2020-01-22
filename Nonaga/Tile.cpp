@@ -38,7 +38,7 @@ Tile::Tile(unsigned int id, std::shared_ptr<Shape> shape, std::shared_ptr<Shape>
 	ps->WriteSRV(SHADER_REG_SRV_ROUGHNESS, TextureMgr::Instance()->Get("tileRgh"));
 	ps->WriteSRV(SHADER_REG_SRV_METALLIC, TextureMgr::Instance()->Get("tileMetal"));
 
-	lodPs = new PShader("Std2PS.cso");
+	lodPs = new PShader("StandardOptPS.cso");
 	lodPs->AddCB(SHADER_REG_CB_MATERIAL, 1, sizeof(SHADER_MATERIAL));
 	lodPs->WriteCB(SHADER_REG_CB_MATERIAL, &material);
 	lodPs->AddSRV(SHADER_REG_SRV_DIFFUSE, 1);

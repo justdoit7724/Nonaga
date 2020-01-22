@@ -87,7 +87,7 @@ Token::Token(std::shared_ptr<Shape> shape, std::shared_ptr<Shape> lodShape, Scen
 
 	lodVs = new VShader("StandardVS.cso", Std_ILayouts, ARRAYSIZE(Std_ILayouts));
 	lodVs->AddCB(0, 1, sizeof(SHADER_STD_TRANSF));
-	lodPs = new PShader("Std2PS.cso");
+	lodPs = new PShader("StandardOptPS.cso");
 	lodPs->AddCB(SHADER_REG_CB_MATERIAL, 1, sizeof(SHADER_MATERIAL));
 	lodPs->WriteCB(SHADER_REG_CB_MATERIAL, &material);
 	lodPs->AddSRV(SHADER_REG_SRV_DIFFUSE, 1);

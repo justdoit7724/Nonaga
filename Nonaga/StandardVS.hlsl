@@ -1,3 +1,9 @@
+
+
+/*
+main rendering vertex shader
+*/
+
 #include "ShaderVertex.cginc"
 
 struct VS_OUTPUT
